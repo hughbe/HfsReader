@@ -1,4 +1,4 @@
-﻿using HfsReader.Utilities;
+﻿using System.Buffers.Binary;
 
 namespace HfsReader;
 
@@ -30,7 +30,7 @@ public class HFSDisk
                 throw new InvalidDataException("Unable to read Apple Partition Map Entry.");
             }
 
-            var signature = SpanUtilities.ReadUInt16BE(blockBuffer, 0);
+            var signature = BinaryPrimitives.ReadUInt16BigEndian(blockBuffer);
             if (signature != ApplePartitionMapEntry.BlockSignature)
             {
                 break;

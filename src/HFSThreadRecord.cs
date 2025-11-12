@@ -1,4 +1,6 @@
-using HfsReader.Utilities;
+using System.Buffers.Binary;
+using System.Diagnostics;
+using System.Text;
 
 namespace HfsReader;
 
@@ -28,7 +30,7 @@ public struct HFSThreadRecord
         int offset = 0;
 
         // The record type
-        Type = (HFSCatalogDataRecordType)SpanUtilities.ReadUInt16BE(data, offset);
+        Type = (HFSCatalogDataRecordType)BinaryPrimitives.ReadUInt16BigEndian(data.Slice(offset));
         offset += 2;
         if (Type != HFSCatalogDataRecordType.FileThread && Type != HFSCatalogDataRecordType.FolderThread)
         {
@@ -37,15 +39,15 @@ public struct HFSThreadRecord
 
         // Unknown (Reserved)
         // Array of 32-bit integer values
-        Reserved1 = SpanUtilities.ReadUInt32BE(data, offset);
+        Reserved1 = BinaryPrimitives.ReadUInt32BigEndian(data.Slice(offset));
         offset += 4;
 
-        Reserved2 = SpanUtilities.ReadUInt32BE(data, offset);
+        Reserved2 = BinaryPrimitives.ReadUInt32BigEndian(data.Slice(offset));
         offset += 4;
 
         // The parent identifier
         // Contains a CNID
-        ParentIdentifier = SpanUtilities.ReadUInt32BE(data, offset);
+        ParentIdentifier = BinaryPrimitives.ReadUInt32BigEndian(data.Slice(offset));
         offset += 4;
 
         // Number of characters in the name string
@@ -54,7 +56,9 @@ public struct HFSThreadRecord
 
         // Name string ASCII string
         // Contains the name of the associated file or directory
-        Name = SpanUtilities.ReadString(data, offset, NameLength);
+        Name = Encoding.ASCII.GetString(data.Slice(offset, NameLength));
         offset += NameLength;
+
+        Debug.Assert(offset == MinSize + NameLength);
     }
 }

@@ -1,5 +1,5 @@
+using System.Buffers.Binary;
 using System.Diagnostics;
-using HfsReader.Utilities;
 
 namespace HfsReader;
 
@@ -37,42 +37,42 @@ public unsafe struct BTHeaderRec
         int offset = 0;
 
         // Depth of the tree
-        TreeDepth = SpanUtilities.ReadUInt16BE(data, offset);
+        TreeDepth = BinaryPrimitives.ReadUInt16BigEndian(data.Slice(offset));
         offset += 2;
 
         // Root node number
-        RootNodeNumber = SpanUtilities.ReadUInt32BE(data, offset);
+        RootNodeNumber = BinaryPrimitives.ReadUInt32BigEndian(data.Slice(offset));
         offset += 4;
 
         // Number of data records contained in leaf nodes
         // (Does this equals the number of leaf nodes?)
-        NumberOfDataRecords = SpanUtilities.ReadUInt32BE(data, offset);
+        NumberOfDataRecords = BinaryPrimitives.ReadUInt32BigEndian(data.Slice(offset));
         offset += 4;
 
         // First leaf node number
-        FirstLeafNodeNumber = SpanUtilities.ReadUInt32BE(data, offset);
+        FirstLeafNodeNumber = BinaryPrimitives.ReadUInt32BigEndian(data.Slice(offset));
         offset += 4;
 
         // Last leaf node number
-        LastLeafNodeNumber = SpanUtilities.ReadUInt32BE(data, offset);
+        LastLeafNodeNumber = BinaryPrimitives.ReadUInt32BigEndian(data.Slice(offset));
         offset += 4;
 
         // The node size
         // Contains number of bytes
-        NodeSize = SpanUtilities.ReadUInt16BE(data, offset);
+        NodeSize = BinaryPrimitives.ReadUInt16BigEndian(data.Slice(offset));
         offset += 2;
 
         // Maximum key size
         // Contains number of bytes
-        MaximumKeySize = SpanUtilities.ReadUInt16BE(data, offset);
+        MaximumKeySize = BinaryPrimitives.ReadUInt16BigEndian(data.Slice(offset));
         offset += 2;
 
         // Number of nodes
-        NumberOfNodes = SpanUtilities.ReadUInt32BE(data, offset);
+        NumberOfNodes = BinaryPrimitives.ReadUInt32BigEndian(data.Slice(offset));
         offset += 4;
 
         // Number of free nodes
-        NumberOfFreeNodes = SpanUtilities.ReadUInt32BE(data, offset);
+        NumberOfFreeNodes = BinaryPrimitives.ReadUInt32BigEndian(data.Slice(offset));
         offset += 4;
 
         // Reserved (76 bytes)

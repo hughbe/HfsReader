@@ -1,4 +1,4 @@
-using HfsReader.Utilities;
+using System.Buffers.Binary;
 
 namespace HfsReader;
 
@@ -63,9 +63,9 @@ public class HFSVolume
                 {
                     yield break;
                 }
-                else if (key.ParentIdentifier == parentIdentifier)
+                if (key.ParentIdentifier == parentIdentifier)
                 {
-                    var type = (HFSCatalogDataRecordType)SpanUtilities.ReadUInt16BE(CatalogTree.BlockBuffer, dataOffset);
+                    var type = (HFSCatalogDataRecordType)BinaryPrimitives.ReadUInt16BigEndian(CatalogTree.BlockBuffer.Slice(dataOffset));
                     switch (type)
                     {
                         case HFSCatalogDataRecordType.File:
@@ -121,7 +121,7 @@ public class HFSVolume
                     var recordOffset = currentNode.RecordOffsets[i];
                     var indexKey = new HFSCatalogIndexKey(CatalogTree.BlockBuffer.Slice(recordOffset.Offset, recordOffset.Size));
 
-                    var index = SpanUtilities.ReadUInt32BE(CatalogTree.BlockBuffer, recordOffset.Offset + indexKey.KeySize + 1);
+                    var index = BinaryPrimitives.ReadUInt32BigEndian(CatalogTree.BlockBuffer.Slice(recordOffset.Offset + indexKey.KeySize + 1));
 
                     if (indexKey.CompareTo(parentIdentifier, name) > 0)
                     {

@@ -1,3 +1,4 @@
+using System.Buffers.Binary;
 using System.Diagnostics;
 using HfsReader.Utilities;
 
@@ -46,7 +47,7 @@ public struct HFSMasterDirectoryBlock
 
         // The volume signature (kHFSSigWord)
         // For Macintosh File System (MFS) volumes the signature contains "\xd2\xd7".
-        Signature = SpanUtilities.ReadUInt16BE(data, offset);
+        Signature = BinaryPrimitives.ReadUInt16BigEndian(data.Slice(offset));
         offset += 2;
         if (Signature != 0x4244) // 'BD'
         {
@@ -68,53 +69,53 @@ public struct HFSMasterDirectoryBlock
 
         // Volume attribute flags
         // See section: Volume attribute flags
-        VolumeAttributeFlags = SpanUtilities.ReadUInt16BE(data, offset);
+        VolumeAttributeFlags = BinaryPrimitives.ReadUInt16BigEndian(data.Slice(offset));
         offset += 2;
 
         // The number of files in the root directory
-        FileCount = SpanUtilities.ReadUInt16BE(data, offset);
+        FileCount = BinaryPrimitives.ReadUInt16BigEndian(data.Slice(offset));
         offset += 2;
 
         // Volume bitmap block number
         // Contains an allocation block number relative from the start of the volume,
         // where 0 is the first block number.
         // Typically has a value of 3
-        VolumeBitmapBlockNumber = SpanUtilities.ReadUInt16BE(data, offset);
+        VolumeBitmapBlockNumber = BinaryPrimitives.ReadUInt16BigEndian(data.Slice(offset));
         offset += 2;
 
         // Unknown (Start of the next allocation search)
         // The (allocation or volume block) index of the allocation block at which
         // the next allocation search will begin.
-        UnknownNextAllocationSearch = SpanUtilities.ReadUInt16BE(data, offset);
+        UnknownNextAllocationSearch = BinaryPrimitives.ReadUInt16BigEndian(data.Slice(offset));
         offset += 2;
 
         // Number of (allocation) blocks
         // A volume can contain at most 65535 blocks.
-        NumberOfAllocationBlocks = SpanUtilities.ReadUInt16BE(data, offset);
+        NumberOfAllocationBlocks = BinaryPrimitives.ReadUInt16BigEndian(data.Slice(offset));
         offset += 2;
 
         // Allocation block size
         // Contains number of bytes an must be a multitude of 512 bytes.
-        AllocationBlockSize = SpanUtilities.ReadUInt32BE(data, offset);
+        AllocationBlockSize = BinaryPrimitives.ReadUInt32BigEndian(data.Slice(offset));
         offset += 4;
 
         // Default clump size
-        DefaultClumpSize = SpanUtilities.ReadUInt32BE(data, offset);
+        DefaultClumpSize = BinaryPrimitives.ReadUInt32BigEndian(data.Slice(offset));
         offset += 4;
 
         // Extents start block number
         // Contains an allocation block number relative from the start of the
         // volume, where 0 is the first block number.
-        ExtentsStartBlockNumber = SpanUtilities.ReadUInt16BE(data, offset);
+        ExtentsStartBlockNumber = BinaryPrimitives.ReadUInt16BigEndian(data.Slice(offset));
         offset += 2;
 
         // Next available catalog node identifier (CNID)
         // Can be a directory or file record identifier.
-        NextAvailableCatalogNodeID = SpanUtilities.ReadUInt32BE(data, offset);
+        NextAvailableCatalogNodeID = BinaryPrimitives.ReadUInt32BigEndian(data.Slice(offset));
         offset += 4;
 
         // Number of unused (allocation) blocks
-        NumberOfUnusedAllocationBlocks = SpanUtilities.ReadUInt16BE(data, offset);
+        NumberOfUnusedAllocationBlocks = BinaryPrimitives.ReadUInt16BigEndian(data.Slice(offset));
         offset += 2;
 
         // The volume label size
@@ -131,35 +132,35 @@ public struct HFSMasterDirectoryBlock
         offset += 4;
 
         // Backup sequence number
-        BackupSequenceNumber = SpanUtilities.ReadUInt16BE(data, offset);
+        BackupSequenceNumber = BinaryPrimitives.ReadUInt16BigEndian(data.Slice(offset));
         offset += 2;
 
         // Volume write count
         // Contains the number of times the volume has been written to.
-        VolumeWriteCount = SpanUtilities.ReadUInt32BE(data, offset);
+        VolumeWriteCount = BinaryPrimitives.ReadUInt32BigEndian(data.Slice(offset));
         offset += 4;
 
         // Clump size for extents (overflow) file
-        ClumpSizeForExtentsOverflowFile = SpanUtilities.ReadUInt32BE(data, offset);
+        ClumpSizeForExtentsOverflowFile = BinaryPrimitives.ReadUInt32BigEndian(data.Slice(offset));
         offset += 4;
 
         // Clump size for catalog file
-        ClumpSizeForCatalogFile = SpanUtilities.ReadUInt32BE(data, offset);
+        ClumpSizeForCatalogFile = BinaryPrimitives.ReadUInt32BigEndian(data.Slice(offset));
         offset += 4;
 
         // The number of sub directories in the root directory
-        SubDirectoryCount = SpanUtilities.ReadUInt16BE(data, offset);
+        SubDirectoryCount = BinaryPrimitives.ReadUInt16BigEndian(data.Slice(offset));
         offset += 2;
 
         // Total number of files
         // It should equal the number of file records found in the catalog file.
-        TotalFileCount = SpanUtilities.ReadUInt32BE(data, offset);
+        TotalFileCount = BinaryPrimitives.ReadUInt32BigEndian(data.Slice(offset));
         offset += 4;
 
         // Total number of directories (folders)
         // The value does not include the root folder.
         // It should equal the number of folder records in the catalog file minus one.
-        TotalDirectoryCount = SpanUtilities.ReadUInt32BE(data, offset);
+        TotalDirectoryCount = BinaryPrimitives.ReadUInt32BigEndian(data.Slice(offset));
         offset += 4;
 
         // Finder information
@@ -168,16 +169,16 @@ public struct HFSMasterDirectoryBlock
         offset += 32;
 
         // Embedded volume signature (formerly drVCSize)
-        EmbeddedVolumeSignature = SpanUtilities.ReadUInt16BE(data, offset);
+        EmbeddedVolumeSignature = BinaryPrimitives.ReadUInt16BigEndian(data.Slice(offset));
         offset += 2;
 
         // Embedded volume extent descriptor (formerly drVBMCSize and drCtlCSize)
         // Contains a single HFS extent descriptor
-        EmbeddedVolumeExtentDescriptor = SpanUtilities.ReadUInt32BE(data, offset);
+        EmbeddedVolumeExtentDescriptor = BinaryPrimitives.ReadUInt32BigEndian(data.Slice(offset));
         offset += 4;
 
         // Extents (overflow) file size
-        ExtentsOverflowFileSize = SpanUtilities.ReadUInt32BE(data, offset);
+        ExtentsOverflowFileSize = BinaryPrimitives.ReadUInt32BigEndian(data.Slice(offset));
         offset += 4;
 
         // Extents (overflow) extents record
@@ -186,7 +187,7 @@ public struct HFSMasterDirectoryBlock
         offset += HFSExtentRecord.Size;
 
         // Catalog file size
-        CatalogFileSize = SpanUtilities.ReadUInt32BE(data, offset);
+        CatalogFileSize = BinaryPrimitives.ReadUInt32BigEndian(data.Slice(offset));
         offset += 4;
 
         // Catalog file extents record

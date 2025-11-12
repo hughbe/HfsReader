@@ -1,3 +1,4 @@
+using System.Buffers.Binary;
 using HfsReader.Utilities;
 
 namespace HfsReader;
@@ -41,7 +42,7 @@ public struct HFSCatalogIndexKey
 
             // The parent identifier
             // Contains a CNID
-            ParentIdentifier = SpanUtilities.ReadUInt32BE(data, offset);
+            ParentIdentifier = BinaryPrimitives.ReadUInt32BigEndian(data.Slice(offset));
             offset += 4;
 
             // Number of characters in the name string

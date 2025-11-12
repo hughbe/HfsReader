@@ -1,3 +1,4 @@
+using System.Buffers.Binary;
 using HfsReader.Utilities;
 
 namespace HfsReader;
@@ -32,7 +33,7 @@ public struct HFSFolderRecord
         int offset = 0;
 
         // Record type
-        Type = (HFSCatalogDataRecordType)SpanUtilities.ReadUInt16BE(data, offset);
+        Type = (HFSCatalogDataRecordType)BinaryPrimitives.ReadUInt16BigEndian(data.Slice(offset));
         offset += 2;
         if (Type != HFSCatalogDataRecordType.Folder)
         {
@@ -41,16 +42,16 @@ public struct HFSFolderRecord
 
         // Directory (folder) flags
         // See section: directory record flags
-        FolderFlags = SpanUtilities.ReadUInt16BE(data, offset);
+        FolderFlags = BinaryPrimitives.ReadUInt16BigEndian(data.Slice(offset));
         offset += 2;
 
         // Number of directory entries (valence)
-        NumberOfDirectoryEntries = SpanUtilities.ReadUInt16BE(data, offset);
+        NumberOfDirectoryEntries = BinaryPrimitives.ReadUInt16BigEndian(data.Slice(offset));
         offset += 2;
 
         // The identifier
         // Contains a CNID
-        Identifier = SpanUtilities.ReadUInt32BE(data, offset);
+        Identifier = BinaryPrimitives.ReadUInt32BigEndian(data.Slice(offset));
         offset += 4;
 
         // Creation date and time

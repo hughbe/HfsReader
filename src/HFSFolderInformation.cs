@@ -1,5 +1,5 @@
+using System.Buffers.Binary;
 using System.Diagnostics;
-using HfsReader.Utilities;
 
 namespace HfsReader;
 
@@ -35,35 +35,35 @@ public struct HFSFolderInformation
         // Window boundaries
         // The position and dimension of the folder’s window
         // Contains top, left, bottom, right-coordinate values
-        WindowTop = SpanUtilities.ReadUInt16BE(data, offset);
+        WindowTop = BinaryPrimitives.ReadUInt16BigEndian(data.Slice(offset));
         offset += 2;
 
-        WindowLeft = SpanUtilities.ReadUInt16BE(data, offset);
+        WindowLeft = BinaryPrimitives.ReadUInt16BigEndian(data.Slice(offset));
         offset += 2;
 
-        WindowBottom = SpanUtilities.ReadUInt16BE(data, offset);
+        WindowBottom = BinaryPrimitives.ReadUInt16BigEndian(data.Slice(offset));
         offset += 2;
 
-        WindowRight = SpanUtilities.ReadUInt16BE(data, offset);
+        WindowRight = BinaryPrimitives.ReadUInt16BigEndian(data.Slice(offset));
         offset += 2;
 
         // Finder flags
         // See section: Finder flags
-        FinderFlags = (HFSFinderFlags)SpanUtilities.ReadUInt16BE(data, offset);
+        FinderFlags = (HFSFinderFlags)BinaryPrimitives.ReadUInt16BigEndian(data.Slice(offset));
         offset += 2;
 
         // Location within the parent
         // Contains x and y-coordinate values
         // If set to {0, 0}, the Finder will place the item automatically
-        ParentLocationX = SpanUtilities.ReadUInt16BE(data, offset);
+        ParentLocationX = BinaryPrimitives.ReadUInt16BigEndian(data.Slice(offset));
         offset += 2;
 
-        ParentLocationY = SpanUtilities.ReadUInt16BE(data, offset);
+        ParentLocationY = BinaryPrimitives.ReadUInt16BigEndian(data.Slice(offset));
         offset += 2;
 
         // Folder view
         // The manner in which folders are displayed.
-        FolderView = SpanUtilities.ReadUInt16BE(data, offset);
+        FolderView = BinaryPrimitives.ReadUInt16BigEndian(data.Slice(offset));
         offset += 2;
 
         Debug.Assert(offset == Size);

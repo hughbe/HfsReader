@@ -1,4 +1,4 @@
-using HfsReader.Utilities;
+using System.Buffers.Binary;
 
 namespace HfsReader;
 
@@ -39,7 +39,7 @@ public struct BTNode
             int entryOffset = 512 - 2 - (i * 2);
             RecordOffsets[i] = new BTRecordOffset
             {
-                Offset = SpanUtilities.ReadUInt16BE(data, entryOffset)
+                Offset = BinaryPrimitives.ReadUInt16BigEndian(data.Slice(entryOffset))
             };
         }
 

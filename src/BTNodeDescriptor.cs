@@ -1,5 +1,5 @@
+using System.Buffers.Binary;
 using System.Diagnostics;
-using HfsReader.Utilities;
 
 namespace HfsReader;
 
@@ -28,12 +28,12 @@ public struct BTNodeDescriptor
 
         // The next tree node number (forward link)
         // Contains 0 if empty
-        NextNodeNumber = SpanUtilities.ReadUInt32BE(data, offset);
+        NextNodeNumber = BinaryPrimitives.ReadUInt32BigEndian(data.Slice(offset));
         offset += 4;
 
         // The previous tree node number (backward link)
         // Contains 0 if empty
-        PreviousNodeNumber = SpanUtilities.ReadUInt32BE(data, offset);
+        PreviousNodeNumber = BinaryPrimitives.ReadUInt32BigEndian(data.Slice(offset));
         offset += 4;
 
         // The node type
@@ -49,12 +49,12 @@ public struct BTNodeDescriptor
         offset += 1;
 
         // The number of records
-        RecordCount = SpanUtilities.ReadUInt16BE(data, offset);
+        RecordCount = BinaryPrimitives.ReadUInt16BigEndian(data.Slice(offset));
         offset += 2;
 
         // Unknown (Reserved)
         // Should contain 0-byte values
-        Reserved = SpanUtilities.ReadUInt16BE(data, offset);
+        Reserved = BinaryPrimitives.ReadUInt16BigEndian(data.Slice(offset));
         offset += 2;
 
         Debug.Assert(offset == 14);

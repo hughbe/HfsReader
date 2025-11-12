@@ -1,5 +1,5 @@
+using System.Buffers.Binary;
 using System.Diagnostics;
-using HfsReader.Utilities;
 
 namespace HfsReader;
 
@@ -30,31 +30,31 @@ public struct HFSFileInformation
 
         // File type
         // Array of unsigned 8-bit integers
-        FileType = SpanUtilities.ReadUInt32BE(data, offset);
+        FileType = BinaryPrimitives.ReadUInt32BigEndian(data.Slice(offset));
         offset += 4;
 
         // Creator
         // Array of unsigned 8-bit integers
-        Creator = SpanUtilities.ReadUInt32BE(data, offset);
+        Creator = BinaryPrimitives.ReadUInt32BigEndian(data.Slice(offset));
         offset += 4;
 
         // Finder flags
         // See section: Finder flags
-        FinderFlags = (HFSFinderFlags)SpanUtilities.ReadUInt16BE(data, offset);
+        FinderFlags = (HFSFinderFlags)BinaryPrimitives.ReadUInt16BigEndian(data.Slice(offset));
         offset += 2;
 
         // Location within the parent
         // Contains x and y-coordinate values
         // If set to {0, 0}, the Finder will place the item automatically
-        ParentLocationX = SpanUtilities.ReadUInt16BE(data, offset);
+        ParentLocationX = BinaryPrimitives.ReadUInt16BigEndian(data.Slice(offset));
         offset += 2;
 
-        ParentLocationY = SpanUtilities.ReadUInt16BE(data, offset);
+        ParentLocationY = BinaryPrimitives.ReadUInt16BigEndian(data.Slice(offset));
         offset += 2;
 
         // File icon window
-        // The window in which the file’s icon appears.
-        FileIconWindow = SpanUtilities.ReadUInt16BE(data, offset);
+        // The window in which the file's icon appears.
+        FileIconWindow = BinaryPrimitives.ReadUInt16BigEndian(data.Slice(offset));
         offset += 2;
 
         Debug.Assert(offset == Size);

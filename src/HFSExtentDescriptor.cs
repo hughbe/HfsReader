@@ -1,5 +1,5 @@
+using System.Buffers.Binary;
 using System.Diagnostics;
-using HfsReader.Utilities;
 
 namespace HfsReader;
 
@@ -19,11 +19,11 @@ public struct HFSExtentDescriptor
         int offset = 0;
 
         // Starting block of the extent.
-        StartBlock = SpanUtilities.ReadUInt16BE(data, offset);
+        StartBlock = BinaryPrimitives.ReadUInt16BigEndian(data.Slice(offset));
         offset += 2;
 
         // Number of blocks in the extent.
-        BlockCount = SpanUtilities.ReadUInt16BE(data, offset);
+        BlockCount = BinaryPrimitives.ReadUInt16BigEndian(data.Slice(offset));
         offset += 2;
 
         Debug.Assert(offset == data.Length);

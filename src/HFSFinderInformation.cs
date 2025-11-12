@@ -1,5 +1,5 @@
+using System.Buffers.Binary;
 using System.Diagnostics;
-using HfsReader.Utilities;
 
 namespace HfsReader;
 
@@ -33,12 +33,12 @@ public struct HFSFinderInformation
         //  OS X.
         // It is zero if there is no bootable system on the volume. Typically this
         // value equals the value in entry 3 or 5.
-        BootableSystemDirectoryId = SpanUtilities.ReadUInt32BE(data, offset);
+        BootableSystemDirectoryId = BinaryPrimitives.ReadUInt32BigEndian(data.Slice(offset));
         offset += 4;
 
         // Contains the parent identifier of the startup application, i.e. "Finder".
         // The value is zero if the volume is not bootable.
-        ParentIdentifier = SpanUtilities.ReadUInt32BE(data, offset);
+        ParentIdentifier = BinaryPrimitives.ReadUInt32BigEndian(data.Slice(offset));
         offset += 4;
 
         // Contains the directory identifier of a directory whose window should be
@@ -49,21 +49,21 @@ public struct HFSFinderInformation
         // directory ID in the list. The open window list is deprecated. The
         // Mac OS X Finder will open this directory’s window, but ignores the rest of
         // the open window list. The Mac OS X Finder does not modify this field.
-        MountWindowDirectoryId = SpanUtilities.ReadUInt32BE(data, offset);
+        MountWindowDirectoryId = BinaryPrimitives.ReadUInt32BigEndian(data.Slice(offset));
         offset += 4;
 
         // Contains the directory identifier of a bootable Mac OS 8 or 9 System Folder,
         // or zero if not available.
-        SystemMacOS89DirectoryId = SpanUtilities.ReadUInt32BE(data, offset);
+        SystemMacOS89DirectoryId = BinaryPrimitives.ReadUInt32BigEndian(data.Slice(offset));
         offset += 4;
 
         // Unknown (Reserved)
-        Reserved = SpanUtilities.ReadUInt32BE(data, offset);
+        Reserved = BinaryPrimitives.ReadUInt32BigEndian(data.Slice(offset));
         offset += 4;
 
         // Contains the directory identifier of a bootable Mac OS X system, the
         // "/System/Library/CoreServices" directory, or zero if not available.
-        SystemMacOSXDirectoryId = SpanUtilities.ReadUInt32BE(data, offset);
+        SystemMacOSXDirectoryId = BinaryPrimitives.ReadUInt32BigEndian(data.Slice(offset));
         offset += 4;
 
         // Used by Mac OS X to store an unique 64-bit volume identifier.
@@ -71,7 +71,7 @@ public struct HFSFinderInformation
         // (user identifier) information should be honored.
         // These elements may be zero if no such identifier has been created for
         // the volume.
-        SystemVolumeIdentifier = SpanUtilities.ReadUInt64BE(data, offset);
+        SystemVolumeIdentifier = BinaryPrimitives.ReadUInt64BigEndian(data.Slice(offset));
         offset += 8;
 
         Debug.Assert(offset == data.Length);

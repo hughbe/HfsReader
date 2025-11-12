@@ -1,3 +1,4 @@
+using System.Buffers.Binary;
 using System.Diagnostics;
 using HfsReader.Utilities;
 
@@ -55,7 +56,7 @@ public struct HFSFileRecord
         int offset = 0;
 
         // The record type
-        Type = (HFSCatalogDataRecordType)SpanUtilities.ReadUInt16BE(data, offset);
+        Type = (HFSCatalogDataRecordType)BinaryPrimitives.ReadUInt16BigEndian(data.Slice(offset));
         offset += 2;
 
         // Flags
@@ -77,31 +78,31 @@ public struct HFSFileRecord
 
         // The identifier
         // Contains a CNID
-        Identifier = SpanUtilities.ReadUInt32BE(data, offset);
+        Identifier = BinaryPrimitives.ReadUInt32BigEndian(data.Slice(offset));
         offset += 4;
 
         // Data fork block number (not used?)
-        DataForkBlockNumber = SpanUtilities.ReadUInt16BE(data, offset);
+        DataForkBlockNumber = BinaryPrimitives.ReadUInt16BigEndian(data.Slice(offset));
         offset += 2;
 
         // Data fork size
-        DataForkSize = SpanUtilities.ReadUInt32BE(data, offset);
+        DataForkSize = BinaryPrimitives.ReadUInt32BigEndian(data.Slice(offset));
         offset += 4;
 
         // Data fork allocated size
-        DataForkAllocatedSize = SpanUtilities.ReadUInt32BE(data, offset);
+        DataForkAllocatedSize = BinaryPrimitives.ReadUInt32BigEndian(data.Slice(offset));
         offset += 4;
 
         // Resource fork block number (not used?)
-        ResourceForkBlockNumber = SpanUtilities.ReadUInt16BE(data, offset);
+        ResourceForkBlockNumber = BinaryPrimitives.ReadUInt16BigEndian(data.Slice(offset));
         offset += 2;
 
         // Resource fork size
-        ResourceForkSize = SpanUtilities.ReadUInt32BE(data, offset);
+        ResourceForkSize = BinaryPrimitives.ReadUInt32BigEndian(data.Slice(offset));
         offset += 4;
 
         // Resource fork allocated size
-        ResourceForkAllocatedSize = SpanUtilities.ReadUInt32BE(data, offset);
+        ResourceForkAllocatedSize = BinaryPrimitives.ReadUInt32BigEndian(data.Slice(offset));
         offset += 4;
 
         // Creation date and time
@@ -124,7 +125,7 @@ public struct HFSFileRecord
         offset += HFSExtendedFileInformation.Size;
 
         // The clump size
-        ClumpSize = SpanUtilities.ReadUInt16BE(data, offset);
+        ClumpSize = BinaryPrimitives.ReadUInt16BigEndian(data.Slice(offset));
         offset += 2;
 
         // The first data fork extents record
@@ -138,7 +139,7 @@ public struct HFSFileRecord
         offset += HFSExtentRecord.Size;
 
         // Unknown (Reserved)
-        Reserved = SpanUtilities.ReadUInt32BE(data, offset);
+        Reserved = BinaryPrimitives.ReadUInt32BigEndian(data.Slice(offset));
         offset += 4;
 
         Debug.Assert(offset == Size);

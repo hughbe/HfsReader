@@ -1,3 +1,4 @@
+using System.Buffers.Binary;
 using System.Diagnostics;
 using HfsReader.Utilities;
 
@@ -37,7 +38,7 @@ public struct HFSBootBlockHeader
         int offset = 0;
 
         // The boot block signature
-        Signature = SpanUtilities.ReadUInt16BE(data, offset);
+        Signature = BinaryPrimitives.ReadUInt16BigEndian(data.Slice(offset));
         offset += 2;
         if (Signature != 0x4C4B) // 'LK' in big-endian
         {
@@ -45,15 +46,15 @@ public struct HFSBootBlockHeader
         }
 
         // Boot code entry point
-        EntryPoint = SpanUtilities.ReadUInt32BE(data, offset);
+        EntryPoint = BinaryPrimitives.ReadUInt32BigEndian(data.Slice(offset));
         offset += 4;
 
         // Boot blocks version number
-        Version = SpanUtilities.ReadUInt16BE(data, offset);
+        Version = BinaryPrimitives.ReadUInt16BigEndian(data.Slice(offset));
         offset += 2;
 
         // Page flags (used internally)
-        PageFlags = SpanUtilities.ReadUInt16BE(data, offset);
+        PageFlags = BinaryPrimitives.ReadUInt16BigEndian(data.Slice(offset));
         offset += 2;
 
         // System filename ASCII string
@@ -91,41 +92,41 @@ public struct HFSBootBlockHeader
         offset += 16;
 
         // The (initial) number of allocated file control blocks (FCBs)
-        InitialFCBCount = SpanUtilities.ReadUInt16BE(data, offset);
+        InitialFCBCount = BinaryPrimitives.ReadUInt16BigEndian(data.Slice(offset));
         offset += 2;
 
         // The maximum number of event queue elements
         // This number determines the maximum number of events that the Event
         // Manager can store at any one time.
         // Usually this field contains the value 20.
-        MaxEventQueueElements = SpanUtilities.ReadUInt16BE(data, offset);
+        MaxEventQueueElements = BinaryPrimitives.ReadUInt16BigEndian(data.Slice(offset));
         offset += 2;
 
         // The system heap size on 128K Mac
         // The size of the System heap on a Macintosh computer having 128 KiB of RAM.
-        SystemHeapSize = SpanUtilities.ReadUInt32BE(data, offset);
+        SystemHeapSize = BinaryPrimitives.ReadUInt32BigEndian(data.Slice(offset));
         offset += 4;
 
         // The system heap size on 256K Mac
         // The size of the System heap on a Macintosh computer having 256 KiB of RAM.
-        SystemHeapSize256K = SpanUtilities.ReadUInt32BE(data, offset);
+        SystemHeapSize256K = BinaryPrimitives.ReadUInt32BigEndian(data.Slice(offset));
         offset += 4;
 
         // The system heap size on all machines
         // The size of the System heap on a Macintosh computer having 512 KiB or more of RAM.
-        SystemHeapSizeAll = SpanUtilities.ReadUInt32BE(data, offset);
+        SystemHeapSizeAll = BinaryPrimitives.ReadUInt32BigEndian(data.Slice(offset));
         offset += 4;
 
         // Filler (used internally)
-        Filler = SpanUtilities.ReadUInt16BE(data, offset);
+        Filler = BinaryPrimitives.ReadUInt16BigEndian(data.Slice(offset));
         offset += 2;
 
         // Additional system heap space
-        AdditionalSystemHeapSpace = SpanUtilities.ReadUInt32BE(data, offset);
+        AdditionalSystemHeapSpace = BinaryPrimitives.ReadUInt32BigEndian(data.Slice(offset));
         offset += 4;
 
         // Fraction of available RAM for the system heap
-        FractionOfAvailableRAMForSystemHeap = SpanUtilities.ReadUInt32BE(data, offset);
+        FractionOfAvailableRAMForSystemHeap = BinaryPrimitives.ReadUInt32BigEndian(data.Slice(offset));
         offset += 4;
 
         Debug.Assert(offset == Size);
