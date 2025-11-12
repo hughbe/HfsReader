@@ -3,26 +3,44 @@ using System.Diagnostics;
 
 namespace HfsReader;
 
+/// <summary>
+/// Represents folder information for an HFS folder.
+/// </summary>
 public struct HFSFolderInformation
 {
+    /// <summary>
+    /// The size of the folder information structure in bytes.
+    /// </summary>
     public const int Size = 16;
 
+    /// <summary>Gets the top coordinate of the folder's window.</summary>
     public ushort WindowTop { get; }
     
+    /// <summary>Gets the left coordinate of the folder's window.</summary>
     public ushort WindowLeft { get; }
     
+    /// <summary>Gets the bottom coordinate of the folder's window.</summary>
     public ushort WindowBottom { get; }
     
+    /// <summary>Gets the right coordinate of the folder's window.</summary>
     public ushort WindowRight { get; }
 
+    /// <summary>Gets the Finder flags.</summary>
     public HFSFinderFlags FinderFlags { get; }
 
+    /// <summary>Gets the X-coordinate of the folder's location within the parent.</summary>
     public ushort ParentLocationX { get; }
 
+    /// <summary>Gets the Y-coordinate of the folder's location within the parent.</summary>
     public ushort ParentLocationY { get; }
 
+    /// <summary>Gets the folder view (manner in which folders are displayed).</summary>
     public ushort FolderView { get; }
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="HFSFolderInformation"/> struct from the given data.
+    /// </summary>
+    /// <param name="data">The span containing the folder information data.</param>
     public HFSFolderInformation(Span<byte> data)
     {
         if (data.Length < Size)

@@ -3,30 +3,50 @@ using System.Diagnostics;
 
 namespace HfsReader;
 
+/// <summary>
+/// Represents a B-tree header record.
+/// </summary>
 public unsafe struct BTHeaderRec
 {
+    /// <summary>
+    /// The size of the B-tree header record in bytes.
+    /// </summary>
     public const int Size = 106;
 
+    /// <summary>Gets the depth of the tree.</summary>
     public ushort TreeDepth { get; }
 
+    /// <summary>Gets the root node number.</summary>
     public uint RootNodeNumber { get; }
 
+    /// <summary>Gets the number of data records contained in leaf nodes.</summary>
     public uint NumberOfDataRecords { get; }
 
+    /// <summary>Gets the first leaf node number.</summary>
     public uint FirstLeafNodeNumber { get; }
 
+    /// <summary>Gets the last leaf node number.</summary>
     public uint LastLeafNodeNumber { get; }
 
+    /// <summary>Gets the node size in bytes.</summary>
     public ushort NodeSize { get; }
 
+    /// <summary>Gets the maximum key size in bytes.</summary>
     public ushort MaximumKeySize { get; }
 
+    /// <summary>Gets the number of nodes.</summary>
     public uint NumberOfNodes { get; }
 
+    /// <summary>Gets the number of free nodes.</summary>
     public uint NumberOfFreeNodes { get; }
 
+    /// <summary>Gets the reserved bytes (76 bytes).</summary>
     public fixed byte Reserved[76];
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="BTHeaderRec"/> struct from the given data.
+    /// </summary>
+    /// <param name="data">The span containing the B-tree header record data.</param>
     public BTHeaderRec(Span<byte> data)
     {
         if (data.Length < Size)

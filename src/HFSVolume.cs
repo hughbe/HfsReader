@@ -2,15 +2,34 @@ using System.Buffers.Binary;
 
 namespace HfsReader;
 
+/// <summary>
+/// Represents a Hierarchical File System (HFS) volume and provides access to its contents.
+/// </summary>
 public class HFSVolume
 {
     private readonly Stream _stream;
     private readonly int _streamStartOffset;
 
+    /// <summary>
+    /// Gets the boot block header of the HFS volume.
+    /// </summary>
     public HFSBootBlockHeader BootBlock { get; }
+
+    /// <summary>
+    /// Gets the master directory block of the HFS volume.
+    /// </summary>
     public HFSMasterDirectoryBlock MasterDirectoryBlock { get; }
+
+    /// <summary>
+    /// Gets the catalog B-tree of the HFS volume.
+    /// </summary>
     public BTree CatalogTree { get; }
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="HFSVolume"/> class.
+    /// </summary>
+    /// <param name="stream">The stream containing the HFS volume data.</param>
+    /// <param name="volumeStartOffset">The start offset of the volume within the stream.</param>
     public HFSVolume(Stream stream, int volumeStartOffset)
     {
         _stream = stream;
@@ -33,8 +52,17 @@ public class HFSVolume
     }
 
 
+    /// <summary>
+    /// Gets the contents of the root directory of the HFS volume.
+    /// </summary>
+    /// <returns>An enumerable of <see cref="HFSNode"/> objects in the root directory.</returns>
     public IEnumerable<HFSNode> RootContents() => ContentsOfDirectory((uint)HFSKnownCatalogNodeID.kHFSRootParentID);
 
+    /// <summary>
+    /// Gets the contents of the specified directory.
+    /// </summary>
+    /// <param name="directory">The directory whose contents to retrieve.</param>
+    /// <returns>An enumerable of <see cref="HFSNode"/> objects in the directory.</returns>
     public IEnumerable<HFSNode> ContentsOfDirectory(HFSDirectory directory)
     {
         ArgumentNullException.ThrowIfNull(directory);
@@ -225,6 +253,12 @@ public class HFSVolume
         return totalBytesWritten;
     }
 
+    /// <summary>
+    /// Gets the data of a file as a byte array.
+    /// </summary>
+    /// <param name="file">The file to read.</param>
+    /// <param name="resourceFork">True to read the resource fork; otherwise, false for the data fork.</param>
+    /// <returns>The file data as a byte array.</returns>
     public byte[] GetFileData(HFSFile file, bool resourceFork)
     {
         using var ms = new MemoryStream();
@@ -232,6 +266,13 @@ public class HFSVolume
         return ms.ToArray();
     }
 
+    /// <summary>
+    /// Writes the data of a file to the specified output stream.
+    /// </summary>
+    /// <param name="file">The file to read.</param>
+    /// <param name="outputStream">The stream to write the file data to.</param>
+    /// <param name="resourceFork">True to read the resource fork; otherwise, false for the data fork.</param>
+    /// <returns>The number of bytes written to the output stream.</returns>
     public int GetFileData(HFSFile file, Stream outputStream, bool resourceFork)
     {
         ArgumentNullException.ThrowIfNull(file);

@@ -2,8 +2,14 @@ using System.Diagnostics;
 
 namespace HfsReader;
 
+/// <summary>
+/// Represents an HFS extent record, which contains up to three extent descriptors.
+/// </summary>
 public struct HFSExtentRecord
 {
+    /// <summary>
+    /// The size of an HFS extent record in bytes.
+    /// </summary>
     public const int Size = 12;
     
     private HFSExtentDescriptor FirstExtent { get; }
@@ -12,6 +18,11 @@ public struct HFSExtentRecord
     
     private HFSExtentDescriptor ThirdExtent { get; }
 
+    /// <summary>
+    /// Gets the extent descriptor at the specified index (0, 1, or 2).
+    /// </summary>
+    /// <param name="index">The index of the extent descriptor (0, 1, or 2).</param>
+    /// <returns>The <see cref="HFSExtentDescriptor"/> at the specified index.</returns>
     public HFSExtentDescriptor this[int index]
     {
         get
@@ -26,6 +37,10 @@ public struct HFSExtentRecord
         }
     }
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="HFSExtentRecord"/> struct from the given data.
+    /// </summary>
+    /// <param name="data">The span containing the extent record data.</param>
     public HFSExtentRecord(Span<byte> data)
     {
         if (data.Length != Size)

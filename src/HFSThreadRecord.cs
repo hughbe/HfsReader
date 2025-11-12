@@ -4,22 +4,50 @@ using System.Text;
 
 namespace HfsReader;
 
+/// <summary>
+/// Represents an HFS thread record (file or folder thread) in the catalog.
+/// </summary>
 public struct HFSThreadRecord
 {
+    /// <summary>
+    /// The minimum size of a thread record in bytes.
+    /// </summary>
     public const int MinSize = 15;
     
+    /// <summary>
+    /// Gets the catalog data record type.
+    /// </summary>
     public HFSCatalogDataRecordType Type { get; }
     
+    /// <summary>
+    /// Gets the first reserved field.
+    /// </summary>
     public uint Reserved1 { get; }
     
+    /// <summary>
+    /// Gets the second reserved field.
+    /// </summary>
     public uint Reserved2 { get; }
 
+    /// <summary>
+    /// Gets the parent identifier (CNID).
+    /// </summary>
     public uint ParentIdentifier { get; }
 
+    /// <summary>
+    /// Gets the length of the name string.
+    /// </summary>
     public byte NameLength { get; }
 
+    /// <summary>
+    /// Gets the name of the associated file or directory.
+    /// </summary>
     public string Name { get; }
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="HFSThreadRecord"/> struct from the given data.
+    /// </summary>
+    /// <param name="data">The span containing the thread record data.</param>
     public HFSThreadRecord(Span<byte> data)
     {
         if (data.Length < MinSize)

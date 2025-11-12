@@ -4,30 +4,59 @@ using HfsReader.Utilities;
 
 namespace HfsReader;
 
+/// <summary>
+/// Represents the boot block header of an HFS volume.
+/// </summary>
 public struct HFSBootBlockHeader
 {
+    /// <summary>
+    /// The size of the boot block header in bytes.
+    /// </summary>
     public const int Size = 148;
 
+    /// <summary>Gets the boot block signature.</summary>
     public ushort Signature { get; }
+    /// <summary>Gets the boot code entry point.</summary>
     public uint EntryPoint { get; }
+    /// <summary>Gets the boot blocks version number.</summary>
     public ushort Version { get; }
+    /// <summary>Gets the page flags (used internally).</summary>
     public ushort PageFlags { get; }
+    /// <summary>Gets the system filename.</summary>
     public string SystemFilename { get; }
+    /// <summary>Gets the shell or Finder filename.</summary>
     public string ShellFilename { get; }
+    /// <summary>Gets the Debugger 1 filename.</summary>
     public string Debugger1Filename { get; }
+    /// <summary>Gets the Debugger 2 filename.</summary>
     public string Debugger2Filename { get; }
+    /// <summary>Gets the name of the startup screen.</summary>
     public string StartupScreenName { get; }
+    /// <summary>Gets the name of the startup program.</summary>
     public string StartupProgramName { get; }
+    /// <summary>Gets the scrap filename.</summary>
     public string ScrapFilename { get; }
+    /// <summary>Gets the initial number of allocated file control blocks (FCBs).</summary>
     public ushort InitialFCBCount { get; }
+    /// <summary>Gets the maximum number of event queue elements.</summary>
     public ushort MaxEventQueueElements { get; }
+    /// <summary>Gets the system heap size on 128K Mac.</summary>
     public uint SystemHeapSize { get; }
+    /// <summary>Gets the system heap size on 256K Mac.</summary>
     public uint SystemHeapSize256K { get; }
+    /// <summary>Gets the system heap size on all machines.</summary>
     public uint SystemHeapSizeAll { get; }
+    /// <summary>Gets the filler (used internally).</summary>
     public ushort Filler { get; }
+    /// <summary>Gets the additional system heap space.</summary>
     public uint AdditionalSystemHeapSpace { get; }
+    /// <summary>Gets the fraction of available RAM for the system heap.</summary>
     public uint FractionOfAvailableRAMForSystemHeap { get; }
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="HFSBootBlockHeader"/> struct from the given data.
+    /// </summary>
+    /// <param name="data">The span containing the boot block header data.</param>
     public HFSBootBlockHeader(Span<byte> data)
     {
         if (data.Length < 141)

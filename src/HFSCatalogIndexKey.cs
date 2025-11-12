@@ -3,13 +3,35 @@ using HfsReader.Utilities;
 
 namespace HfsReader;
 
+/// <summary>
+/// Represents a catalog index key in the HFS catalog B-tree.
+/// </summary>
 public struct HFSCatalogIndexKey
 {
+    /// <summary>
+    /// Gets the size of the key data.
+    /// </summary>
     public sbyte KeySize { get; }
+
+    /// <summary>
+    /// Gets the reserved byte in the key.
+    /// </summary>
     public byte Reserved { get; }
+
+    /// <summary>
+    /// Gets the parent identifier (CNID) for this key.
+    /// </summary>
     public uint ParentIdentifier { get; }
+
+    /// <summary>
+    /// Gets the name associated with this key.
+    /// </summary>
     public string? Name { get; }
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="HFSCatalogIndexKey"/> struct from the given data.
+    /// </summary>
+    /// <param name="data">The span containing the key data.</param>
     public HFSCatalogIndexKey(Span<byte> data)
     {
         if (data.Length < 1)
@@ -54,6 +76,12 @@ public struct HFSCatalogIndexKey
         }
     }
 
+    /// <summary>
+    /// Compares this key to the specified parent identifier and name.
+    /// </summary>
+    /// <param name="parentID">The parent identifier to compare.</param>
+    /// <param name="name">The name to compare.</param>
+    /// <returns>An integer indicating the relative order.</returns>
     public int CompareTo(uint parentID, string name)
     {
         int parentComparison = ParentIdentifier.CompareTo(parentID);

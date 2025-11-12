@@ -2,10 +2,20 @@
 
 namespace HfsReader;
 
+/// <summary>
+/// Represents a disk containing one or more HFS volumes.
+/// </summary>
 public class HFSDisk
 {
+    /// <summary>
+    /// Gets the list of HFS volumes found on the disk.
+    /// </summary>
     public List<HFSVolume> Volumes { get; } = [];
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="HFSDisk"/> class and scans for HFS volumes.
+    /// </summary>
+    /// <param name="stream">The stream containing the disk image data.</param>
     public HFSDisk(Stream stream)
     {
         ArgumentNullException.ThrowIfNull(stream);

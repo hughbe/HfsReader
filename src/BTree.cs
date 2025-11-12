@@ -1,5 +1,8 @@
 namespace HfsReader;
 
+/// <summary>
+/// Represents a B-tree structure used in HFS for catalog and extents files.
+/// </summary>
 public class BTree
 {
     private readonly Stream _stream;
@@ -8,12 +11,30 @@ public class BTree
     private readonly int _extentsStartBlock;
     private readonly int _allocationBlockSize;
 
+    /// <summary>
+    /// Gets the header record of the B-tree.
+    /// </summary>
     public BTHeaderRec Header { get; }
+
+    /// <summary>
+    /// Gets the root node of the B-tree.
+    /// </summary>
     public BTNode RootNode => GetNode(Header.RootNodeNumber);
 
     private readonly byte[] _blockBuffer;
+    /// <summary>
+    /// Gets the buffer containing the current block's data.
+    /// </summary>
     public Span<byte> BlockBuffer => _blockBuffer;
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="BTree"/> class.
+    /// </summary>
+    /// <param name="stream">The stream containing the B-tree data.</param>
+    /// <param name="streamStartOffset">The start offset of the stream.</param>
+    /// <param name="extents">The extents describing the B-tree's location.</param>
+    /// <param name="extentsStartBlock">The starting block of the extents.</param>
+    /// <param name="allocationBlockSize">The size of an allocation block.</param>
     public BTree(Stream stream, int streamStartOffset, HFSExtentRecord extents, int extentsStartBlock, uint allocationBlockSize)
     {
         _stream = stream;
@@ -47,6 +68,11 @@ public class BTree
         Header = new BTHeaderRec(BlockBuffer.Slice(headerRecordOffset.Offset, headerRecordOffset.Size));
     }
 
+    /// <summary>
+    /// Gets the node at the specified index in the B-tree.
+    /// </summary>
+    /// <param name="nodeIndex">The index of the node to retrieve.</param>
+    /// <returns>The <see cref="BTNode"/> at the specified index.</returns>
     public BTNode GetNode(uint nodeIndex)
     {
         var offset = GetNodeFileOffset(nodeIndex);

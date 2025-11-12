@@ -4,47 +4,79 @@ using HfsReader.Utilities;
 
 namespace HfsReader;
 
+/// <summary>
+/// Represents an entry in the Apple Partition Map.
+/// </summary>
 public struct ApplePartitionMapEntry
 {
+    /// <summary>
+    /// The size of an Apple Partition Map Entry in bytes.
+    /// </summary>
     public const int Size = 136;
+    
+    /// <summary>
+    /// The expected block signature value ('PM').
+    /// </summary>
     public const int BlockSignature = 0x504D; // 'PM'
 
+    /// <summary>Gets the partition map entry signature.</summary>
     public ushort Signature { get; }
 
+    /// <summary>Gets the first reserved field.</summary>
     public ushort Reserved1 { get; }
 
+    /// <summary>Gets the total number of entries in the partition map.</summary>
     public uint MapEntryCount { get; }
     
+    /// <summary>Gets the partition start sector.</summary>
     public uint PartitionStartBlock { get; }
 
+    /// <summary>Gets the partition number of sectors.</summary>
     public uint PartitionBlockCount { get; }
 
+    /// <summary>Gets the partition name.</summary>
     public string Name { get; }
 
+    /// <summary>Gets the partition type.</summary>
     public string Type { get; }
 
+    /// <summary>Gets the data area start sector.</summary>
     public uint DataStartBlock { get; }
 
+    /// <summary>Gets the data area number of sectors.</summary>
     public uint DataBlockCount { get; }
 
+    /// <summary>Gets the status flags.</summary>
     public uint StatusFlags { get; }
 
+    /// <summary>Gets the boot code start sector.</summary>
     public uint BootCodeStartBlock { get; }
 
+    /// <summary>Gets the boot code number of sectors.</summary>
     public uint BootCodeBlockCount { get; }
 
+    /// <summary>Gets the boot code address.</summary>
     public uint BootCodeAddress { get; }
 
+    /// <summary>Gets the second reserved field.</summary>
     public uint Reserved2 { get; }
 
+    /// <summary>Gets the boot code entry point.</summary>
     public uint BootCodeEntryPoint { get; }
 
+    /// <summary>Gets the third reserved field.</summary>
     public uint Reserved3 { get; }
 
+    /// <summary>Gets the boot code checksum.</summary>
     public uint BootCodeChecksum { get; }
 
+    /// <summary>Gets the processor type.</summary>
     public string ProcessorType { get; }
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="ApplePartitionMapEntry"/> struct from the given data.
+    /// </summary>
+    /// <param name="data">The span containing the partition map entry data.</param>
     public ApplePartitionMapEntry(Span<byte> data)
     {
         if (data.Length < Size)

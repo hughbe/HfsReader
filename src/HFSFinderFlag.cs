@@ -1,62 +1,40 @@
 namespace HfsReader;
 
+/// <summary>
+/// Represents Finder flags for files and folders.
+/// </summary>
 public enum HFSFinderFlags : ushort
 {
-    // 0x0001
-    // Is on desk
-    // (used for files and folders)
+    /// <summary>Is on desk (used for files and folders).</summary>
     IsOnDesk = 0x0001,
 
-    // 0x000e
-    // Color
-    // (used for files and folders)
+    /// <summary>Color (used for files and folders).</summary>
     Color = 0x000E,
 
-    // 0x0040
-    // Is shared
-    // if clear, the application needs to write to its resource fork, and therefore
-    // cannot be shared on a server
-    // (used for files)
+    /// <summary>Is shared - if clear, the application needs to write to its resource fork (used for files).</summary>
     IsShared = 0x0040,
 
-    // 0x0080
-    // Has no inits
-    // (used for files)
+    /// <summary>Has no inits (used for files).</summary>
     HasNoInits = 0x0080,
 
-    // Has been inited
-    // Clear if the file contains desktop database resources that have not been added yet.
-    // (used for files)
+    /// <summary>Has been inited - clear if the file contains desktop database resources not yet added (used for files).</summary>
     HasBeenInited = 0x0100,
 
-    // 0x0400
-    // Has custom icon
-    // (used for files and folders)
+    /// <summary>Has custom icon (used for files and folders).</summary>
     HasCustomIcon = 0x0400,
 
-    // 0x0800
-    // Is stationary
-    // (used for files)
+    /// <summary>Is stationary (used for files).</summary>
     IsStationary = 0x0800,
 
-    // 0x1000
-    // Name locked
-    // (used for files and folders)
+    /// <summary>Name locked (used for files and folders).</summary>
     NameLocked = 0x1000,
 
-    // 0x2000
-    // Has bundle
-    // (used for files)
+    /// <summary>Has bundle (used for files).</summary>
     HasBundle = 0x2000,
 
-    // 0x4000
-    // Is invisible
-    // (used for files and folders)
+    /// <summary>Is invisible (used for files and folders).</summary>
     IsInvisible = 0x4000,
 
-    // 0x8000
-
-    // Is alias
-    // (used for files)
+    /// <summary>Is alias (used for files).</summary>
     IsAlias = 0x8000,
 }

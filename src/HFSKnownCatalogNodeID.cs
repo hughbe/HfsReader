@@ -1,40 +1,43 @@
 namespace HfsReader;
 
+/// <summary>
+/// Represents well-known catalog node identifiers (CNIDs) in HFS.
+/// </summary>
 public enum HFSKnownCatalogNodeID : uint
 {
-    // 0 Unknown (Reserved)
+    /// <summary>Reserved.</summary>
     Reserved = 0,
 
-    // 1 kHFSRootParentID Parent identifier of the root directory (folder)
+    /// <summary>Parent identifier of the root directory (folder).</summary>
     kHFSRootParentID = 1,
 
-    // 2 kHFSRootFolderID Directory identifier of the root directory (folder)
+    /// <summary>Directory identifier of the root directory (folder).</summary>
     kHFSRootFolderID = 2,
 
-    //  3 kHFSExtentsFileID The extents (overflow) file
+    /// <summary>The extents (overflow) file.</summary>
     kHFSExtentsFileID = 3,
 
-    // 4 kHFSCatalogFileID The catalog file
+    /// <summary>The catalog file.</summary>
     kHFSCatalogFileID = 4,
 
-    // 5 kHFSBadBlockFileID The bad allocation block file
+    /// <summary>The bad allocation block file.</summary>
     kHFSBadBlockFileID = 5,
 
-    // 6 kHFSAllocationFileID The allocation file (HFS+)
+    /// <summary>The allocation file (HFS+).</summary>
     kHFSAllocationFileID = 6,
 
-    // 7 kHFSStartupFileID The startup file (HFS+)
+    /// <summary>The startup file (HFS+).</summary>
     kHFSStartupFileID = 7,
 
-    // 8 kHFSAttributesFileID The attributes file (HFS+)
+    /// <summary>The attributes file (HFS+).</summary>
     kHFSAttributesFileID = 8,
 
-    // 14 kHFSRepairCatalogFileID Used temporarily by fsck_hfs when rebuilding the catalog file.
+    /// <summary>Used temporarily by fsck_hfs when rebuilding the catalog file.</summary>
     kHFSRepairCatalogFileID = 14,
 
-    // 15 kHFSBogusExtentFileID The bogus extent file Used temporarily during exchange files operations.
+    /// <summary>The bogus extent file used temporarily during exchange files operations.</summary>
     kHFSBogusExtentFileID = 15,
 
-    // 16 kHFSFirstUserCatalogNodeID The first available CNID for user’s files and folders
+    /// <summary>The first available CNID for user's files and folders.</summary>
     kHFSFirstUserCatalogNodeID = 16
 }

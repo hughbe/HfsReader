@@ -4,48 +4,77 @@ using HfsReader.Utilities;
 
 namespace HfsReader;
 
+/// <summary>
+/// Represents an HFS file record in the catalog.
+/// </summary>
 public struct HFSFileRecord
 {
+    /// <summary>
+    /// The size of an HFS file record in bytes.
+    /// </summary>
     public const int Size = 102;
 
+    /// <summary>Gets the catalog data record type.</summary>
     public HFSCatalogDataRecordType Type { get; }
 
+    /// <summary>Gets the file record flags.</summary>
     public HFSFileRecordFlags Flags { get; }
 
+    /// <summary>Gets the file type (should always be 0).</summary>
     public byte FileType { get; }
 
+    /// <summary>Gets the file information.</summary>
     public HFSFileInformation FileInformation { get; }
 
+    /// <summary>Gets the file identifier (CNID).</summary>
     public uint Identifier { get; }
 
+    /// <summary>Gets the data fork block number.</summary>
     public ushort DataForkBlockNumber { get; }
 
+    /// <summary>Gets the data fork size in bytes.</summary>
     public uint DataForkSize { get; }
 
+    /// <summary>Gets the data fork allocated size in bytes.</summary>
     public uint DataForkAllocatedSize { get; }
 
+    /// <summary>Gets the resource fork block number.</summary>
     public ushort ResourceForkBlockNumber { get; }
 
+    /// <summary>Gets the resource fork size in bytes.</summary>
     public uint ResourceForkSize { get; }
 
+    /// <summary>Gets the resource fork allocated size in bytes.</summary>
     public uint ResourceForkAllocatedSize { get; }
 
+    /// <summary>Gets the creation date and time.</summary>
     public DateTime CreationDate { get; }
 
+    /// <summary>Gets the modification date and time.</summary>
     public DateTime ModificationDate { get; }
 
+    /// <summary>Gets the backup date and time.</summary>
     public DateTime BackupDate { get; }
 
+    /// <summary>Gets the extended file information.</summary>
     public HFSExtendedFileInformation ExtendedFileInformation { get; }
 
+    /// <summary>Gets the clump size.</summary>
     public ushort ClumpSize { get; }
 
+    /// <summary>Gets the first data fork extents record.</summary>
     public HFSExtentRecord FirstDataForkExtents { get; }
 
+    /// <summary>Gets the first resource fork extents record.</summary>
     public HFSExtentRecord FirstResourceForkExtents { get; }
 
+    /// <summary>Gets the reserved field.</summary>
     public uint Reserved { get; }
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="HFSFileRecord"/> struct from the given data.
+    /// </summary>
+    /// <param name="data">The span containing the file record data.</param>
     public HFSFileRecord(Span<byte> data)
     {
         if (data.Length < Size)
