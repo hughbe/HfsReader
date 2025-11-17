@@ -57,42 +57,42 @@ public unsafe struct BTHeaderRec
         int offset = 0;
 
         // Depth of the tree
-        TreeDepth = BinaryPrimitives.ReadUInt16BigEndian(data.Slice(offset));
+        TreeDepth = BinaryPrimitives.ReadUInt16BigEndian(data[offset..]);
         offset += 2;
 
         // Root node number
-        RootNodeNumber = BinaryPrimitives.ReadUInt32BigEndian(data.Slice(offset));
+        RootNodeNumber = BinaryPrimitives.ReadUInt32BigEndian(data[offset..]);
         offset += 4;
 
         // Number of data records contained in leaf nodes
         // (Does this equals the number of leaf nodes?)
-        NumberOfDataRecords = BinaryPrimitives.ReadUInt32BigEndian(data.Slice(offset));
+        NumberOfDataRecords = BinaryPrimitives.ReadUInt32BigEndian(data[offset..]);
         offset += 4;
 
         // First leaf node number
-        FirstLeafNodeNumber = BinaryPrimitives.ReadUInt32BigEndian(data.Slice(offset));
+        FirstLeafNodeNumber = BinaryPrimitives.ReadUInt32BigEndian(data[offset..]);
         offset += 4;
 
         // Last leaf node number
-        LastLeafNodeNumber = BinaryPrimitives.ReadUInt32BigEndian(data.Slice(offset));
+        LastLeafNodeNumber = BinaryPrimitives.ReadUInt32BigEndian(data[offset..]);
         offset += 4;
 
         // The node size
         // Contains number of bytes
-        NodeSize = BinaryPrimitives.ReadUInt16BigEndian(data.Slice(offset));
+        NodeSize = BinaryPrimitives.ReadUInt16BigEndian(data[offset..]);
         offset += 2;
 
         // Maximum key size
         // Contains number of bytes
-        MaximumKeySize = BinaryPrimitives.ReadUInt16BigEndian(data.Slice(offset));
+        MaximumKeySize = BinaryPrimitives.ReadUInt16BigEndian(data[offset..]);
         offset += 2;
 
         // Number of nodes
-        NumberOfNodes = BinaryPrimitives.ReadUInt32BigEndian(data.Slice(offset));
+        NumberOfNodes = BinaryPrimitives.ReadUInt32BigEndian(data[offset..]);
         offset += 4;
 
         // Number of free nodes
-        NumberOfFreeNodes = BinaryPrimitives.ReadUInt32BigEndian(data.Slice(offset));
+        NumberOfFreeNodes = BinaryPrimitives.ReadUInt32BigEndian(data[offset..]);
         offset += 4;
 
         // Reserved (76 bytes)

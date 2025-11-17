@@ -6,12 +6,26 @@ public class HfsDiskTests
 {
     [Theory]
     [InlineData("Microsoft Excel 1.03.dsk")]
+    //[InlineData("excel2.2.img")]
     [InlineData("Microsoft Excel 2.2 for Macintosh.dsk")]
     [InlineData("MS EXCEL SETUP.dsk")]
     [InlineData("MS EXCEL UTILITIES 1.dsk")]
     [InlineData("MS EXCEL UTILITIES 2.dsk")]
     [InlineData("100MB.dsk")]
     [InlineData("test.iso")]
+    [InlineData("dropstuff_40.dsk")]
+    [InlineData("System753.dsk")]
+    [InlineData("importfl-1.2.2.dsk")]
+    [InlineData("exportfl-1.3.1.dsk")]
+    [InlineData("ResEdit 2.1.3.dsk")]
+    [InlineData("Stuffit_Expander_5.5.dsk")]
+    //[InlineData("Excel 1.03/Excel Program.image")]
+    [InlineData("Excel 1.5/Excel 1.5.img")]
+    //[InlineData("Excel 2.2a/Help & Examples.image")]
+    //[InlineData("Excel 2.2a/Microsoft Excel.image")]
+    //[InlineData("Excel 2.2a/Tour.image")]
+    [InlineData("Excel 3.0/Excel 3.0.img")]
+    [InlineData("Excel 4.0/Excel 4.0.img")]
     public void Ctor_Stream(string diskName)
     {
         var filePath = Path.Combine("Samples", diskName);

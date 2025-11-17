@@ -22,7 +22,7 @@ public struct HFSMasterDirectoryBlock
     /// <summary>Gets the volume bitmap block number.</summary>
     public ushort VolumeBitmapBlockNumber { get; }
     /// <summary>Gets the start of the next allocation search.</summary>
-    public ushort UnknownNextAllocationSearch { get; }
+    public ushort NextAllocationSearch { get; }
     /// <summary>Gets the number of allocation blocks.</summary>
     public ushort NumberOfAllocationBlocks { get; }
     /// <summary>Gets the allocation block size in bytes.</summary>
@@ -83,7 +83,7 @@ public struct HFSMasterDirectoryBlock
 
         // The volume signature (kHFSSigWord)
         // For Macintosh File System (MFS) volumes the signature contains "\xd2\xd7".
-        Signature = BinaryPrimitives.ReadUInt16BigEndian(data.Slice(offset));
+        Signature = BinaryPrimitives.ReadUInt16BigEndian(data[offset..]);
         offset += 2;
         if (Signature != 0x4244) // 'BD'
         {
@@ -105,53 +105,58 @@ public struct HFSMasterDirectoryBlock
 
         // Volume attribute flags
         // See section: Volume attribute flags
-        VolumeAttributeFlags = BinaryPrimitives.ReadUInt16BigEndian(data.Slice(offset));
+        VolumeAttributeFlags = BinaryPrimitives.ReadUInt16BigEndian(data[offset..]);
         offset += 2;
 
         // The number of files in the root directory
-        FileCount = BinaryPrimitives.ReadUInt16BigEndian(data.Slice(offset));
+        FileCount = BinaryPrimitives.ReadUInt16BigEndian(data[offset..]);
         offset += 2;
 
         // Volume bitmap block number
         // Contains an allocation block number relative from the start of the volume,
         // where 0 is the first block number.
         // Typically has a value of 3
-        VolumeBitmapBlockNumber = BinaryPrimitives.ReadUInt16BigEndian(data.Slice(offset));
+        VolumeBitmapBlockNumber = BinaryPrimitives.ReadUInt16BigEndian(data[offset..]);
         offset += 2;
 
         // Unknown (Start of the next allocation search)
         // The (allocation or volume block) index of the allocation block at which
         // the next allocation search will begin.
-        UnknownNextAllocationSearch = BinaryPrimitives.ReadUInt16BigEndian(data.Slice(offset));
+        NextAllocationSearch = BinaryPrimitives.ReadUInt16BigEndian(data[offset..]);
         offset += 2;
 
         // Number of (allocation) blocks
         // A volume can contain at most 65535 blocks.
-        NumberOfAllocationBlocks = BinaryPrimitives.ReadUInt16BigEndian(data.Slice(offset));
+        NumberOfAllocationBlocks = BinaryPrimitives.ReadUInt16BigEndian(data[offset..]);
         offset += 2;
 
         // Allocation block size
         // Contains number of bytes an must be a multitude of 512 bytes.
-        AllocationBlockSize = BinaryPrimitives.ReadUInt32BigEndian(data.Slice(offset));
+        AllocationBlockSize = BinaryPrimitives.ReadUInt32BigEndian(data[offset..]);
         offset += 4;
 
+        if (AllocationBlockSize % 512 != 0)
+        {
+            throw new InvalidDataException("Invalid allocation block size in master directory block.");
+        }
+
         // Default clump size
-        DefaultClumpSize = BinaryPrimitives.ReadUInt32BigEndian(data.Slice(offset));
+        DefaultClumpSize = BinaryPrimitives.ReadUInt32BigEndian(data[offset..]);
         offset += 4;
 
         // Extents start block number
         // Contains an allocation block number relative from the start of the
         // volume, where 0 is the first block number.
-        ExtentsStartBlockNumber = BinaryPrimitives.ReadUInt16BigEndian(data.Slice(offset));
+        ExtentsStartBlockNumber = BinaryPrimitives.ReadUInt16BigEndian(data[offset..]);
         offset += 2;
 
         // Next available catalog node identifier (CNID)
         // Can be a directory or file record identifier.
-        NextAvailableCatalogNodeID = BinaryPrimitives.ReadUInt32BigEndian(data.Slice(offset));
+        NextAvailableCatalogNodeID = BinaryPrimitives.ReadUInt32BigEndian(data[offset..]);
         offset += 4;
 
         // Number of unused (allocation) blocks
-        NumberOfUnusedAllocationBlocks = BinaryPrimitives.ReadUInt16BigEndian(data.Slice(offset));
+        NumberOfUnusedAllocationBlocks = BinaryPrimitives.ReadUInt16BigEndian(data[offset..]);
         offset += 2;
 
         // The volume label size
@@ -168,35 +173,35 @@ public struct HFSMasterDirectoryBlock
         offset += 4;
 
         // Backup sequence number
-        BackupSequenceNumber = BinaryPrimitives.ReadUInt16BigEndian(data.Slice(offset));
+        BackupSequenceNumber = BinaryPrimitives.ReadUInt16BigEndian(data[offset..]);
         offset += 2;
 
         // Volume write count
         // Contains the number of times the volume has been written to.
-        VolumeWriteCount = BinaryPrimitives.ReadUInt32BigEndian(data.Slice(offset));
+        VolumeWriteCount = BinaryPrimitives.ReadUInt32BigEndian(data[offset..]);
         offset += 4;
 
         // Clump size for extents (overflow) file
-        ClumpSizeForExtentsOverflowFile = BinaryPrimitives.ReadUInt32BigEndian(data.Slice(offset));
+        ClumpSizeForExtentsOverflowFile = BinaryPrimitives.ReadUInt32BigEndian(data[offset..]);
         offset += 4;
 
         // Clump size for catalog file
-        ClumpSizeForCatalogFile = BinaryPrimitives.ReadUInt32BigEndian(data.Slice(offset));
+        ClumpSizeForCatalogFile = BinaryPrimitives.ReadUInt32BigEndian(data[offset..]);
         offset += 4;
 
         // The number of sub directories in the root directory
-        SubDirectoryCount = BinaryPrimitives.ReadUInt16BigEndian(data.Slice(offset));
+        SubDirectoryCount = BinaryPrimitives.ReadUInt16BigEndian(data[offset..]);
         offset += 2;
 
         // Total number of files
         // It should equal the number of file records found in the catalog file.
-        TotalFileCount = BinaryPrimitives.ReadUInt32BigEndian(data.Slice(offset));
+        TotalFileCount = BinaryPrimitives.ReadUInt32BigEndian(data[offset..]);
         offset += 4;
 
         // Total number of directories (folders)
         // The value does not include the root folder.
         // It should equal the number of folder records in the catalog file minus one.
-        TotalDirectoryCount = BinaryPrimitives.ReadUInt32BigEndian(data.Slice(offset));
+        TotalDirectoryCount = BinaryPrimitives.ReadUInt32BigEndian(data[offset..]);
         offset += 4;
 
         // Finder information
@@ -205,16 +210,16 @@ public struct HFSMasterDirectoryBlock
         offset += 32;
 
         // Embedded volume signature (formerly drVCSize)
-        EmbeddedVolumeSignature = BinaryPrimitives.ReadUInt16BigEndian(data.Slice(offset));
+        EmbeddedVolumeSignature = BinaryPrimitives.ReadUInt16BigEndian(data[offset..]);
         offset += 2;
 
         // Embedded volume extent descriptor (formerly drVBMCSize and drCtlCSize)
         // Contains a single HFS extent descriptor
-        EmbeddedVolumeExtentDescriptor = BinaryPrimitives.ReadUInt32BigEndian(data.Slice(offset));
+        EmbeddedVolumeExtentDescriptor = BinaryPrimitives.ReadUInt32BigEndian(data[offset..]);
         offset += 4;
 
         // Extents (overflow) file size
-        ExtentsOverflowFileSize = BinaryPrimitives.ReadUInt32BigEndian(data.Slice(offset));
+        ExtentsOverflowFileSize = BinaryPrimitives.ReadUInt32BigEndian(data[offset..]);
         offset += 4;
 
         // Extents (overflow) extents record
@@ -223,7 +228,7 @@ public struct HFSMasterDirectoryBlock
         offset += HFSExtentRecord.Size;
 
         // Catalog file size
-        CatalogFileSize = BinaryPrimitives.ReadUInt32BigEndian(data.Slice(offset));
+        CatalogFileSize = BinaryPrimitives.ReadUInt32BigEndian(data[offset..]);
         offset += 4;
 
         // Catalog file extents record

@@ -41,12 +41,12 @@ public struct BTNodeDescriptor
 
         // The next tree node number (forward link)
         // Contains 0 if empty
-        NextNodeNumber = BinaryPrimitives.ReadUInt32BigEndian(data.Slice(offset));
+        NextNodeNumber = BinaryPrimitives.ReadUInt32BigEndian(data[offset..]);
         offset += 4;
 
         // The previous tree node number (backward link)
         // Contains 0 if empty
-        PreviousNodeNumber = BinaryPrimitives.ReadUInt32BigEndian(data.Slice(offset));
+        PreviousNodeNumber = BinaryPrimitives.ReadUInt32BigEndian(data[offset..]);
         offset += 4;
 
         // The node type
@@ -62,12 +62,12 @@ public struct BTNodeDescriptor
         offset += 1;
 
         // The number of records
-        RecordCount = BinaryPrimitives.ReadUInt16BigEndian(data.Slice(offset));
+        RecordCount = BinaryPrimitives.ReadUInt16BigEndian(data[offset..]);
         offset += 2;
 
         // Unknown (Reserved)
         // Should contain 0-byte values
-        Reserved = BinaryPrimitives.ReadUInt16BigEndian(data.Slice(offset));
+        Reserved = BinaryPrimitives.ReadUInt16BigEndian(data[offset..]);
         offset += 2;
 
         Debug.Assert(offset == 14);

@@ -32,11 +32,11 @@ public struct HFSExtentDescriptor
         int offset = 0;
 
         // Starting block of the extent.
-        StartBlock = BinaryPrimitives.ReadUInt16BigEndian(data.Slice(offset));
+        StartBlock = BinaryPrimitives.ReadUInt16BigEndian(data[offset..]);
         offset += 2;
 
         // Number of blocks in the extent.
-        BlockCount = BinaryPrimitives.ReadUInt16BigEndian(data.Slice(offset));
+        BlockCount = BinaryPrimitives.ReadUInt16BigEndian(data[offset..]);
         offset += 2;
 
         Debug.Assert(offset == data.Length);

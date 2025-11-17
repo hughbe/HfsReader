@@ -49,7 +49,7 @@ public struct HFSFolderRecord
         int offset = 0;
 
         // Record type
-        Type = (HFSCatalogDataRecordType)BinaryPrimitives.ReadUInt16BigEndian(data.Slice(offset));
+        Type = (HFSCatalogDataRecordType)BinaryPrimitives.ReadUInt16BigEndian(data[offset..]);
         offset += 2;
         if (Type != HFSCatalogDataRecordType.Folder)
         {
@@ -58,16 +58,16 @@ public struct HFSFolderRecord
 
         // Directory (folder) flags
         // See section: directory record flags
-        FolderFlags = BinaryPrimitives.ReadUInt16BigEndian(data.Slice(offset));
+        FolderFlags = BinaryPrimitives.ReadUInt16BigEndian(data[offset..]);
         offset += 2;
 
         // Number of directory entries (valence)
-        NumberOfDirectoryEntries = BinaryPrimitives.ReadUInt16BigEndian(data.Slice(offset));
+        NumberOfDirectoryEntries = BinaryPrimitives.ReadUInt16BigEndian(data[offset..]);
         offset += 2;
 
         // The identifier
         // Contains a CNID
-        Identifier = BinaryPrimitives.ReadUInt32BigEndian(data.Slice(offset));
+        Identifier = BinaryPrimitives.ReadUInt32BigEndian(data[offset..]);
         offset += 4;
 
         // Creation date and time

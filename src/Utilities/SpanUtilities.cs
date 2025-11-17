@@ -63,7 +63,7 @@ internal static class SpanUtilities
     public static DateTime ReadHfsTimestamp(ReadOnlySpan<byte> data, int offset)
     {
         // 4 bytes HFS timestamp
-        var hfsTimestamp = BinaryPrimitives.ReadUInt32BigEndian(data.Slice(offset));
+        var hfsTimestamp = BinaryPrimitives.ReadUInt32BigEndian(data[offset..]);
 
         // HFS timestamps are seconds since 00:00:00 on January 1, 1904
         var hfsEpoch = new DateTime(1904, 1, 1, 0, 0, 0, DateTimeKind.Utc);

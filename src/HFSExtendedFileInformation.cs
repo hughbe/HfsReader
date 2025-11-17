@@ -52,18 +52,18 @@ public struct HFSExtendedFileInformation
 
         // Icon identifier
         // An identifier, assigned by the Finder, of the file's icon.
-        IconIdentifier = BinaryPrimitives.ReadUInt16BigEndian(data.Slice(offset));
+        IconIdentifier = BinaryPrimitives.ReadUInt16BigEndian(data[offset..]);
         offset += 2;
 
         // Unknown (Reserved)
         // Array of signed 16-bit integers
-        Reserved1 = BinaryPrimitives.ReadUInt16BigEndian(data.Slice(offset));
+        Reserved1 = BinaryPrimitives.ReadUInt16BigEndian(data[offset..]);
         offset += 2;
 
-        Reserved2 = BinaryPrimitives.ReadUInt16BigEndian(data.Slice(offset));
+        Reserved2 = BinaryPrimitives.ReadUInt16BigEndian(data[offset..]);
         offset += 2;
 
-        Reserved3 = BinaryPrimitives.ReadUInt16BigEndian(data.Slice(offset));
+        Reserved3 = BinaryPrimitives.ReadUInt16BigEndian(data[offset..]);
         offset += 2;
 
         // Extended finder script code flags
@@ -81,12 +81,12 @@ public struct HFSExtendedFileInformation
         // If the high-bit is clear, an identifier, assigned by the Finder, for the
         // comment that is displayed in the information window when the user selects
         // a file and chooses the Get Info command from the File menu.
-        Comment = BinaryPrimitives.ReadInt16BigEndian(data.Slice(offset));
+        Comment = BinaryPrimitives.ReadInt16BigEndian(data[offset..]);
         offset += 2;
 
         // Put away folder identifier
         // Contains a CNID
-        PutAwayFolderIdentifier = BinaryPrimitives.ReadUInt32BigEndian(data.Slice(offset));
+        PutAwayFolderIdentifier = BinaryPrimitives.ReadUInt32BigEndian(data[offset..]);
         offset += 4;
 
         Debug.Assert(offset == Size);

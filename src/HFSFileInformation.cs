@@ -46,31 +46,31 @@ public struct HFSFileInformation
 
         // File type
         // Array of unsigned 8-bit integers
-        FileType = BinaryPrimitives.ReadUInt32BigEndian(data.Slice(offset));
+        FileType = BinaryPrimitives.ReadUInt32BigEndian(data[offset..]);
         offset += 4;
 
         // Creator
         // Array of unsigned 8-bit integers
-        Creator = BinaryPrimitives.ReadUInt32BigEndian(data.Slice(offset));
+        Creator = BinaryPrimitives.ReadUInt32BigEndian(data[offset..]);
         offset += 4;
 
         // Finder flags
         // See section: Finder flags
-        FinderFlags = (HFSFinderFlags)BinaryPrimitives.ReadUInt16BigEndian(data.Slice(offset));
+        FinderFlags = (HFSFinderFlags)BinaryPrimitives.ReadUInt16BigEndian(data[offset..]);
         offset += 2;
 
         // Location within the parent
         // Contains x and y-coordinate values
         // If set to {0, 0}, the Finder will place the item automatically
-        ParentLocationX = BinaryPrimitives.ReadUInt16BigEndian(data.Slice(offset));
+        ParentLocationX = BinaryPrimitives.ReadUInt16BigEndian(data[offset..]);
         offset += 2;
 
-        ParentLocationY = BinaryPrimitives.ReadUInt16BigEndian(data.Slice(offset));
+        ParentLocationY = BinaryPrimitives.ReadUInt16BigEndian(data[offset..]);
         offset += 2;
 
         // File icon window
         // The window in which the file's icon appears.
-        FileIconWindow = BinaryPrimitives.ReadUInt16BigEndian(data.Slice(offset));
+        FileIconWindow = BinaryPrimitives.ReadUInt16BigEndian(data[offset..]);
         offset += 2;
 
         Debug.Assert(offset == Size);

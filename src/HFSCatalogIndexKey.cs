@@ -64,7 +64,7 @@ public struct HFSCatalogIndexKey
 
             // The parent identifier
             // Contains a CNID
-            ParentIdentifier = BinaryPrimitives.ReadUInt32BigEndian(data.Slice(offset));
+            ParentIdentifier = BinaryPrimitives.ReadUInt32BigEndian(data[offset..]);
             offset += 4;
 
             // Number of characters in the name string

@@ -53,35 +53,35 @@ public struct HFSFolderInformation
         // Window boundaries
         // The position and dimension of the folder’s window
         // Contains top, left, bottom, right-coordinate values
-        WindowTop = BinaryPrimitives.ReadUInt16BigEndian(data.Slice(offset));
+        WindowTop = BinaryPrimitives.ReadUInt16BigEndian(data[offset..]);
         offset += 2;
 
-        WindowLeft = BinaryPrimitives.ReadUInt16BigEndian(data.Slice(offset));
+        WindowLeft = BinaryPrimitives.ReadUInt16BigEndian(data[offset..]);
         offset += 2;
 
-        WindowBottom = BinaryPrimitives.ReadUInt16BigEndian(data.Slice(offset));
+        WindowBottom = BinaryPrimitives.ReadUInt16BigEndian(data[offset..]);
         offset += 2;
 
-        WindowRight = BinaryPrimitives.ReadUInt16BigEndian(data.Slice(offset));
+        WindowRight = BinaryPrimitives.ReadUInt16BigEndian(data[offset..]);
         offset += 2;
 
         // Finder flags
         // See section: Finder flags
-        FinderFlags = (HFSFinderFlags)BinaryPrimitives.ReadUInt16BigEndian(data.Slice(offset));
+        FinderFlags = (HFSFinderFlags)BinaryPrimitives.ReadUInt16BigEndian(data[offset..]);
         offset += 2;
 
         // Location within the parent
         // Contains x and y-coordinate values
         // If set to {0, 0}, the Finder will place the item automatically
-        ParentLocationX = BinaryPrimitives.ReadUInt16BigEndian(data.Slice(offset));
+        ParentLocationX = BinaryPrimitives.ReadUInt16BigEndian(data[offset..]);
         offset += 2;
 
-        ParentLocationY = BinaryPrimitives.ReadUInt16BigEndian(data.Slice(offset));
+        ParentLocationY = BinaryPrimitives.ReadUInt16BigEndian(data[offset..]);
         offset += 2;
 
         // Folder view
         // The manner in which folders are displayed.
-        FolderView = BinaryPrimitives.ReadUInt16BigEndian(data.Slice(offset));
+        FolderView = BinaryPrimitives.ReadUInt16BigEndian(data[offset..]);
         offset += 2;
 
         Debug.Assert(offset == Size);

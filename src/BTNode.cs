@@ -55,7 +55,7 @@ public struct BTNode
             int entryOffset = 512 - 2 - (i * 2);
             RecordOffsets[i] = new BTRecordOffset
             {
-                Offset = BinaryPrimitives.ReadUInt16BigEndian(data.Slice(entryOffset))
+                Offset = BinaryPrimitives.ReadUInt16BigEndian(data[entryOffset..])
             };
         }
 

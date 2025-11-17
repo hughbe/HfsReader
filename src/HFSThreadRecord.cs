@@ -58,7 +58,7 @@ public struct HFSThreadRecord
         int offset = 0;
 
         // The record type
-        Type = (HFSCatalogDataRecordType)BinaryPrimitives.ReadUInt16BigEndian(data.Slice(offset));
+        Type = (HFSCatalogDataRecordType)BinaryPrimitives.ReadUInt16BigEndian(data[offset..]);
         offset += 2;
         if (Type != HFSCatalogDataRecordType.FileThread && Type != HFSCatalogDataRecordType.FolderThread)
         {
@@ -67,15 +67,15 @@ public struct HFSThreadRecord
 
         // Unknown (Reserved)
         // Array of 32-bit integer values
-        Reserved1 = BinaryPrimitives.ReadUInt32BigEndian(data.Slice(offset));
+        Reserved1 = BinaryPrimitives.ReadUInt32BigEndian(data[offset..]);
         offset += 4;
 
-        Reserved2 = BinaryPrimitives.ReadUInt32BigEndian(data.Slice(offset));
+        Reserved2 = BinaryPrimitives.ReadUInt32BigEndian(data[offset..]);
         offset += 4;
 
         // The parent identifier
         // Contains a CNID
-        ParentIdentifier = BinaryPrimitives.ReadUInt32BigEndian(data.Slice(offset));
+        ParentIdentifier = BinaryPrimitives.ReadUInt32BigEndian(data[offset..]);
         offset += 4;
 
         // Number of characters in the name string

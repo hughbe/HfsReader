@@ -87,7 +87,7 @@ public struct ApplePartitionMapEntry
         int offset = 0;
 
         // Signature "PM"
-        Signature = BinaryPrimitives.ReadUInt16BigEndian(data.Slice(offset));
+        Signature = BinaryPrimitives.ReadUInt16BigEndian(data[offset..]);
         offset += 2;
         if (Signature != 0x504D) // 'PM'
         {
@@ -95,20 +95,20 @@ public struct ApplePartitionMapEntry
         }
 
         // Unknown (Reserved)
-        Reserved1 = BinaryPrimitives.ReadUInt16BigEndian(data.Slice(offset));
+        Reserved1 = BinaryPrimitives.ReadUInt16BigEndian(data[offset..]);
         offset += 2;
 
         // Number of entries
         // Contains the total number of entries in the partition map
-        MapEntryCount = BinaryPrimitives.ReadUInt32BigEndian(data.Slice(offset));
+        MapEntryCount = BinaryPrimitives.ReadUInt32BigEndian(data[offset..]);
         offset += 4;
 
         // Partition start sector
-        PartitionStartBlock = BinaryPrimitives.ReadUInt32BigEndian(data.Slice(offset));
+        PartitionStartBlock = BinaryPrimitives.ReadUInt32BigEndian(data[offset..]);
         offset += 4;
 
         // Partition number of sectors
-        PartitionBlockCount = BinaryPrimitives.ReadUInt32BigEndian(data.Slice(offset));
+        PartitionBlockCount = BinaryPrimitives.ReadUInt32BigEndian(data[offset..]);
         offset += 4;
 
         // Partition name
@@ -123,44 +123,44 @@ public struct ApplePartitionMapEntry
         offset += 32;
 
         // Data area start sector
-        DataStartBlock = BinaryPrimitives.ReadUInt32BigEndian(data.Slice(offset));
+        DataStartBlock = BinaryPrimitives.ReadUInt32BigEndian(data[offset..]);
         offset += 4;
 
         // Data area number of sectors
-        DataBlockCount = BinaryPrimitives.ReadUInt32BigEndian(data.Slice(offset));
+        DataBlockCount = BinaryPrimitives.ReadUInt32BigEndian(data[offset..]);
         offset += 4;
 
         // Status flags
         // See section: Status flags
-        StatusFlags = BinaryPrimitives.ReadUInt32BigEndian(data.Slice(offset));
+        StatusFlags = BinaryPrimitives.ReadUInt32BigEndian(data[offset..]);
         offset += 4;
 
         // Boot code start sector
-        BootCodeStartBlock = BinaryPrimitives.ReadUInt32BigEndian(data.Slice(offset));
+        BootCodeStartBlock = BinaryPrimitives.ReadUInt32BigEndian(data[offset..]);
         offset += 4;
 
         // Boot code number of sectors
-        BootCodeBlockCount = BinaryPrimitives.ReadUInt32BigEndian(data.Slice(offset));
+        BootCodeBlockCount = BinaryPrimitives.ReadUInt32BigEndian(data[offset..]);
         offset += 4;
 
         // Boot code address
-        BootCodeAddress = BinaryPrimitives.ReadUInt32BigEndian(data.Slice(offset));
+        BootCodeAddress = BinaryPrimitives.ReadUInt32BigEndian(data[offset..]);
         offset += 4;
 
         // Unknown (Reserved)
-        Reserved2 = BinaryPrimitives.ReadUInt32BigEndian(data.Slice(offset));
+        Reserved2 = BinaryPrimitives.ReadUInt32BigEndian(data[offset..]);
         offset += 4;
 
         // Boot code entry point
-        BootCodeEntryPoint = BinaryPrimitives.ReadUInt32BigEndian(data.Slice(offset));
+        BootCodeEntryPoint = BinaryPrimitives.ReadUInt32BigEndian(data[offset..]);
         offset += 4;
 
         // Unknown (Reserved)
-        Reserved3 = BinaryPrimitives.ReadUInt32BigEndian(data.Slice(offset));
+        Reserved3 = BinaryPrimitives.ReadUInt32BigEndian(data[offset..]);
         offset += 4;
 
         // Boot code checksum
-        BootCodeChecksum = BinaryPrimitives.ReadUInt32BigEndian(data.Slice(offset));
+        BootCodeChecksum = BinaryPrimitives.ReadUInt32BigEndian(data[offset..]);
         offset += 4;
 
         // Processor type
