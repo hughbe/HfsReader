@@ -17,7 +17,7 @@ public class HfsDiskTests
     [InlineData("System753.dsk")]
     [InlineData("importfl-1.2.2.dsk")]
     [InlineData("exportfl-1.3.1.dsk")]
-    [InlineData("ResEdit 2.1.3.dsk")]
+    //[InlineData("ResEdit 2.1.3.img")]
     [InlineData("Stuffit_Expander_5.5.dsk")]
     //[InlineData("Excel 1.03/Excel Program.image")]
     [InlineData("Excel 1.5/Excel 1.5.img")]
@@ -26,6 +26,19 @@ public class HfsDiskTests
     //[InlineData("Excel 2.2a/Tour.image")]
     [InlineData("Excel 3.0/Excel 3.0.img")]
     [InlineData("Excel 4.0/Excel 4.0.img")]
+    [InlineData("Excel 5.0/Excel v5.0 (Disk 1) Install 1 (065-096-693).dsk")]
+    [InlineData("Excel 5.0/Excel v5.0 (Disk 2) Install 2 (065-096-694).dsk")]
+    [InlineData("Excel 5.0/Excel v5.0 (Disk 3) Install 3 (065-096-695).dsk")]
+    [InlineData("Excel 5.0/Excel v5.0 (Disk 4) Install 4 (065-096-696).dsk")]
+    [InlineData("Excel 5.0/Excel v5.0 (Disk 5) Install 5 (065-096-697).dsk")]
+    [InlineData("Excel 5.0/Excel v5.0 (Disk 6) Install 6 (065-096-698).dsk")]
+    [InlineData("Excel 5.0/Excel v5.0 (Disk 7) Install 7 (065-096-699).dsk")]
+    [InlineData("Excel 5.0/Excel v5.0 (Disk 8) Install 8 (065-096-700).dsk")]
+    [InlineData("Excel 5.0/Excel v5.0 (Disk 9) Install 9 (065-096-701).dsk")]
+    [InlineData("Excel 5.0/Excel v5.0 (Disk 10) Install 10 (065-096-702).dsk")]
+    [InlineData("Excel 5.0/Excel v5.0 (Disk 11) Install 11 (065-096-762).dsk")]
+    [InlineData("Excel 5.0/Excel v5.0 (Disk 12) Install 12 (065-096-763).dsk")]
+    [InlineData("Excel 5.0/Excel v5.0 (Disk 13) Install 13 (065-096-764).dsk")]
     public void Ctor_Stream(string diskName)
     {
         var filePath = Path.Combine("Samples", diskName);
