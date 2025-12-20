@@ -143,37 +143,37 @@ public struct HFSBootBlockHeader
         offset += 2;
 
         // System filename ASCII string
-        SystemFilename = SpanUtilities.ReadFixedLengthStringWithLength(data, offset, 15);
+        SystemFilename = SpanUtilities.ReadPascalString(data.Slice(offset, 16));
         offset += 16;
 
         // Shell or Finder filename
         // ASCII string typically "Finder"
-        ShellFilename = SpanUtilities.ReadFixedLengthStringWithLength(data, offset, 15);
+        ShellFilename = SpanUtilities.ReadPascalString(data.Slice(offset, 16));
         offset += 16;
 
         // Debugger 1 filename
         // ASCII string typically "Macsbug"
-        Debugger1Filename = SpanUtilities.ReadFixedLengthStringWithLength(data, offset, 15);
+        Debugger1Filename = SpanUtilities.ReadPascalString(data.Slice(offset, 16));
         offset += 16;
 
         // Debugger 2 filename
         // ASCII string typically "Disassembler"
-        Debugger2Filename = SpanUtilities.ReadFixedLengthStringWithLength(data, offset, 15);
+        Debugger2Filename = SpanUtilities.ReadPascalString(data.Slice(offset, 16));
         offset += 16;
 
         // The name of the startup screen
         // ASCII string typically "StartUpScreen"
-        StartupScreenName = SpanUtilities.ReadFixedLengthStringWithLength(data, offset, 15);
+        StartupScreenName = SpanUtilities.ReadPascalString(data.Slice(offset, 16));
         offset += 16;
 
         // The name of the startup program
         // ASCII string typically "Finder"
-        StartupProgramName = SpanUtilities.ReadFixedLengthStringWithLength(data, offset, 15);
+        StartupProgramName = SpanUtilities.ReadPascalString(data.Slice(offset, 16));
         offset += 16;
 
         // The scrap filename
         // ASCII string typically "Clipboard"
-        ScrapFilename = SpanUtilities.ReadFixedLengthStringWithLength(data, offset, 15);
+        ScrapFilename = SpanUtilities.ReadPascalString(data.Slice(offset, 16));
         offset += 16;
 
         // The (initial) number of allocated file control blocks (FCBs)

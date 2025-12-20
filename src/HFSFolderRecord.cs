@@ -72,17 +72,17 @@ public struct HFSFolderRecord
 
         // Creation date and time
         // Contains a HFS timestamp in local time
-        CreationDate = SpanUtilities.ReadHfsTimestamp(data, offset);
+        CreationDate = SpanUtilities.ReadMacOSTimestamp(data[offset..]);
         offset += 4;
 
         // (content) modification date and time
         // Contains a HFS timestamp in local time
-        ContentModificationDate = SpanUtilities.ReadHfsTimestamp(data, offset);
+        ContentModificationDate = SpanUtilities.ReadMacOSTimestamp(data[offset..]);
         offset += 4;
 
         // Backup date and time
         // Contains a HFS timestamp in local time
-        BackupDate = SpanUtilities.ReadHfsTimestamp(data, offset);
+        BackupDate = SpanUtilities.ReadMacOSTimestamp(data[offset..]);
         offset += 4;
 
         // Folder information

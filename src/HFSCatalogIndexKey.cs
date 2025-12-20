@@ -72,7 +72,7 @@ public struct HFSCatalogIndexKey
             // Name string
             // Contains an ASCII string with end-of-string character
             // Contains the name of the file or directory
-            Name = SpanUtilities.ReadFixedLengthStringWithLength(data, offset, 32);
+            Name = SpanUtilities.ReadPascalString(data.Slice(offset, 32));
         }
     }
 

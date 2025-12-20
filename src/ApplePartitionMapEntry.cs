@@ -111,15 +111,13 @@ public struct ApplePartitionMapEntry
         PartitionBlockCount = BinaryPrimitives.ReadUInt32BigEndian(data[offset..]);
         offset += 4;
 
-        // Partition name
-        // Contains an ASCII string (with an end-of-string character?)
-        Name = SpanUtilities.ReadFixedLengthString(data, offset, 32);
+        // Partition name (null-terminated ASCII within 32 bytes)
+        Name = SpanUtilities.ReadCString(data.Slice(offset, 32));
         offset += 32;
 
-        // Partition type
-        // Contains an ASCII string (with an end-of-string character?)
+        // Partition type (null-terminated ASCII within 32 bytes)
         // See section: Partition types
-        Type = SpanUtilities.ReadFixedLengthString(data, offset, 32);
+        Type = SpanUtilities.ReadCString(data.Slice(offset, 32));
         offset += 32;
 
         // Data area start sector
@@ -163,8 +161,8 @@ public struct ApplePartitionMapEntry
         BootCodeChecksum = BinaryPrimitives.ReadUInt32BigEndian(data[offset..]);
         offset += 4;
 
-        // Processor type
-        ProcessorType = SpanUtilities.ReadFixedLengthString(data, offset, 16);
+        // Processor type (null-terminated ASCII within 16 bytes)
+        ProcessorType = SpanUtilities.ReadCString(data.Slice(offset, 16));
         offset += 16;
 
         // Remaining bytes are reserved

@@ -136,17 +136,17 @@ public struct HFSFileRecord
 
         // Creation date and time
         // Contains a HFS timestamp in local time
-        CreationDate = SpanUtilities.ReadHfsTimestamp(data, offset);
+        CreationDate = SpanUtilities.ReadMacOSTimestamp(data[offset..]);
         offset += 4;
 
         // (content) modification date and time
         // Contains a HFS timestamp in local time
-        ModificationDate = SpanUtilities.ReadHfsTimestamp(data, offset);
+        ModificationDate = SpanUtilities.ReadMacOSTimestamp(data[offset..]);
         offset += 4;
 
         // Backup date and time
         // Contains a HFS timestamp in local time
-        BackupDate = SpanUtilities.ReadHfsTimestamp(data, offset);
+        BackupDate = SpanUtilities.ReadMacOSTimestamp(data[offset..]);
         offset += 4;
 
         // Extended file information

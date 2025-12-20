@@ -45,6 +45,7 @@ public class HFSVolume
         {
             throw new InvalidDataException("Unable to read DSK master directory block.");
         }
+
         MasterDirectoryBlock = new HFSMasterDirectoryBlock(blockBuffer);
 
         // Initialize the catalog B-tree

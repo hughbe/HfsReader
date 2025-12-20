@@ -93,14 +93,14 @@ public struct HFSMasterDirectoryBlock
         // Volume creation date and time
         // Contains a HFS timestamp in local time.
         // The date and time when the volume was created.
-        CreationDateTime = SpanUtilities.ReadHfsTimestamp(data, offset);
+        CreationDateTime = SpanUtilities.ReadMacOSTimestamp(data[offset..]);
         offset += 4;
 
         // Volume modification date and time
         // Contains a HFS timestamp in local time.
         // The date and time when the volume was last modified. This is not necessarily
         // the data and time when the volume was last flushed.
-        ModificationDateTime = SpanUtilities.ReadHfsTimestamp(data, offset);
+        ModificationDateTime = SpanUtilities.ReadMacOSTimestamp(data[offset..]);
         offset += 4;
 
         // Volume attribute flags
@@ -163,13 +163,13 @@ public struct HFSMasterDirectoryBlock
         // The maximum size is 27
         // The volume label
         // Contains an ASCII string
-        VolumeLabel = SpanUtilities.ReadFixedLengthStringWithLength(data, offset, 27);
+        VolumeLabel = SpanUtilities.ReadPascalString(data.Slice(offset, 28));
         offset += 28;
 
         // Backup date and time
         // Contains a HFS timestamp in local time
         // The date and time when the volume was last backed up.
-        BackupDateTime = SpanUtilities.ReadHfsTimestamp(data, offset);
+        BackupDateTime = SpanUtilities.ReadMacOSTimestamp(data[offset..]);
         offset += 4;
 
         // Backup sequence number
