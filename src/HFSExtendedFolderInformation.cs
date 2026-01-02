@@ -13,25 +13,39 @@ public struct HFSExtendedFolderInformation
     /// </summary>
     public const int Size = 16;
 
-    /// <summary>Gets the X-coordinate of the scroll position for icon views.</summary>
+    /// <summary>
+    /// Gets the X-coordinate of the scroll position for icon views.
+    /// </summary>
     public ushort ScrollPositionX { get; }
 
-    /// <summary>Gets the Y-coordinate of the scroll position for icon views.</summary>
+    /// <summary>
+    /// Gets the Y-coordinate of the scroll position for icon views.
+    /// </summary>
     public ushort ScrollPositionY { get; }
 
-    /// <summary>Gets the open directory identifier chain or date added.</summary>
+    /// <summary>
+    /// Gets the open directory identifier chain or date added.
+    /// </summary>
     public uint OpenDirectoryIdentifierChainOrDateAdded { get; }
 
-    /// <summary>Gets the extended Finder script code flags.</summary>
+    /// <summary>
+    /// Gets the extended Finder script code flags.
+    /// </summary>
     public byte ExtendedFinderScriptCodeFlags { get; }
 
-    /// <summary>Gets the extended Finder flags.</summary>
+    /// <summary>
+    /// Gets the extended Finder flags.
+    /// </summary>
     public byte ExtendedFinderFlags { get; }
-    
-    /// <summary>Gets the comment identifier assigned by the Finder.</summary>
+
+    /// <summary>
+    /// Gets the comment identifier assigned by the Finder.
+    /// </summary>
     public short Comment { get; }
 
-    /// <summary>Gets the put-away folder identifier (CNID).</summary>
+    /// <summary>
+    /// Gets the put-away folder identifier (CNID).
+    /// </summary>
     public uint PutAwayFolderIdentifier { get; }
 
     /// <summary>

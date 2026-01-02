@@ -6,7 +6,7 @@ namespace HfsReader;
 /// <summary>
 /// Represents a catalog index key in the HFS catalog B-tree.
 /// </summary>
-public struct HFSCatalogIndexKey
+public readonly struct HFSCatalogIndexKey
 {
     /// <summary>
     /// Gets the size of the key data.

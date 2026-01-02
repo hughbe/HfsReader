@@ -3,26 +3,23 @@ using System.Buffers.Binary;
 namespace HfsReader;
 
 /// <summary>
-/// Represents the offset and size of a record within a B-tree node.
-/// </summary>
-public struct BTRecordOffset
-{
-    /// <summary>Gets or sets the offset of the record from the start of the node.</summary>
-    public int Offset { get; set; }
-    /// <summary>Gets or sets the size of the record in bytes.</summary>
-    public int Size { get; set; }
-}
-
-/// <summary>
 /// Represents a node in a B-tree structure.
 /// </summary>
-public struct BTNode
+public readonly struct BTNode
 {
-    /// <summary>Gets the index of this node in the B-tree.</summary>
+    /// <summary>
+    /// Gets the index of this node in the B-tree.
+    /// </summary>
     public uint NodeIndex { get; }
-    /// <summary>Gets the descriptor for this node.</summary>
+
+    /// <summary>
+    /// Gets the descriptor for this node.
+    /// </summary>
     public BTNodeDescriptor Descriptor { get; }
-    /// <summary>Gets the array of record offsets in this node.</summary>
+
+    /// <summary>
+    /// Gets the array of record offsets in this node.
+    /// </summary>
     public BTRecordOffset[] RecordOffsets { get; }
 
     /// <summary>
@@ -33,7 +30,7 @@ public struct BTNode
     public BTNode(uint nodeIndex, Span<byte> data)
     {
         NodeIndex = nodeIndex;
-        Descriptor = new BTNodeDescriptor(data);
+        Descriptor = new BTNodeDescriptor(data[..BTNodeDescriptor.Size]);
 
         // Validate the descriptor.
         if (Descriptor.RecordCount >= 64)

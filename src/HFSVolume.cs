@@ -26,6 +26,11 @@ public class HFSVolume
     public BTree CatalogTree { get; }
 
     /// <summary>
+    /// Gets the extents overflow B-tree of the HFS volume.
+    /// </summary>
+    public BTree? ExtentsOverflowTree { get; }
+
+    /// <summary>
     /// Initializes a new instance of the <see cref="HFSVolume"/> class.
     /// </summary>
     /// <param name="stream">The stream containing the HFS volume data.</param>
@@ -50,8 +55,13 @@ public class HFSVolume
 
         // Initialize the catalog B-tree
         CatalogTree = new BTree(_stream, _streamStartOffset, MasterDirectoryBlock.CatalogFileExtents, MasterDirectoryBlock.ExtentsStartBlockNumber, MasterDirectoryBlock.AllocationBlockSize);
-    }
 
+        // Initialize the extents overflow B-tree if it exists
+        if (MasterDirectoryBlock.ExtentsOverflowFileSize > 0)
+        {
+            ExtentsOverflowTree = new BTree(_stream, _streamStartOffset, MasterDirectoryBlock.ExtentsOverflowExtents, MasterDirectoryBlock.ExtentsStartBlockNumber, MasterDirectoryBlock.AllocationBlockSize);
+        }
+    }
 
     /// <summary>
     /// Gets the contents of the root directory of the HFS volume.
@@ -186,72 +196,154 @@ public class HFSVolume
         return currentNode;
     }
 
-    private int ReadBlock(HFSExtentRecord extents, ushort blockNumber, uint dataSize, uint allocatedSize, Stream outputStream)
+    private int ReadForkData(uint fileID, HFSExtentRecord firstExtents, HFSForkType forkType, uint dataSize, uint allocatedSize, Stream outputStream)
     {
         // NOTE: According to the HFS spec the block number fields in the file record
         // (DataForkBlockNumber / ResourceForkBlockNumber) are not used. The extents
         // describe the (allocation) blocks that contain the fork's data. Each extent
         // descriptor gives a starting allocation block and a block count. Blocks are
-        // contiguous within an extent. Additional extents (beyond the first 3) would
-        // be stored in the extents overflow file – currently not implemented here.
-        // We therefore only read the first extent record.
-
-        // Sanity: if the first extent record does not describe enough blocks to cover the
-        // allocated size, the remaining extents must be fetched from the Extents Overflow file.
-        int describedBlocks = 0;
-        for (int i = 0; i < 3; i++)
-        {
-            var d = extents[i];
-            if (d.BlockCount == 0) continue; // Unused descriptor.
-            describedBlocks += d.BlockCount;
-        }
-
-        // Allocated size is in bytes; convert for comparison (avoid division rounding issues).
-        if (allocatedSize != 0 && (ulong)describedBlocks * MasterDirectoryBlock.AllocationBlockSize < allocatedSize)
-        {
-            // More extents exist in the Extents Overflow file; not implemented yet.
-            throw new NotImplementedException("Extents overflow not handled yet (file has more than 3 extents).");
-        }
+        // contiguous within an extent. Additional extents (beyond the first 3) are
+        // stored in the extents overflow file.
 
         uint remaining = dataSize;
         int totalBytesWritten = 0;
         Span<byte> blockBuffer = stackalloc byte[(int)MasterDirectoryBlock.AllocationBlockSize];
+        
+        // Start with the first 3 extents from the file record
+        HFSExtentRecord currentExtents = firstExtents;
+        ushort currentStartBlock = 0; // Track which allocation block we're at in the fork
 
-        // Iterate each extent then each block within the extent until we've read dataSize bytes.
-        for (int extentIndex = 0; extentIndex < 3 && remaining > 0; extentIndex++)
+        while (remaining > 0)
         {
-            var extent = extents[extentIndex];
-            if (extent.BlockCount == 0)
+            bool processedAnyExtent = false;
+            
+            // Process the current extent record (up to 3 extents)
+            for (int extentIndex = 0; extentIndex < 3 && remaining > 0; extentIndex++)
             {
-                continue; // Skip empty descriptors.
-            }
-
-            for (int blockIndex = 0; blockIndex < extent.BlockCount && remaining > 0; blockIndex++)
-            {
-                ulong absoluteBlockNumber = MasterDirectoryBlock.ExtentsStartBlockNumber + (ulong)extent.StartBlock + (ulong)blockIndex; // Allocation block number relative to start of volume.
-                long seekOffset = (long)absoluteBlockNumber * (long)MasterDirectoryBlock.AllocationBlockSize;
-                _stream.Seek(_streamStartOffset + seekOffset, SeekOrigin.Begin);
-
-                // Read a full allocation block, then copy only the required bytes from its start.
-                int readBytes = _stream.Read(blockBuffer);
-                if (readBytes != (int)MasterDirectoryBlock.AllocationBlockSize)
+                var extent = currentExtents[extentIndex];
+                if (extent.BlockCount == 0)
                 {
-                    throw new InvalidDataException("Unable to read full allocation block for file fork.");
+                    continue; // Skip empty descriptors.
                 }
 
-                int bytesToCopy = (int)Math.Min(remaining, MasterDirectoryBlock.AllocationBlockSize);
-                outputStream.Write(blockBuffer[..bytesToCopy]);
-                totalBytesWritten += bytesToCopy;
-                remaining -= (uint)bytesToCopy;
-            }
-        }
+                processedAnyExtent = true;
 
-        if (remaining > 0)
-        {
-            throw new InvalidDataException("Insufficient extent descriptors to satisfy declared fork size.");
+                for (int blockIndex = 0; blockIndex < extent.BlockCount && remaining > 0; blockIndex++)
+                {
+                    ulong absoluteBlockNumber = MasterDirectoryBlock.ExtentsStartBlockNumber + (ulong)extent.StartBlock + (ulong)blockIndex;
+                    long seekOffset = (long)absoluteBlockNumber * (long)MasterDirectoryBlock.AllocationBlockSize;
+                    _stream.Seek(_streamStartOffset + seekOffset, SeekOrigin.Begin);
+
+                    // Read a full allocation block, then copy only the required bytes from its start.
+                    int readBytes = _stream.Read(blockBuffer);
+                    if (readBytes != (int)MasterDirectoryBlock.AllocationBlockSize)
+                    {
+                        throw new InvalidDataException("Unable to read full allocation block for file fork.");
+                    }
+
+                    int bytesToCopy = (int)Math.Min(remaining, MasterDirectoryBlock.AllocationBlockSize);
+                    outputStream.Write(blockBuffer[..bytesToCopy]);
+                    totalBytesWritten += bytesToCopy;
+                    remaining -= (uint)bytesToCopy;
+                    currentStartBlock++;
+                }
+            }
+
+            if (remaining > 0)
+            {
+                // Need more extents - fetch from the extents overflow file
+                var overflowExtents = GetExtentsFromOverflow(fileID, forkType, currentStartBlock);
+                if (overflowExtents == null)
+                {
+                    throw new InvalidDataException($"Insufficient extent descriptors to satisfy declared fork size. Remaining: {remaining} bytes, StartBlock: {currentStartBlock}");
+                }
+                currentExtents = overflowExtents.Value;
+                processedAnyExtent = false; // Will process in next iteration
+            }
+            else if (!processedAnyExtent)
+            {
+                // No extents processed and no data remaining - we're done
+                break;
+            }
         }
 
         return totalBytesWritten;
+    }
+
+    /// <summary>
+    /// Gets additional extents from the extents overflow B-tree.
+    /// </summary>
+    /// <param name="fileID">The file identifier.</param>
+    /// <param name="forkType">The fork type (data or resource).</param>
+    /// <param name="startBlock">The starting allocation block number to search for.</param>
+    /// <returns>The extent record if found; otherwise, null.</returns>
+    private HFSExtentRecord? GetExtentsFromOverflow(uint fileID, HFSForkType forkType, ushort startBlock)
+    {
+        if (ExtentsOverflowTree == null)
+        {
+            return null;
+        }
+
+        // Search the extents overflow B-tree for the matching extent record
+        BTNode currentNode = ExtentsOverflowTree.RootNode;
+
+        // Navigate to the leaf node
+        while (currentNode.Descriptor.NodeType != BTNodeType.LeafNode)
+        {
+            if (currentNode.Descriptor.NodeType == BTNodeType.IndexNode)
+            {
+                uint? nextNodeIndex = null;
+                for (int i = 0; i < currentNode.Descriptor.RecordCount; i++)
+                {
+                    var recordOffset = currentNode.RecordOffsets[i];
+                    var extentKey = new HFSExtentKey(ExtentsOverflowTree.BlockBuffer.Slice(recordOffset.Offset, HFSExtentKey.Size));
+                    
+                    // The index record contains a pointer to the child node after the key
+                    var index = BinaryPrimitives.ReadUInt32BigEndian(ExtentsOverflowTree.BlockBuffer[(recordOffset.Offset + HFSExtentKey.Size)..]);
+
+                    if (extentKey.CompareTo(fileID, forkType, startBlock) > 0)
+                    {
+                        break;
+                    }
+                    nextNodeIndex = index;
+                }
+
+                if (nextNodeIndex != null)
+                {
+                    currentNode = ExtentsOverflowTree.GetNode(nextNodeIndex.Value);
+                }
+                else
+                {
+                    return null;
+                }
+            }
+            else
+            {
+                return null;
+            }
+        }
+
+        // Search the leaf node for the matching extent record
+        for (int i = 0; i < currentNode.Descriptor.RecordCount; i++)
+        {
+            var recordOffset = currentNode.RecordOffsets[i];
+            var extentKey = new HFSExtentKey(ExtentsOverflowTree.BlockBuffer.Slice(recordOffset.Offset, HFSExtentKey.Size));
+
+            if (extentKey.ForkType == forkType && extentKey.FileID == fileID && extentKey.StartBlock == startBlock)
+            {
+                // Found the matching extent record - it follows the key
+                var extentDataOffset = recordOffset.Offset + HFSExtentKey.Size;
+                return new HFSExtentRecord(ExtentsOverflowTree.BlockBuffer.Slice(extentDataOffset, HFSExtentRecord.Size));
+            }
+            
+            // Keys are sorted, so if we've passed our target, stop searching
+            if (extentKey.CompareTo(fileID, forkType, startBlock) > 0)
+            {
+                break;
+            }
+        }
+
+        return null;
     }
 
     /// <summary>
@@ -281,11 +373,23 @@ public class HFSVolume
 
         if (!resourceFork)
         {
-            return ReadBlock(file.FileRecord.FirstDataForkExtents, file.FileRecord.DataForkBlockNumber, file.FileRecord.DataForkSize, file.FileRecord.DataForkAllocatedSize, outputStream);
+            return ReadForkData(
+                file.FileRecord.Identifier,
+                file.FileRecord.FirstDataForkExtents,
+                HFSForkType.DataFork,
+                file.FileRecord.DataForkSize,
+                file.FileRecord.DataForkAllocatedSize,
+                outputStream);
         }
         else
         {
-            return ReadBlock(file.FileRecord.FirstResourceForkExtents, file.FileRecord.ResourceForkBlockNumber, file.FileRecord.ResourceForkSize, file.FileRecord.ResourceForkAllocatedSize, outputStream);
+            return ReadForkData(
+                file.FileRecord.Identifier,
+                file.FileRecord.FirstResourceForkExtents,
+                HFSForkType.ResourceFork,
+                file.FileRecord.ResourceForkSize,
+                file.FileRecord.ResourceForkAllocatedSize,
+                outputStream);
         }
     }
 }

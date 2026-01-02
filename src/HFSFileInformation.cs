@@ -13,22 +13,34 @@ public struct HFSFileInformation
     /// </summary>
     public const int Size = 16;
 
-    /// <summary>Gets the file type.</summary>
+    /// <summary>
+    /// Gets the file type.
+    /// </summary>
     public uint FileType { get; }
 
-    /// <summary>Gets the file creator.</summary>
+    /// <summary>
+    /// Gets the file creator.
+    /// </summary>
     public uint Creator { get; }
 
-    /// <summary>Gets the Finder flags.</summary>
+    /// <summary>
+    /// Gets the Finder flags.
+    /// </summary>
     public HFSFinderFlags FinderFlags { get; }
 
-    /// <summary>Gets the X-coordinate of the file's location within the parent.</summary>
+    /// <summary>
+    /// Gets the X-coordinate of the file's location within the parent.
+    /// </summary>
     public ushort ParentLocationX { get; }
 
-    /// <summary>Gets the Y-coordinate of the file's location within the parent.</summary>
+    /// <summary>
+    /// Gets the Y-coordinate of the file's location within the parent.
+    /// </summary>
     public ushort ParentLocationY { get; }
 
-    /// <summary>Gets the window in which the file's icon appears.</summary>
+    /// <summary>
+    /// Gets the window in which the file's icon appears.
+    /// </summary>
     public ushort FileIconWindow { get; }
 
     /// <summary>

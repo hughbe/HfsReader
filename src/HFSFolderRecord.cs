@@ -6,33 +6,51 @@ namespace HfsReader;
 /// <summary>
 /// Represents an HFS folder record in the catalog.
 /// </summary>
-public struct HFSFolderRecord
+public readonly struct HFSFolderRecord
 {
-    /// <summary>Gets the catalog data record type.</summary>
+    /// <summary>
+    /// Gets the catalog data record type.
+    /// </summary>
     public HFSCatalogDataRecordType Type { get; }
 
-    /// <summary>Gets the folder flags.</summary>
+    /// <summary>
+    /// Gets the folder flags.
+    /// </summary>
     public ushort FolderFlags { get; }
 
-    /// <summary>Gets the number of directory entries (valence).</summary>
+    /// <summary>
+    /// Gets the number of directory entries (valence).
+    /// </summary>
     public ushort NumberOfDirectoryEntries { get; }
 
-    /// <summary>Gets the folder identifier (CNID).</summary>
+    /// <summary>
+    /// Gets the folder identifier (CNID).
+    /// </summary>
     public uint Identifier { get; }
 
-    /// <summary>Gets the creation date and time.</summary>
+    /// <summary>
+    /// Gets the creation date and time.
+    /// </summary>
     public DateTime CreationDate { get; }
 
-    /// <summary>Gets the content modification date and time.</summary>
+    /// <summary>
+    /// Gets the content modification date and time.
+    /// </summary>
     public DateTime ContentModificationDate { get; }
 
-    /// <summary>Gets the backup date and time.</summary>
+    /// <summary>
+    /// Gets the backup date and time.
+    /// </summary>
     public DateTime BackupDate { get; }
 
-    /// <summary>Gets the folder information.</summary>
+    /// <summary>
+    /// Gets the folder information.
+    /// </summary>
     public HFSFolderInformation FolderInformation { get; }
 
-    /// <summary>Gets the extended folder information.</summary>
+    /// <summary>
+    /// Gets the extended folder information.
+    /// </summary>
     public HFSExtendedFolderInformation ExtendedFolderInformation { get; }
 
     /// <summary>

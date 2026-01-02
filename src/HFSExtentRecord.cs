@@ -62,6 +62,6 @@ public struct HFSExtentRecord
         ThirdExtent = new HFSExtentDescriptor(data.Slice(offset, 4));
         offset += 4;
 
-        Debug.Assert(offset == data.Length);
+        Debug.Assert(offset == data.Length, "Did not read exactly the expected number of bytes for HFSExtentRecord.");
     }
 }

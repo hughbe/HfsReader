@@ -10,6 +10,7 @@ public class BTree
     private readonly HFSExtentRecord _extents;
     private readonly int _extentsStartBlock;
     private readonly int _allocationBlockSize;
+    private readonly int _nodeSize;
 
     /// <summary>
     /// Gets the header record of the B-tree.
@@ -43,9 +44,19 @@ public class BTree
         _extentsStartBlock = extentsStartBlock;
         _allocationBlockSize = (int)allocationBlockSize;
 
-        // Read the header node (always at index 0)
-        _blockBuffer = new byte[_allocationBlockSize];
-        var headerNode = GetNode(0);
+        // First, read the header node with a temporary 512-byte buffer (minimum node size)
+        // The header node is always at index 0 (beginning of the catalog file).
+        _nodeSize = 512; // Temporary, will be updated after reading header
+        _blockBuffer = new byte[512];
+        
+        var catalogFileOffset = GetCatalogFileOffset();
+        _stream.Seek(catalogFileOffset, SeekOrigin.Begin);
+        if (_stream.Read(_blockBuffer) != _blockBuffer.Length)
+        {
+            throw new InvalidDataException("Unable to read catalog header node.");
+        }
+        
+        var headerNode = new BTNode(0, _blockBuffer);
 
         if (headerNode.Descriptor.NodeType != BTNodeType.HeaderNode
             || headerNode.Descriptor.NodeLevel != 0
@@ -65,7 +76,21 @@ public class BTree
             throw new InvalidDataException($"B-tree header record should be {BTHeaderRec.Size} bytes, found {headerRecordOffset.Size} bytes.");
         }
 
-        Header = new BTHeaderRec(BlockBuffer.Slice(headerRecordOffset.Offset, headerRecordOffset.Size));
+        Header = new BTHeaderRec(_blockBuffer.AsSpan().Slice(headerRecordOffset.Offset, headerRecordOffset.Size));
+        
+        // Now update the node size from the header
+        _nodeSize = Header.NodeSize;
+        _blockBuffer = new byte[_nodeSize];
+    }
+    
+    /// <summary>
+    /// Gets the offset of the catalog file within the stream.
+    /// </summary>
+    private int GetCatalogFileOffset()
+    {
+        // The catalog file starts at the first extent
+        var extent = _extents[0];
+        return _streamStartOffset + (_extentsStartBlock * 512) + (extent.StartBlock * _allocationBlockSize);
     }
 
     /// <summary>
@@ -88,31 +113,37 @@ public class BTree
 
     private int GetNodeFileOffset(uint nodeIndex)
     {
-        HFSExtentDescriptor? extent = null;
-        uint remainingNodeIndex = nodeIndex;
-
+        // Calculate the byte offset of the node within the catalog file.
+        // Each node is _nodeSize bytes (typically 512 for HFS).
+        int nodeByteOffset = (int)(nodeIndex * _nodeSize);
+        
+        // Find which extent and allocation block contains this byte offset.
+        int currentByteOffset = 0;
+        
         for (int i = 0; i < 3; i++)
         {
             var currentExtent = _extents[i];
-            if (remainingNodeIndex < currentExtent.BlockCount)
+            if (currentExtent.BlockCount == 0)
             {
-                extent = currentExtent;
                 break;
             }
-
-            remainingNodeIndex -= currentExtent.BlockCount;
+            
+            int extentBytes = currentExtent.BlockCount * _allocationBlockSize;
+            
+            if (nodeByteOffset < currentByteOffset + extentBytes)
+            {
+                // The node is in this extent
+                int offsetWithinExtent = nodeByteOffset - currentByteOffset;
+                int absoluteOffset = _streamStartOffset + 
+                    (_extentsStartBlock * 512) + 
+                    (currentExtent.StartBlock * _allocationBlockSize) + 
+                    offsetWithinExtent;
+                return absoluteOffset;
+            }
+            
+            currentByteOffset += extentBytes;
         }
 
-        if (extent == null)
-        {
-            throw new InvalidDataException("Catalog node index is out of range of the catalog file extents.");
-        }
-
-        // The extents are in allocation blocks, so calculate the file offset accordingly.
-        var fileOffset = (int)((_extentsStartBlock * 512) + (extent.Value.StartBlock + remainingNodeIndex) * _allocationBlockSize);
-        
-        // If the volume is embedded within a larger stream (e.g., a partition),
-        // adjust the offset accordingly.
-        return _streamStartOffset + fileOffset;
+        throw new InvalidDataException($"Catalog node index {nodeIndex} is out of range of the catalog file extents.");
     }
 }

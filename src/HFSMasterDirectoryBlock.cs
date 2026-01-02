@@ -7,65 +7,151 @@ namespace HfsReader;
 /// <summary>
 /// Represents the master directory block of an HFS volume.
 /// </summary>
-public struct HFSMasterDirectoryBlock
+public readonly struct HFSMasterDirectoryBlock
 {
-    /// <summary>Gets the volume signature.</summary>
+    /// <summary>
+    /// Gets the volume signature.
+    /// </summary>
     public ushort Signature { get; }
-    /// <summary>Gets the creation date and time of the volume.</summary>
+
+    /// <summary>
+    /// Gets the creation date and time of the volume.
+    /// </summary>
     public DateTime CreationDateTime { get; }
-    /// <summary>Gets the modification date and time of the volume.</summary>
+
+    /// <summary>
+    /// Gets the modification date and time of the volume.
+    /// </summary>
     public DateTime ModificationDateTime { get; }
-    /// <summary>Gets the volume attribute flags.</summary>
+
+    /// <summary>
+    /// Gets the volume attribute flags.
+    /// </summary>
     public ushort VolumeAttributeFlags { get; }
-    /// <summary>Gets the number of files in the root directory.</summary>
+
+    /// <summary>
+    /// Gets the number of files in the root directory.
+    /// </summary>
     public ushort FileCount { get; }
-    /// <summary>Gets the volume bitmap block number.</summary>
+
+    /// <summary>
+    /// Gets the volume bitmap block number.
+    /// </summary>
     public ushort VolumeBitmapBlockNumber { get; }
-    /// <summary>Gets the start of the next allocation search.</summary>
+
+    /// <summary>
+    /// Gets the start of the next allocation search.
+    /// </summary>
     public ushort NextAllocationSearch { get; }
-    /// <summary>Gets the number of allocation blocks.</summary>
+
+    /// <summary>
+    /// Gets the number of allocation blocks.
+    /// </summary>
     public ushort NumberOfAllocationBlocks { get; }
-    /// <summary>Gets the allocation block size in bytes.</summary>
+
+    /// <summary>
+    /// Gets the allocation block size in bytes.
+    /// </summary>
     public uint AllocationBlockSize { get; }
-    /// <summary>Gets the default clump size.</summary>
+
+    /// <summary>
+    /// Gets the default clump size.
+    /// </summary>
     public uint DefaultClumpSize { get; }
-    /// <summary>Gets the extents start block number.</summary>
+
+    /// <summary>
+    /// Gets the extents start block number.
+    /// </summary>
     public ushort ExtentsStartBlockNumber { get; }
-    /// <summary>Gets the next available catalog node identifier (CNID).</summary>
+
+    /// <summary>
+    /// Gets the next available catalog node identifier (CNID).
+    /// </summary>
     public uint NextAvailableCatalogNodeID { get; }
-    /// <summary>Gets the number of unused allocation blocks.</summary>
+
+    /// <summary>
+    /// Gets the number of unused allocation blocks.
+    /// </summary>
     public ushort NumberOfUnusedAllocationBlocks { get; }
-    /// <summary>Gets the volume label.</summary>
+
+    /// <summary>
+    /// Gets the volume label.
+    /// </summary>
     public string VolumeLabel { get; }
-    /// <summary>Gets the backup date and time of the volume.</summary>
+
+    /// <summary>
+    /// Gets the backup date and time of the volume.
+    /// </summary>
     public DateTime BackupDateTime { get; }
-    /// <summary>Gets the backup sequence number.</summary>
+
+    /// <summary>
+    /// Gets the backup sequence number.
+    /// </summary>
     public ushort BackupSequenceNumber { get; }
-    /// <summary>Gets the volume write count.</summary>
+
+    /// <summary>
+    /// Gets the volume write count.
+    /// </summary>
     public uint VolumeWriteCount { get; }
-    /// <summary>Gets the clump size for the extents overflow file.</summary>
+
+    /// <summary>
+    /// Gets the clump size for the extents overflow file.
+    /// </summary>
     public uint ClumpSizeForExtentsOverflowFile { get; }
-    /// <summary>Gets the clump size for the catalog file.</summary>
+
+    /// <summary>
+    /// Gets the clump size for the catalog file.
+    /// </summary>
     public uint ClumpSizeForCatalogFile { get; }
-    /// <summary>Gets the number of subdirectories in the root directory.</summary>
+
+    /// <summary>
+    /// Gets the number of subdirectories in the root directory.
+    /// </summary>
     public ushort SubDirectoryCount { get; }
-    /// <summary>Gets the total number of files.</summary>
+
+    /// <summary>
+    /// Gets the total number of files.
+    /// </summary>
     public uint TotalFileCount { get; }
-    /// <summary>Gets the total number of directories (excluding the root).</summary>
+
+    /// <summary>
+    /// Gets the total number of directories (excluding the root).
+    /// </summary>
     public uint TotalDirectoryCount { get; }
-    /// <summary>Gets the Finder information for the volume.</summary>
+
+    /// <summary>
+    /// Gets the Finder information for the volume.
+    /// </summary>
     public HFSFinderInformation FinderInformation { get; }
-    /// <summary>Gets the embedded volume signature.</summary>
+
+    /// <summary>
+    /// Gets the embedded volume signature.
+    /// </summary>
     public ushort EmbeddedVolumeSignature { get; }
-    /// <summary>Gets the embedded volume extent descriptor.</summary>
+
+    /// <summary>
+    /// Gets the embedded volume extent descriptor.
+    /// </summary>
     public uint EmbeddedVolumeExtentDescriptor { get; }
-    /// <summary>Gets the extents overflow file size.</summary>
+
+    /// <summary>
+    /// Gets the extents overflow file size.
+    /// </summary>
     public uint ExtentsOverflowFileSize { get; }
-    /// <summary>Gets the extents overflow extents record.</summary>
+
+    /// <summary>
+    /// Gets the extents overflow extents record.
+    /// </summary>
     public HFSExtentRecord ExtentsOverflowExtents { get; }
-    /// <summary>Gets the catalog file size.</summary>
+
+    /// <summary>
+    /// Gets the catalog file size.
+    /// </summary>
     public uint CatalogFileSize { get; }
-    /// <summary>Gets the catalog file extents record.</summary>
+
+    /// <summary>
+    /// Gets the catalog file extents record.
+    /// </summary>
     public HFSExtentRecord CatalogFileExtents { get; }
 
     /// <summary>

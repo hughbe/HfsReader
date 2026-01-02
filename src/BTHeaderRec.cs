@@ -13,34 +13,54 @@ public unsafe struct BTHeaderRec
     /// </summary>
     public const int Size = 106;
 
-    /// <summary>Gets the depth of the tree.</summary>
+    /// <summary>
+    /// Gets the depth of the tree.
+    /// </summary>
     public ushort TreeDepth { get; }
 
-    /// <summary>Gets the root node number.</summary>
+    /// <summary>
+    /// Gets the root node number.
+    /// </summary>
     public uint RootNodeNumber { get; }
 
-    /// <summary>Gets the number of data records contained in leaf nodes.</summary>
+    /// <summary>
+    /// Gets the number of data records contained in leaf nodes.
+    /// </summary>
     public uint NumberOfDataRecords { get; }
 
-    /// <summary>Gets the first leaf node number.</summary>
+    /// <summary>
+    /// Gets the first leaf node number.
+    /// </summary>
     public uint FirstLeafNodeNumber { get; }
 
-    /// <summary>Gets the last leaf node number.</summary>
+    /// <summary>
+    /// Gets the last leaf node number.
+    /// </summary>
     public uint LastLeafNodeNumber { get; }
 
-    /// <summary>Gets the node size in bytes.</summary>
+    /// <summary>
+    /// Gets the node size in bytes.
+    /// </summary>
     public ushort NodeSize { get; }
 
-    /// <summary>Gets the maximum key size in bytes.</summary>
+    /// <summary>
+    /// Gets the maximum key size in bytes.
+    /// </summary>
     public ushort MaximumKeySize { get; }
 
-    /// <summary>Gets the number of nodes.</summary>
+    /// <summary>
+    /// Gets the number of nodes.
+    /// </summary>
     public uint NumberOfNodes { get; }
 
-    /// <summary>Gets the number of free nodes.</summary>
+    /// <summary>
+    /// Gets the number of free nodes.
+    /// </summary>
     public uint NumberOfFreeNodes { get; }
 
-    /// <summary>Gets the reserved bytes (76 bytes).</summary>
+    /// <summary>
+    /// Gets the reserved bytes (76 bytes).
+    /// </summary>
     public fixed byte Reserved[76];
 
     /// <summary>

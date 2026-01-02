@@ -13,28 +13,44 @@ public struct HFSExtendedFileInformation
     /// </summary>
     public const int Size = 16;
 
-    /// <summary>Gets the icon identifier assigned by the Finder.</summary>
+    /// <summary>
+    /// Gets the icon identifier assigned by the Finder.
+    /// </summary>
     public ushort IconIdentifier { get; }
 
-    /// <summary>Gets the first reserved field.</summary>
+    /// <summary>
+    /// Gets the first reserved field.
+    /// </summary>
     public ushort Reserved1 { get; }
 
-    /// <summary>Gets the second reserved field.</summary>
+    /// <summary>
+    /// Gets the second reserved field.
+    /// </summary>
     public ushort Reserved2 { get; }
 
-    /// <summary>Gets the third reserved field.</summary>
+    /// <summary>
+    /// Gets the third reserved field.
+    /// </summary>
     public ushort Reserved3 { get; }
 
-    /// <summary>Gets the extended Finder script code flags.</summary>
+    /// <summary>
+    /// Gets the extended Finder script code flags.
+    /// </summary>
     public byte ExtendedFinderScriptCodeFlags { get; }
 
-    /// <summary>Gets the extended Finder flags.</summary>
+    /// <summary>
+    /// Gets the extended Finder flags.
+    /// </summary>
     public byte ExtendedFinderFlags { get; }
 
-    /// <summary>Gets the comment identifier assigned by the Finder.</summary>
+    /// <summary>
+    /// Gets the comment identifier assigned by the Finder.
+    /// </summary>
     public short Comment { get; }
 
-    /// <summary>Gets the put-away folder identifier (CNID).</summary>
+    /// <summary>
+    /// Gets the put-away folder identifier (CNID).
+    /// </summary>
     public uint PutAwayFolderIdentifier { get; }
 
     /// <summary>

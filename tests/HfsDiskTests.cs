@@ -8,6 +8,7 @@ public class HfsDiskTests
     #region Disk Loading Tests
 
     [Theory]
+    [InlineData("hfs.dsk")]
     [InlineData("Microsoft Excel 1.03.dsk")]
     //[InlineData("excel2.2.img")]
     [InlineData("Microsoft Excel 2.2 for Macintosh.dsk")]
@@ -558,9 +559,9 @@ public class HfsDiskTests
         var disk = new HFSDisk(stream);
         var volume = disk.Volumes[0];
 
-        // Verify counts - empty disk
-        Assert.Equal(0, CountFiles(volume));
-        Assert.Equal(0, CountDirectories(volume));
+        // System 7.5.3 disk with full system folder
+        Assert.Equal(184, CountFiles(volume));
+        Assert.Equal(24, CountDirectories(volume));
     }
 
     [Fact]
@@ -570,9 +571,9 @@ public class HfsDiskTests
         var disk = new HFSDisk(stream);
         var volume = disk.Volumes[0];
 
-        // Verify counts - empty disk
-        Assert.Equal(0, CountFiles(volume));
-        Assert.Equal(0, CountDirectories(volume));
+        // Contains just the root folder with Desktop file
+        Assert.Equal(1, CountFiles(volume));
+        Assert.Equal(1, CountDirectories(volume));
     }
 
     #endregion

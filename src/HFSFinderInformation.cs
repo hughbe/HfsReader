@@ -6,27 +6,41 @@ namespace HfsReader;
 /// <summary>
 /// Represents Finder information for an HFS volume.
 /// </summary>
-public struct HFSFinderInformation
+public readonly struct HFSFinderInformation
 {
-    /// <summary>Gets the directory identifier of the directory containing the bootable system.</summary>
+    /// <summary>
+    /// Gets the directory identifier of the directory containing the bootable system.
+    /// </summary>
     public uint BootableSystemDirectoryId { get; }
 
-    /// <summary>Gets the parent identifier of the startup application.</summary>
+    /// <summary>
+    /// Gets the parent identifier of the startup application.
+    /// </summary>
     public uint ParentIdentifier { get; }
 
-    /// <summary>Gets the directory identifier whose window should be displayed when the volume is mounted.</summary>
+    /// <summary>
+    /// Gets the directory identifier whose window should be displayed when the volume is mounted.
+    /// </summary>
     public uint MountWindowDirectoryId { get; }
 
-    /// <summary>Gets the directory identifier of a bootable Mac OS 8 or 9 System Folder.</summary>
+    /// <summary>
+    /// Gets the directory identifier of a bootable Mac OS 8 or 9 System Folder.
+    /// </summary>
     public uint SystemMacOS89DirectoryId { get; }
 
-    /// <summary>Gets the reserved field.</summary>
+    /// <summary>
+    /// Gets the reserved field.
+    /// </summary>
     public uint Reserved { get; }
 
-    /// <summary>Gets the directory identifier of a bootable Mac OS X system.</summary>
+    /// <summary>
+    /// Gets the directory identifier of a bootable Mac OS X system.
+    /// </summary>
     public uint SystemMacOSXDirectoryId { get; }
 
-    /// <summary>Gets the unique 64-bit volume identifier used by Mac OS X.</summary>
+    /// <summary>
+    /// Gets the unique 64-bit volume identifier used by Mac OS X.
+    /// </summary>
     public ulong SystemVolumeIdentifier { get; }
 
     /// <summary>

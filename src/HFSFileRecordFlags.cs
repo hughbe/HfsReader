@@ -6,12 +6,18 @@ namespace HfsReader;
 [Flags]
 public enum HFSFileRecordFlags : byte
 {
-    /// <summary>File is locked and cannot be written to.</summary>
+    /// <summary>
+    /// File is locked and cannot be written to.
+    /// </summary>
     Locked = 0x0001,
 
-    /// <summary>Has thread record.</summary>
+    /// <summary>
+    /// Has thread record.
+    /// </summary>
     HasThreadRecord = 0x0002,
 
-    /// <summary>Has added date and time.</summary>
+    /// <summary>
+    /// Has added date and time.
+    /// </summary>
     HasDateAdded = 0x0080
 }

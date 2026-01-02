@@ -19,58 +19,94 @@ public struct ApplePartitionMapEntry
     /// </summary>
     public const int BlockSignature = 0x504D; // 'PM'
 
-    /// <summary>Gets the partition map entry signature.</summary>
+    /// <summary>
+    /// Gets the partition map entry signature.
+    /// </summary>
     public ushort Signature { get; }
 
-    /// <summary>Gets the first reserved field.</summary>
+    /// <summary>
+    /// Gets the first reserved field.
+    /// </summary>
     public ushort Reserved1 { get; }
 
-    /// <summary>Gets the total number of entries in the partition map.</summary>
+    /// <summary>
+    /// Gets the total number of entries in the partition map.
+    /// </summary>
     public uint MapEntryCount { get; }
-    
-    /// <summary>Gets the partition start sector.</summary>
+
+    /// <summary>
+    /// Gets the partition start sector.
+    /// </summary>
     public uint PartitionStartBlock { get; }
 
-    /// <summary>Gets the partition number of sectors.</summary>
+    /// <summary>
+    /// Gets the partition number of sectors.
+    /// </summary>
     public uint PartitionBlockCount { get; }
 
-    /// <summary>Gets the partition name.</summary>
+    /// <summary>
+    /// Gets the partition name.
+    /// </summary>
     public string Name { get; }
 
-    /// <summary>Gets the partition type.</summary>
+    /// <summary>
+    /// Gets the partition type.
+    /// </summary>
     public string Type { get; }
 
-    /// <summary>Gets the data area start sector.</summary>
+    /// <summary>
+    /// Gets the data area start sector.
+    /// </summary>
     public uint DataStartBlock { get; }
 
-    /// <summary>Gets the data area number of sectors.</summary>
+    /// <summary>
+    /// Gets the data area number of sectors.
+    /// </summary>
     public uint DataBlockCount { get; }
 
-    /// <summary>Gets the status flags.</summary>
+    /// <summary>
+    /// Gets the status flags.
+    /// </summary>
     public uint StatusFlags { get; }
 
-    /// <summary>Gets the boot code start sector.</summary>
+    /// <summary>
+    /// Gets the boot code start sector.
+    /// </summary>
     public uint BootCodeStartBlock { get; }
 
-    /// <summary>Gets the boot code number of sectors.</summary>
+    /// <summary>
+    /// Gets the boot code number of sectors.
+    /// </summary>
     public uint BootCodeBlockCount { get; }
 
-    /// <summary>Gets the boot code address.</summary>
+    /// <summary>
+    /// Gets the boot code address.
+    /// </summary>
     public uint BootCodeAddress { get; }
 
-    /// <summary>Gets the second reserved field.</summary>
+    /// <summary>
+    /// Gets the second reserved field.
+    /// </summary>
     public uint Reserved2 { get; }
 
-    /// <summary>Gets the boot code entry point.</summary>
+    /// <summary>
+    /// Gets the boot code entry point.
+    /// </summary>
     public uint BootCodeEntryPoint { get; }
 
-    /// <summary>Gets the third reserved field.</summary>
+    /// <summary>
+    /// Gets the third reserved field.
+    /// </summary>
     public uint Reserved3 { get; }
 
-    /// <summary>Gets the boot code checksum.</summary>
+    /// <summary>
+    /// Gets the boot code checksum.
+    /// </summary>
     public uint BootCodeChecksum { get; }
 
-    /// <summary>Gets the processor type.</summary>
+    /// <summary>
+    /// Gets the processor type.
+    /// </summary>
     public string ProcessorType { get; }
 
     /// <summary>
@@ -166,6 +202,6 @@ public struct ApplePartitionMapEntry
         offset += 16;
 
         // Remaining bytes are reserved
-        Debug.Assert(offset == Size);
+        Debug.Assert(offset == Size, "Did not read exactly the expected number of bytes for ApplePartitionMapEntry.");
     }
 }
