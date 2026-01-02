@@ -50,11 +50,11 @@ internal static class SpanUtilities
     {
         Debug.Assert(data.Length >= 4, "Data span must contain at least 4 bytes for the timestamp.");
 
-        // 4 bytes HFS timestamp
-        var hfsTimestamp = BinaryPrimitives.ReadUInt32BigEndian(data);
+        // 4 bytes MacOS timestamp
+        var timestamp = BinaryPrimitives.ReadUInt32BigEndian(data);
 
-        // HFS timestamps are seconds since 00:00:00 on January 1, 1904
-        var hfsEpoch = new DateTime(1904, 1, 1, 0, 0, 0, DateTimeKind.Utc);
-        return hfsEpoch.AddSeconds(hfsTimestamp);
+        // MacOS timestamps are seconds since 00:00:00 on January 1, 1904
+        var epoch = new DateTime(1904, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+        return epoch.AddSeconds(timestamp);
     }
 }
