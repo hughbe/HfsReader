@@ -105,7 +105,7 @@ sealed class ExtractCommand : AsyncCommand<ExtractSettings>
                 {
                     var dataPath = basePath + ".data";
                     await using var outputStream = File.Create(dataPath);
-                    var bytes = volume.GetFileData(file, outputStream, resourceFork: false);
+                    var bytes = volume.GetFileData(file, outputStream, HFSForkType.DataFork);
                     AnsiConsole.MarkupLine($"Wrote data fork: {Path.GetFileName(dataPath)} ({bytes} bytes)");
                     TrySetTimestamps(dataPath, file.FileRecord.CreationDate, file.FileRecord.ModificationDate);
                 }
@@ -114,7 +114,7 @@ sealed class ExtractCommand : AsyncCommand<ExtractSettings>
                 {
                     var resPath = basePath + ".res";
                     await using var outputStream = File.Create(resPath);
-                    var bytes = volume.GetFileData(file, outputStream, resourceFork: true);
+                    var bytes = volume.GetFileData(file, outputStream, HFSForkType.ResourceFork);
                     AnsiConsole.MarkupLine($"Wrote resource fork: {Path.GetFileName(resPath)} ({bytes} bytes)");
                     TrySetTimestamps(resPath, file.FileRecord.CreationDate, file.FileRecord.ModificationDate);
                 }

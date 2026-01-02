@@ -211,7 +211,7 @@ public class HFSVolume
         
         // Start with the first 3 extents from the file record
         HFSExtentRecord currentExtents = firstExtents;
-        ushort currentStartBlock = 0; // Track which allocation block we're at in the fork
+        ushort totalBlocksRead = 0; // Track which allocation block we're at in the fork
 
         while (remaining > 0)
         {
@@ -228,36 +228,33 @@ public class HFSVolume
 
                 processedAnyExtent = true;
 
-                for (int blockIndex = 0; blockIndex < extent.BlockCount && remaining > 0; blockIndex++)
-                {
-                    ulong absoluteBlockNumber = MasterDirectoryBlock.ExtentsStartBlockNumber + (ulong)extent.StartBlock + (ulong)blockIndex;
-                    long seekOffset = (long)absoluteBlockNumber * (long)MasterDirectoryBlock.AllocationBlockSize;
-                    _stream.Seek(_streamStartOffset + seekOffset, SeekOrigin.Begin);
+                var offset = MasterDirectoryBlock.ExtentsStartBlockNumber * 512 + extent.StartBlock * MasterDirectoryBlock.AllocationBlockSize;
+                var size = extent.BlockCount * MasterDirectoryBlock.AllocationBlockSize;
 
-                    // Read a full allocation block, then copy only the required bytes from its start.
-                    int readBytes = _stream.Read(blockBuffer);
-                    if (readBytes != (int)MasterDirectoryBlock.AllocationBlockSize)
+                // Read the extent's blocks.
+                _stream.Seek(_streamStartOffset + offset, SeekOrigin.Begin);
+
+                for (int i = 0; i < extent.BlockCount; i++)
+                {
+                    if (_stream.Read(blockBuffer) != blockBuffer.Length)
                     {
                         throw new InvalidDataException("Unable to read full allocation block for file fork.");
                     }
 
-                    int bytesToCopy = (int)Math.Min(remaining, MasterDirectoryBlock.AllocationBlockSize);
+                    int bytesToCopy = (int)Math.Min(remaining, blockBuffer.Length);
                     outputStream.Write(blockBuffer[..bytesToCopy]);
                     totalBytesWritten += bytesToCopy;
                     remaining -= (uint)bytesToCopy;
-                    currentStartBlock++;
+                    totalBlocksRead++;
                 }
             }
 
             if (remaining > 0)
             {
                 // Need more extents - fetch from the extents overflow file
-                var overflowExtents = GetExtentsFromOverflow(fileID, forkType, currentStartBlock);
-                if (overflowExtents == null)
-                {
-                    throw new InvalidDataException($"Insufficient extent descriptors to satisfy declared fork size. Remaining: {remaining} bytes, StartBlock: {currentStartBlock}");
-                }
-                currentExtents = overflowExtents.Value;
+                var overflowExtents = GetExtentsFromOverflow(fileID, forkType, totalBlocksRead)
+                    ?? throw new InvalidDataException($"Insufficient extent descriptors to satisfy declared fork size. Remaining: {remaining} bytes, StartBlock: {totalBlocksRead}");
+                currentExtents = overflowExtents;
                 processedAnyExtent = false; // Will process in next iteration
             }
             else if (!processedAnyExtent)
@@ -347,15 +344,57 @@ public class HFSVolume
     }
 
     /// <summary>
+    /// Gets the data fork of a file as a byte array.
+    /// </summary>
+    /// <param name="file">The file to read.</param>
+    /// <returns>The data fork data as a byte array.</returns>
+    public byte[] GetDataForkData(HFSFile file)
+    {
+        return GetFileData(file, HFSForkType.DataFork);
+    }
+
+    /// <summary>
+    /// Writes the data fork of a file to the specified output stream.
+    /// </summary>
+    /// <param name="file">The file to read.</param>
+    /// <param name="outputStream">The stream to write the file data to.</param>
+    /// <returns>The number of bytes written to the output stream.</returns>
+    public int GetDataForkData(HFSFile file, Stream outputStream)
+    {
+        return GetFileData(file, outputStream, HFSForkType.DataFork);
+    }
+
+    /// <summary>
+    /// Gets the resource fork of a file as a byte array.
+    /// </summary>
+    /// <param name="file">The file to read.</param>
+    /// <returns>The resource fork data as a byte array.</returns>
+    public byte[] GetResourceForkData(HFSFile file)
+    {
+        return GetFileData(file, HFSForkType.ResourceFork);
+    }
+
+    /// <summary>
+    /// Writes the resource fork of a file to the specified output stream.
+    /// </summary>
+    /// <param name="file">The file to read.</param>
+    /// <param name="outputStream">>The stream to write the file data to.</param>
+    /// <returns>The number of bytes written to the output stream.</returns>
+    public int GetResourceForkData(HFSFile file, Stream outputStream)
+    {
+        return GetFileData(file, outputStream, HFSForkType.ResourceFork);
+    }
+
+    /// <summary>
     /// Gets the data of a file as a byte array.
     /// </summary>
     /// <param name="file">The file to read.</param>
-    /// <param name="resourceFork">True to read the resource fork; otherwise, false for the data fork.</param>
+    /// <param name="forkType">The fork type (data or resource).</param>
     /// <returns>The file data as a byte array.</returns>
-    public byte[] GetFileData(HFSFile file, bool resourceFork)
+    public byte[] GetFileData(HFSFile file, HFSForkType forkType)
     {
         using var ms = new MemoryStream();
-        GetFileData(file, ms, resourceFork);
+        GetFileData(file, ms, forkType);
         return ms.ToArray();
     }
 
@@ -364,14 +403,19 @@ public class HFSVolume
     /// </summary>
     /// <param name="file">The file to read.</param>
     /// <param name="outputStream">The stream to write the file data to.</param>
-    /// <param name="resourceFork">True to read the resource fork; otherwise, false for the data fork.</param>
+    /// <param name="forkType">The fork type (data or resource).</param>
     /// <returns>The number of bytes written to the output stream.</returns>
-    public int GetFileData(HFSFile file, Stream outputStream, bool resourceFork)
+    public int GetFileData(HFSFile file, Stream outputStream, HFSForkType forkType)
     {
         ArgumentNullException.ThrowIfNull(file);
         ArgumentNullException.ThrowIfNull(outputStream);
+        
+        if (!Enum.IsDefined(typeof(HFSForkType), forkType))
+        {
+            throw new ArgumentOutOfRangeException(nameof(forkType), "Invalid fork type specified.");
+        }
 
-        if (!resourceFork)
+        if (forkType == HFSForkType.DataFork)
         {
             return ReadForkData(
                 file.FileRecord.Identifier,

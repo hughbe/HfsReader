@@ -68,6 +68,23 @@ public class HfsDiskTests
     }
 
     [Fact]
+    public void Ctor_Hfs()
+    {
+        using var stream = File.OpenRead(Path.Combine("Samples", "hfs.dsk"));
+        var disk = new HFSDisk(stream);
+        var volume = disk.Volumes[0];
+        foreach (var file in volume.ContentsOfDirectory((HFSDirectory)volume.RootContents().First()))
+        {
+            if (!file.Name.Contains("Read Me"))
+            {
+                continue;
+            }
+
+            var data = volume.GetFileData(file as HFSFile ?? throw new InvalidOperationException(), HFSForkType.ResourceFork);
+        }
+    }
+
+    [Fact]
     public void Ctor_NullStream_ThrowsArgumentNullException()
     {
         Assert.Throws<ArgumentNullException>("stream", () => new HFSDisk(null!));
@@ -119,13 +136,13 @@ public class HfsDiskTests
             if (file.FileRecord.DataForkSize != 0)
             {
                 using var outputStream = File.Create(filePath + ".data");
-                volume.GetFileData(file, outputStream, false);
+                volume.GetFileData(file, outputStream, HFSForkType.DataFork);
             }
 
             if (file.FileRecord.ResourceForkSize != 0)
             {
                 using var outputStream = File.Create(filePath + ".res");
-                volume.GetFileData(file, outputStream, true);
+                volume.GetFileData(file, outputStream, HFSForkType.ResourceFork);
             }
         }
     }
@@ -666,14 +683,14 @@ public class HfsDiskTests
 
     private static void AssertDataForkChecksum(HFSVolume volume, HFSFile file, string expectedChecksum)
     {
-        var data = volume.GetFileData(file, resourceFork: false);
+        var data = volume.GetFileData(file, HFSForkType.DataFork);
         var actualChecksum = Convert.ToHexString(SHA256.HashData(data));
         Assert.Equal(expectedChecksum, actualChecksum);
     }
 
     private static void AssertResourceForkChecksum(HFSVolume volume, HFSFile file, string expectedChecksum)
     {
-        var data = volume.GetFileData(file, resourceFork: true);
+        var data = volume.GetFileData(file, HFSForkType.ResourceFork);
         var actualChecksum = Convert.ToHexString(SHA256.HashData(data));
         Assert.Equal(expectedChecksum, actualChecksum);
     }
