@@ -88,29 +88,6 @@ public readonly struct BTNodeDescriptor
         Reserved = BinaryPrimitives.ReadUInt16BigEndian(data[offset..]);
         offset += 2;
 
-        Debug.Assert(offset == Size);
+        Debug.Assert(offset == data.Length, "Did not read the expected number of bytes for BTNodeDescriptor.");
     }
-}
-
-/// <summary>
-/// Represents the type of a B-tree node.
-/// </summary>
-public enum BTNodeType : sbyte
-{
-    /// <summary>
-    /// A leaf node containing data records.
-    /// </summary>
-    LeafNode = -1,
-    /// <summary>
-    /// An index node containing pointers to other nodes.
-    /// </summary>
-    IndexNode = 0,
-    /// <summary>
-    /// A header node containing B-tree metadata.
-    /// </summary>
-    HeaderNode = 1,
-    /// <summary>
-    /// A map node containing allocation information.
-    /// </summary>
-    MapNode = 2
 }

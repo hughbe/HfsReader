@@ -52,11 +52,12 @@ public struct HFSExtendedFolderInformation
     /// Initializes a new instance of the <see cref="HFSExtendedFolderInformation"/> struct from the given data.
     /// </summary>
     /// <param name="data">The span containing the extended folder information data.</param>
+    /// <exception cref="ArgumentException">Thrown when the data length is not equal to the required size.</exception>
     public HFSExtendedFolderInformation(Span<byte> data)
     {
-        if (data.Length < Size)
+        if (data.Length != Size)
         {
-            throw new ArgumentException($"Extended folder information data must be at least {Size} bytes long.", nameof(data));
+            throw new ArgumentException($"Extended folder information data must be exactly {Size} bytes long.", nameof(data));
         }
 
         int offset = 0;
@@ -102,6 +103,6 @@ public struct HFSExtendedFolderInformation
         PutAwayFolderIdentifier = BinaryPrimitives.ReadUInt32BigEndian(data[offset..]);
         offset += 4;
 
-        Debug.Assert(offset == Size);
+        Debug.Assert(offset == data.Length, "Did not read the expected number of bytes for HFSExtendedFolderInformation.");
     }
 }

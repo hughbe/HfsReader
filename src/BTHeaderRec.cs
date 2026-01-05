@@ -67,11 +67,12 @@ public unsafe struct BTHeaderRec
     /// Initializes a new instance of the <see cref="BTHeaderRec"/> struct from the given data.
     /// </summary>
     /// <param name="data">The span containing the B-tree header record data.</param>
+    /// <exception cref="ArgumentException">Thrown when the data length is not equal to the required size.</exception>
     public BTHeaderRec(Span<byte> data)
     {
-        if (data.Length < Size)
+        if (data.Length != Size)
         {
-            throw new ArgumentException("BTHeaderRec data must be at least 106 bytes long.", nameof(data));
+            throw new ArgumentException($"B-tree header record data must be exactly {Size} bytes long.", nameof(data));
         }
 
         int offset = 0;
@@ -122,6 +123,6 @@ public unsafe struct BTHeaderRec
             offset += 76;
         }
 
-        Debug.Assert(offset == Size);
+        Debug.Assert(offset == data.Length, "Did not read the expected number of bytes for BTHeaderRec.");
     }
 }

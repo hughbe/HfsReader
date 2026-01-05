@@ -41,6 +41,7 @@ public struct HFSExtentRecord
     /// Initializes a new instance of the <see cref="HFSExtentRecord"/> struct from the given data.
     /// </summary>
     /// <param name="data">The span containing the extent record data.</param>
+    /// <exception cref="ArgumentException">Thrown when the data length is not equal to the required size.</exception>
     public HFSExtentRecord(Span<byte> data)
     {
         if (data.Length != Size)

@@ -173,7 +173,12 @@ public readonly struct HFSMasterDirectoryBlock
         offset += 2;
         if (Signature != 0x4244) // 'BD'
         {
-            throw new InvalidDataException("Invalid DSK master directory block signature.");
+            if (Signature == 0xD2D7)
+            {
+                throw new InvalidDataException("The provided volume appears to be a Macintosh File System (MFS) volume, which is not supported.");
+            }
+
+            throw new InvalidDataException($"Invalid volume signature 0x{Signature:X4} in master directory block.");
         }
 
         // Volume creation date and time

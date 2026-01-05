@@ -52,7 +52,7 @@ public class HFSDisk
                 throw new InvalidDataException("Unable to read Apple Partition Map Entry.");
             }
 
-            var partitionEntry = new ApplePartitionMapEntry(blockBuffer);
+            var partitionEntry = new ApplePartitionMapEntry(blockBuffer.Slice(0, ApplePartitionMapEntry.Size));
             if (partitionEntry.Type == "Apple_HFS")
             {
                 // Found the HFS partition - add a volume for it.

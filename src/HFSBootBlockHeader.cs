@@ -214,6 +214,6 @@ public struct HFSBootBlockHeader
         FractionOfAvailableRAMForSystemHeap = BinaryPrimitives.ReadUInt32BigEndian(data[offset..]);
         offset += 4;
 
-        Debug.Assert(offset == Size);
+        Debug.Assert(offset == data.Length, "Did not read the expected number of bytes for HFSBootBlockHeader.");
     }
 }

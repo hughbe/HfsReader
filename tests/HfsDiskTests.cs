@@ -10,7 +10,8 @@ public class HfsDiskTests
     [Theory]
     [InlineData("hfs.dsk")]
     [InlineData("Microsoft Excel 1.03.dsk")]
-    //[InlineData("excel2.2.img")]
+    [InlineData("System3.1.1.dsk")]
+    [InlineData("System5.dsk")]
     [InlineData("Microsoft Excel 2.2 for Macintosh.dsk")]
     [InlineData("MS EXCEL SETUP.dsk")]
     [InlineData("MS EXCEL UTILITIES 1.dsk")]
@@ -21,13 +22,8 @@ public class HfsDiskTests
     [InlineData("System753.dsk")]
     [InlineData("importfl-1.2.2.dsk")]
     [InlineData("exportfl-1.3.1.dsk")]
-    //[InlineData("ResEdit 2.1.3.img")]
     [InlineData("Stuffit_Expander_5.5.dsk")]
-    //[InlineData("Excel 1.03/Excel Program.image")]
     [InlineData("Excel 1.5/Excel 1.5.img")]
-    //[InlineData("Excel 2.2a/Help & Examples.image")]
-    //[InlineData("Excel 2.2a/Microsoft Excel.image")]
-    //[InlineData("Excel 2.2a/Tour.image")]
     [InlineData("Excel 3.0/Excel 3.0.img")]
     [InlineData("Excel 4.0/Excel 4.0.img")]
     [InlineData("Excel 5.0/Excel v5.0 (Disk 1) Install 1 (065-096-693).dsk")]
@@ -68,26 +64,29 @@ public class HfsDiskTests
     }
 
     [Fact]
-    public void Ctor_Hfs()
-    {
-        using var stream = File.OpenRead(Path.Combine("Samples", "hfs.dsk"));
-        var disk = new HFSDisk(stream);
-        var volume = disk.Volumes[0];
-        foreach (var file in volume.ContentsOfDirectory((HFSDirectory)volume.RootContents().First()))
-        {
-            if (!file.Name.Contains("Read Me"))
-            {
-                continue;
-            }
-
-            var data = volume.GetFileData(file as HFSFile ?? throw new InvalidOperationException(), HFSForkType.ResourceFork);
-        }
-    }
-
-    [Fact]
     public void Ctor_NullStream_ThrowsArgumentNullException()
     {
         Assert.Throws<ArgumentNullException>("stream", () => new HFSDisk(null!));
+    }
+
+    [Theory]
+    [InlineData("System 1.1.dsk")]
+    [InlineData("Excel 1.03/Excel Program.image")]
+    [InlineData("Excel 2.2a/Help & Examples.image")]
+    [InlineData("Excel 2.2a/Microsoft Excel.image")]
+    [InlineData("Excel 2.2a/Tour.image")]
+    public void Ctor_NotHfs_ThrowsInvalidDataException(string diskName)
+    {
+        using var stream = File.OpenRead(Path.Combine("Samples", diskName));
+        Assert.Throws<InvalidDataException>(() => new HFSDisk(stream));
+    }
+
+    [Theory]
+    [InlineData("excel2.2.img")]
+    public void Ctor_InvalidHfs_ThrowsInvalidDataException(string diskName)
+    {
+        using var stream = File.OpenRead(Path.Combine("Samples", diskName));
+        Assert.Throws<InvalidDataException>(() => new HFSDisk(stream));
     }
 
     private void PrintNode(HFSVolume volume, HFSNode node, string indent = "")
@@ -106,6 +105,17 @@ public class HfsDiskTests
         }
     }
 
+    private static string SanitizeName(string name)
+    {
+        var invalidChars = Path.GetInvalidFileNameChars();
+        foreach (var invalidChar in invalidChars)
+        {
+            name = name.Replace(invalidChar, '_');
+        }
+
+        return name;
+    }
+
     private void ExportFile(HFSVolume volume, HFSNode node, string path)
     {
         // Ensure the output directory exists
@@ -117,7 +127,7 @@ public class HfsDiskTests
             if (directory.Name != "/")
             {
                 // Sanitize directory names for filesystem compatibility
-                var safeName = directory.Name.Replace("/", "_").Replace(":", "_");
+                var safeName = SanitizeName(directory.Name);
                 path = Path.Combine(path, safeName);
                 Directory.CreateDirectory(path);
             }
@@ -130,7 +140,7 @@ public class HfsDiskTests
         else if (node is HFSFile file)
         {
             // Sanitize file names for filesystem compatibility
-            var safeName = file.Name.Replace("/", "_").Replace(":", "_");
+            var safeName = SanitizeName(file.Name);
             var filePath = Path.Combine(path, safeName);
             
             if (file.FileRecord.DataForkSize != 0)

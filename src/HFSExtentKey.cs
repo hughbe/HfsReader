@@ -37,6 +37,7 @@ public struct HFSExtentKey
     /// Initializes a new instance of the <see cref="HFSExtentKey"/> struct from the given data.
     /// </summary>
     /// <param name="data">The span containing the extent key data.</param>
+    /// <exception cref="ArgumentException">Thrown when the data length is not equal to the required size.</exception>
     public HFSExtentKey(Span<byte> data)
     {
         if (data.Length != Size)

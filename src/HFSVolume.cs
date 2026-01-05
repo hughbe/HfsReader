@@ -108,7 +108,7 @@ public class HFSVolume
                     switch (type)
                     {
                         case HFSCatalogDataRecordType.File:
-                            var fileRecord = new HFSFileRecord(CatalogTree.BlockBuffer.Slice(dataOffset, recordOffset.Size - (dataOffset - recordOffset.Offset)));
+                            var fileRecord = new HFSFileRecord(CatalogTree.BlockBuffer.Slice(dataOffset, HFSFileRecord.Size));
                             yield return new HFSFile(
                                 key.ParentIdentifier,
                                 key.Name ?? string.Empty,
@@ -116,7 +116,7 @@ public class HFSVolume
                             break;
 
                         case HFSCatalogDataRecordType.Folder:
-                            var folderRecord = new HFSFolderRecord(CatalogTree.BlockBuffer.Slice(dataOffset, recordOffset.Size - (dataOffset - recordOffset.Offset)));
+                            var folderRecord = new HFSFolderRecord(CatalogTree.BlockBuffer.Slice(dataOffset, HFSFolderRecord.Size));
                             yield return new HFSDirectory(
                                 key.ParentIdentifier,
                                 key.Name ?? string.Empty,

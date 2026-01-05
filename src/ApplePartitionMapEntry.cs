@@ -113,11 +113,12 @@ public struct ApplePartitionMapEntry
     /// Initializes a new instance of the <see cref="ApplePartitionMapEntry"/> struct from the given data.
     /// </summary>
     /// <param name="data">The span containing the partition map entry data.</param>
+    /// <exception cref="ArgumentException">Thrown when the data length is not equal to the expected size.</exception>
     public ApplePartitionMapEntry(Span<byte> data)
     {
-        if (data.Length < Size)
+        if (data.Length != Size)
         {
-            throw new ArgumentException($"Data span is too small to contain an Apple Partition Map Entry. Expected at least {Size} bytes, but got {data.Length} bytes.", nameof(data));
+            throw new ArgumentException($"Partition map entry data must be exactly {Size} bytes long.", nameof(data));
         }
 
         int offset = 0;
@@ -202,6 +203,6 @@ public struct ApplePartitionMapEntry
         offset += 16;
 
         // Remaining bytes are reserved
-        Debug.Assert(offset == Size, "Did not read exactly the expected number of bytes for ApplePartitionMapEntry.");
+        Debug.Assert(offset == data.Length, "Did not read the expected number of bytes for ApplePartitionMapEntry.");
     }
 }

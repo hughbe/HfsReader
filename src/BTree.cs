@@ -46,17 +46,16 @@ public class BTree
 
         // First, read the header node with a temporary 512-byte buffer (minimum node size)
         // The header node is always at index 0 (beginning of the catalog file).
-        _nodeSize = 512; // Temporary, will be updated after reading header
-        _blockBuffer = new byte[512];
+        Span<byte> tempBuffer = stackalloc byte[512];
         
         var catalogFileOffset = GetCatalogFileOffset();
         _stream.Seek(catalogFileOffset, SeekOrigin.Begin);
-        if (_stream.Read(_blockBuffer) != _blockBuffer.Length)
+        if (_stream.Read(tempBuffer) != tempBuffer.Length)
         {
             throw new InvalidDataException("Unable to read catalog header node.");
         }
         
-        var headerNode = new BTNode(0, _blockBuffer);
+        var headerNode = new BTNode(0, tempBuffer);
 
         if (headerNode.Descriptor.NodeType != BTNodeType.HeaderNode
             || headerNode.Descriptor.NodeLevel != 0
@@ -76,7 +75,7 @@ public class BTree
             throw new InvalidDataException($"B-tree header record should be {BTHeaderRec.Size} bytes, found {headerRecordOffset.Size} bytes.");
         }
 
-        Header = new BTHeaderRec(_blockBuffer.AsSpan().Slice(headerRecordOffset.Offset, headerRecordOffset.Size));
+        Header = new BTHeaderRec(tempBuffer.Slice(headerRecordOffset.Offset, headerRecordOffset.Size));
         
         // Now update the node size from the header
         _nodeSize = Header.NodeSize;

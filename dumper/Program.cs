@@ -73,7 +73,7 @@ sealed class ExtractCommand : AsyncCommand<ExtractSettings>
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            var safeName = entry.Name.Replace("/", "_").Replace(":", "_");
+            var safeName = SanitizeName(entry.Name);
 
             if (entry is HFSDirectory directory)
             {
@@ -133,5 +133,16 @@ sealed class ExtractCommand : AsyncCommand<ExtractSettings>
         {
             // Ignore timestamp errors
         }
+    }
+
+    private static string SanitizeName(string name)
+    {
+        var invalidChars = Path.GetInvalidFileNameChars();
+        foreach (var invalidChar in invalidChars)
+        {
+            name = name.Replace(invalidChar, '_');
+        }
+
+        return name;
     }
 }

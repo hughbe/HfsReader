@@ -1,4 +1,6 @@
 using System.Buffers.Binary;
+using System.Diagnostics;
+using System.Drawing;
 using HfsReader.Utilities;
 
 namespace HfsReader;
@@ -8,6 +10,11 @@ namespace HfsReader;
 /// </summary>
 public readonly struct HFSFolderRecord
 {
+    /// <summary>
+    /// The size of an HFS folder record in bytes.
+    /// </summary>
+    public const int Size = 54;
+
     /// <summary>
     /// Gets the catalog data record type.
     /// </summary>
@@ -57,11 +64,12 @@ public readonly struct HFSFolderRecord
     /// Initializes a new instance of the <see cref="HFSFolderRecord"/> struct from the given data.
     /// </summary>
     /// <param name="data">The span containing the folder record data.</param>
+    /// <exception cref="ArgumentException">Thrown when the data length is not equal to the required size.</exception>
     public HFSFolderRecord(Span<byte> data)
     {
-        if (data.Length < 70)
+        if (data.Length != Size)
         {
-            throw new ArgumentException("Folder record data must be at least 14 bytes long.", nameof(data));
+            throw new ArgumentException($"Folder record data must be exactly {Size} bytes long.", nameof(data));
         }
 
         int offset = 0;
@@ -112,5 +120,7 @@ public readonly struct HFSFolderRecord
         // See section: HFS extended folder information
         ExtendedFolderInformation = new HFSExtendedFolderInformation(data.Slice(offset, HFSExtendedFolderInformation.Size));
         offset += HFSExtendedFolderInformation.Size;
+
+        Debug.Assert(offset == data.Length, "Did not read the expected number of bytes for HFSFolderRecord.");
     }
 }
