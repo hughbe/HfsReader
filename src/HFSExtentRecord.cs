@@ -12,11 +12,25 @@ public struct HFSExtentRecord
     /// </summary>
     public const int Size = 12;
     
+    /// <summary>
+    /// Gets the first extent descriptor.
+    /// </summary>
     private HFSExtentDescriptor FirstExtent { get; }
     
+    /// <summary>
+    /// Gets the second extent descriptor.
+    /// </summary>
     private HFSExtentDescriptor SecondExtent { get; }
     
+    /// <summary>
+    /// Gets the third extent descriptor.
+    /// </summary>
     private HFSExtentDescriptor ThirdExtent { get; }
+
+    /// <summary>
+    /// Gets the total number of blocks in the extents.
+    /// </summary>
+    public int TotalBlockCount => FirstExtent.BlockCount + SecondExtent.BlockCount + ThirdExtent.BlockCount;
 
     /// <summary>
     /// Gets the extent descriptor at the specified index (0, 1, or 2).

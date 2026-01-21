@@ -1,12 +1,13 @@
 using System.Buffers.Binary;
+using System.Diagnostics;
 using HfsReader.Utilities;
 
 namespace HfsReader;
 
 /// <summary>
-/// Represents a catalog index key in the HFS catalog B-tree.
+/// Represents a catalog key in the HFS catalog B-tree.
 /// </summary>
-public readonly struct HFSCatalogIndexKey
+public readonly struct HFSCatalogKey : IBTKey<HFSCatalogKey, HFSCatalogKeyComparison>
 {
     /// <summary>
     /// Gets the size of the key data.
@@ -29,10 +30,12 @@ public readonly struct HFSCatalogIndexKey
     public string? Name { get; }
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="HFSCatalogIndexKey"/> struct from the given data.
+    /// Initializes a new instance of the <see cref="HFSCatalogKey"/> struct from the given data.
     /// </summary>
     /// <param name="data">The span containing the key data.</param>
-    public HFSCatalogIndexKey(Span<byte> data)
+    /// <param name="bytesRead">Outputs the number of bytes read from the data span.</param>
+    /// <exception cref="ArgumentException">Thrown when the data length is insufficient.</exception>
+    public HFSCatalogKey(ReadOnlySpan<byte> data, out int bytesRead)
     {
         if (data.Length < 1)
         {
@@ -51,11 +54,11 @@ public readonly struct HFSCatalogIndexKey
         {
             if (KeySize < 6 || KeySize > 37)
             {
-                throw new InvalidDataException($"Invalid HFSCatalogIndexKey size of {KeySize}.");
+                throw new InvalidDataException($"Invalid HFSCatalogKey size of {KeySize}.");
             }
             if (KeySize > data.Length)
             {
-                throw new InvalidDataException($"HFSCatalogIndexKey size of {KeySize} exceeds available data length of {data.Length - 1}.");
+                throw new InvalidDataException($"HFSCatalogKey size of {KeySize} exceeds available data length of {data.Length - 1}.");
             }
 
             // Unknown (Reserved)
@@ -74,22 +77,38 @@ public readonly struct HFSCatalogIndexKey
             // Contains the name of the file or directory
             Name = SpanUtilities.ReadPascalString(data.Slice(offset, 32));
         }
+
+        bytesRead = 1 + KeySize;
+        Debug.Assert(bytesRead <= data.Length, "Did not read more bytes than available in HFSCatalogKey.");
     }
 
-    /// <summary>
-    /// Compares this key to the specified parent identifier and name.
-    /// </summary>
-    /// <param name="parentID">The parent identifier to compare.</param>
-    /// <param name="name">The name to compare.</param>
-    /// <returns>An integer indicating the relative order.</returns>
-    public int CompareTo(uint parentID, string name)
+    /// <inheritdoc/>
+    public static HFSCatalogKey Create(ReadOnlySpan<byte> data, out int bytesRead) => new(data, out bytesRead);
+
+    /// <inheritdoc/>
+    public int CompareTo(HFSCatalogKeyComparison other)
     {
-        int parentComparison = ParentIdentifier.CompareTo(parentID);
+        int parentComparison = ParentIdentifier.CompareTo(other.ParentIdentifier);
         if (parentComparison != 0)
         {
             return parentComparison;
         }
 
-        return string.Compare(Name, name, StringComparison.Ordinal);
+        return string.Compare(Name, other.Name, StringComparison.Ordinal);
     }
+
+    /// <inheritdoc/>
+    public bool IsParent(HFSCatalogKeyComparison other)
+    {
+        if (string.IsNullOrEmpty(other.Name) && ParentIdentifier == other.ParentIdentifier)
+        {
+            return true;
+        }
+
+        return false;
+    }
+
+    /// <inheritdoc/>
+    public override string ToString()
+        => $"HFSCatalogKey(ParentIdentifier={ParentIdentifier}, Name='{Name}')";
 }

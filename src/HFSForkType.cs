@@ -13,5 +13,5 @@ public enum HFSForkType
     /// <summary>
     /// Resource fork.
     /// </summary>
-    ResourceFork
+    ResourceFork = 0xFF
 }

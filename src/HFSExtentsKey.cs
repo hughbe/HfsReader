@@ -6,7 +6,7 @@ namespace HfsReader;
 /// <summary>
 /// Represents a key in the Extents Overflow B-tree.
 /// </summary>
-public struct HFSExtentKey
+public struct HFSExtentsKey : IBTKey<HFSExtentsKey, HFSExtentsKeyComparison>
 {
     /// <summary>
     /// The size of an HFS extent key in bytes (including the key length byte).
@@ -34,15 +34,15 @@ public struct HFSExtentKey
     public ushort StartBlock { get; }
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="HFSExtentKey"/> struct from the given data.
+    /// Initializes a new instance of the <see cref="HFSExtentsKey"/> struct from the given data.
     /// </summary>
     /// <param name="data">The span containing the extent key data.</param>
     /// <exception cref="ArgumentException">Thrown when the data length is not equal to the required size.</exception>
-    public HFSExtentKey(Span<byte> data)
+    public HFSExtentsKey(ReadOnlySpan<byte> data)
     {
         if (data.Length != Size)
         {
-            throw new ArgumentException($"Data length must be exactly {Size} bytes to read an HFSExtentKey.", nameof(data));
+            throw new ArgumentException($"Data length must be exactly {Size} bytes to read an HFSExtentsKey.", nameof(data));
         }
 
         // 8.1.1. The HFS extent key (record)
@@ -56,7 +56,7 @@ public struct HFSExtentKey
 
         if (KeyLength != 7)
         {
-            throw new ArgumentException("Invalid HFSExtentKey length byte; expected value is 7.", nameof(data));
+            throw new ArgumentException("Invalid HFSExtentsKey length byte; expected value is 7.", nameof(data));
         }
 
         // Fork type
@@ -75,39 +75,50 @@ public struct HFSExtentKey
         StartBlock = BinaryPrimitives.ReadUInt16BigEndian(data[offset..]);
         offset += 2;
 
-        Debug.Assert(offset == data.Length, "Did not read exactly the expected number of bytes for HFSExtentKey.");
+        Debug.Assert(offset == data.Length, "Did not read exactly the expected number of bytes for HFSExtentsKey.");
     }
 
-    /// <summary>
-    /// Compares this key to the specified file ID, fork type, and start block.
-    /// </summary>
-    /// <param name="fileID">The file identifier to compare.</param>
-    /// <param name="forkType">The fork type to compare.</param>
-    /// <param name="startBlock">The starting block to compare.</param>
-    /// <returns>An integer indicating the relative order.</returns>
-    /// <remarks>
-    /// According to the HFS specification, extents overflow keys are sorted by:
-    /// 1. File ID (primary)
-    /// 2. Fork type (secondary)
-    /// 3. Start block (tertiary)
-    /// </remarks>
-    public readonly int CompareTo(uint fileID, HFSForkType forkType, ushort startBlock)
+    /// <inheritdoc/>
+    public static HFSExtentsKey Create(ReadOnlySpan<byte> data, out int bytesRead)
     {
+        bytesRead = Size;
+        return new HFSExtentsKey(data[..Size]);
+    }
+
+    /// <inheritdoc/>
+    public readonly int CompareTo(HFSExtentsKeyComparison other)
+    {
+        // According to the HFS specification, extents overflow keys are sorted by:
+        // 1. File ID (primary)
+        // 2. Fork type (secondary)
+        // 3. Start block (tertiary)
+
         // Compare file ID first (primary sort key)
-        int fileComparison = FileID.CompareTo(fileID);
+        int fileComparison = FileID.CompareTo(other.FileID);
         if (fileComparison != 0)
         {
             return fileComparison;
         }
 
         // Then compare fork type (secondary sort key)
-        int forkComparison = ((byte)ForkType).CompareTo((byte)forkType);
+        int forkComparison = ((byte)ForkType).CompareTo((byte)other.ForkType);
         if (forkComparison != 0)
         {
             return forkComparison;
         }
 
         // Finally compare start block (tertiary sort key)
-        return StartBlock.CompareTo(startBlock);
+        return StartBlock.CompareTo(other.StartBlock);
     }
+
+    /// <inheritdoc/>
+    public readonly bool IsParent(HFSExtentsKeyComparison other)
+    {
+        // Never
+        return false;
+    }
+
+    /// <inheritdoc/>
+    public override readonly string ToString()
+        => $"HFSExtentsKey(FileID={FileID}, ForkType={ForkType}, StartBlock={StartBlock})";
 }

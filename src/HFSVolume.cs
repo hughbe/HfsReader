@@ -1,4 +1,5 @@
 using System.Buffers.Binary;
+using System.Diagnostics;
 
 namespace HfsReader;
 
@@ -23,12 +24,12 @@ public class HFSVolume
     /// <summary>
     /// Gets the catalog B-tree of the HFS volume.
     /// </summary>
-    public BTree CatalogTree { get; }
+    public BTree<HFSCatalogKey, HFSCatalogKeyComparison> CatalogTree { get; }
 
     /// <summary>
     /// Gets the extents overflow B-tree of the HFS volume.
     /// </summary>
-    public BTree? ExtentsOverflowTree { get; }
+    public BTree<HFSExtentsKey, HFSExtentsKeyComparison>? ExtentsOverflowTree { get; }
 
     /// <summary>
     /// Initializes a new instance of the <see cref="HFSVolume"/> class.
@@ -54,12 +55,12 @@ public class HFSVolume
         MasterDirectoryBlock = new HFSMasterDirectoryBlock(blockBuffer);
 
         // Initialize the catalog B-tree
-        CatalogTree = new BTree(_stream, _streamStartOffset, MasterDirectoryBlock.CatalogFileExtents, MasterDirectoryBlock.ExtentsStartBlockNumber, MasterDirectoryBlock.AllocationBlockSize);
+        CatalogTree = new(_stream, _streamStartOffset, MasterDirectoryBlock.CatalogFileExtents, MasterDirectoryBlock.ExtentsStartBlockNumber, MasterDirectoryBlock.AllocationBlockSize);
 
         // Initialize the extents overflow B-tree if it exists
         if (MasterDirectoryBlock.ExtentsOverflowFileSize > 0)
         {
-            ExtentsOverflowTree = new BTree(_stream, _streamStartOffset, MasterDirectoryBlock.ExtentsOverflowExtents, MasterDirectoryBlock.ExtentsStartBlockNumber, MasterDirectoryBlock.AllocationBlockSize);
+            ExtentsOverflowTree = new(_stream, _streamStartOffset, MasterDirectoryBlock.ExtentsOverflowExtents, MasterDirectoryBlock.ExtentsStartBlockNumber, MasterDirectoryBlock.AllocationBlockSize);
         }
     }
 
@@ -82,17 +83,18 @@ public class HFSVolume
 
     private IEnumerable<HFSNode> ContentsOfDirectory(uint parentIdentifier)
     {
-        var currentNode = FindFirstMatchingLeafNode(parentIdentifier, string.Empty);
+        var comparison = new HFSCatalogKeyComparison(parentIdentifier, string.Empty);
+        var currentNode = CatalogTree.FindFirstMatchingLeafNode(comparison);
         while (currentNode != null)
         {
             for (int i = 0; i < currentNode.Value.Descriptor.RecordCount; i++)
             {
                 var recordOffset = currentNode.Value.RecordOffsets[i];
-                var key = new HFSCatalogIndexKey(CatalogTree.BlockBuffer.Slice(recordOffset.Offset, recordOffset.Size));
+                var key = new HFSCatalogKey(CatalogTree.BlockBuffer.Slice(recordOffset.Offset, recordOffset.Size), out var bytesRead);
 
                 // Data records are placed immediately after the key length byte and key data,
                 // then padded to an even boundary. The key length does NOT include the length byte.
-                var dataOffset = recordOffset.Offset + 1 + key.KeySize;
+                var dataOffset = recordOffset.Offset + bytesRead;
                 if ((dataOffset % 2) != 0)
                 {
                     dataOffset += 1; // word-align
@@ -142,60 +144,6 @@ public class HFSVolume
         }
     }
 
-    /// <summary>
-    /// Find the first leaf node that contains entries for the given parent identifier.
-    /// According to the HFS spec, catalog entries are sorted first by parent ID, then by name.
-    /// </summary>
-    private BTNode? FindFirstMatchingLeafNode(uint parentIdentifier, string name)
-    {
-        BTNode currentNode = CatalogTree.RootNode;
-
-        while (currentNode.Descriptor.NodeType != BTNodeType.LeafNode)
-        {
-            if (currentNode.Descriptor.NodeType == BTNodeType.IndexNode)
-            {
-                uint? nextNodeIndex = null;
-                for (int i = 0; i < currentNode.Descriptor.RecordCount; i++)
-                {
-                    var recordOffset = currentNode.RecordOffsets[i];
-                    var indexKey = new HFSCatalogIndexKey(CatalogTree.BlockBuffer.Slice(recordOffset.Offset, recordOffset.Size));
-
-                    var index = BinaryPrimitives.ReadUInt32BigEndian(CatalogTree.BlockBuffer[(recordOffset.Offset + indexKey.KeySize + 1)..]);
-
-                    if (indexKey.CompareTo(parentIdentifier, name) > 0)
-                    {
-                        // If the current index key is greater than the target parent ID and file name,
-                        // stop.
-                        // But, this isn't true if we have reached the first matching parent
-                        // ID but the name is empty (we want the first entry for that parent
-                        // ID).
-                        if (nextNodeIndex == null && string.IsNullOrEmpty(name) && indexKey.ParentIdentifier == parentIdentifier)
-                        {
-                            nextNodeIndex = index;
-                        }
-
-                        break;
-                    }
-                    else
-                    {
-                        nextNodeIndex = index;
-                    }
-                }
-
-                if (nextNodeIndex != null)
-                {
-                    currentNode = CatalogTree.GetNode(nextNodeIndex.Value);
-                }
-                else
-                {
-                    return null;
-                }
-            }
-        }
-
-        return currentNode;
-    }
-
     private int ReadForkData(uint fileID, HFSExtentRecord firstExtents, HFSForkType forkType, uint dataSize, uint allocatedSize, Stream outputStream)
     {
         // NOTE: According to the HFS spec the block number fields in the file record
@@ -216,6 +164,8 @@ public class HFSVolume
         while (remaining > 0)
         {
             bool processedAnyExtent = false;
+
+            int currentExtentBlocksRead = 0;
             
             // Process the current extent record (up to 3 extents)
             for (int extentIndex = 0; extentIndex < 3 && remaining > 0; extentIndex++)
@@ -232,6 +182,11 @@ public class HFSVolume
                 var size = extent.BlockCount * MasterDirectoryBlock.AllocationBlockSize;
 
                 // Read the extent's blocks.
+                if (_streamStartOffset + offset >= _stream.Length)
+                {
+                    throw new InvalidDataException($"Extent block {extent.StartBlock} at {offset} is out of bounds of the stream.");
+                }
+
                 _stream.Seek(_streamStartOffset + offset, SeekOrigin.Begin);
 
                 for (int i = 0; i < extent.BlockCount; i++)
@@ -246,11 +201,14 @@ public class HFSVolume
                     totalBytesWritten += bytesToCopy;
                     remaining -= (uint)bytesToCopy;
                     totalBlocksRead++;
+                    currentExtentBlocksRead++;
                 }
             }
 
             if (remaining > 0)
             {
+                Debug.Assert(currentExtentBlocksRead == currentExtents.TotalBlockCount, "Did not read all data from the extents record.");
+
                 // Need more extents - fetch from the extents overflow file
                 var overflowExtents = GetExtentsFromOverflow(fileID, forkType, totalBlocksRead)
                     ?? throw new InvalidDataException($"Insufficient extent descriptors to satisfy declared fork size. Remaining: {remaining} bytes, StartBlock: {totalBlocksRead}");
@@ -281,62 +239,37 @@ public class HFSVolume
             return null;
         }
 
-        // Search the extents overflow B-tree for the matching extent record
-        BTNode currentNode = ExtentsOverflowTree.RootNode;
-
-        // Navigate to the leaf node
-        while (currentNode.Descriptor.NodeType != BTNodeType.LeafNode)
+        var comparison = new HFSExtentsKeyComparison(fileID, forkType, startBlock);
+        var currentNode = ExtentsOverflowTree.FindFirstMatchingLeafNode(comparison);
+        while (currentNode != null)
         {
-            if (currentNode.Descriptor.NodeType == BTNodeType.IndexNode)
+            // Search the leaf node for the matching extent record
+            for (int i = 0; i < currentNode.Value.Descriptor.RecordCount; i++)
             {
-                uint? nextNodeIndex = null;
-                for (int i = 0; i < currentNode.Descriptor.RecordCount; i++)
-                {
-                    var recordOffset = currentNode.RecordOffsets[i];
-                    var extentKey = new HFSExtentKey(ExtentsOverflowTree.BlockBuffer.Slice(recordOffset.Offset, HFSExtentKey.Size));
-                    
-                    // The index record contains a pointer to the child node after the key
-                    var index = BinaryPrimitives.ReadUInt32BigEndian(ExtentsOverflowTree.BlockBuffer[(recordOffset.Offset + HFSExtentKey.Size)..]);
+                var recordOffset = currentNode.Value.RecordOffsets[i];
+                var extentKey = new HFSExtentsKey(ExtentsOverflowTree.BlockBuffer.Slice(recordOffset.Offset, HFSExtentsKey.Size));
 
-                    if (extentKey.CompareTo(fileID, forkType, startBlock) > 0)
-                    {
-                        break;
-                    }
-                    nextNodeIndex = index;
+                if (extentKey.ForkType == forkType && extentKey.FileID == fileID && extentKey.StartBlock == startBlock)
+                {
+                    // Found the matching extent record - it follows the key
+                    var extentDataOffset = recordOffset.Offset + HFSExtentsKey.Size;
+                    return new HFSExtentRecord(ExtentsOverflowTree.BlockBuffer.Slice(extentDataOffset, HFSExtentRecord.Size));
                 }
+                
+                // Keys are sorted, so if we've passed our target, stop searching
+                if (extentKey.CompareTo(comparison) > 0)
+                {
+                    break;
+                }
+            }
 
-                if (nextNodeIndex != null)
-                {
-                    currentNode = ExtentsOverflowTree.GetNode(nextNodeIndex.Value);
-                }
-                else
-                {
-                    return null;
-                }
+            if (currentNode.Value.Descriptor.NextNodeNumber == 0)
+            {
+                currentNode = null;
             }
             else
             {
-                return null;
-            }
-        }
-
-        // Search the leaf node for the matching extent record
-        for (int i = 0; i < currentNode.Descriptor.RecordCount; i++)
-        {
-            var recordOffset = currentNode.RecordOffsets[i];
-            var extentKey = new HFSExtentKey(ExtentsOverflowTree.BlockBuffer.Slice(recordOffset.Offset, HFSExtentKey.Size));
-
-            if (extentKey.ForkType == forkType && extentKey.FileID == fileID && extentKey.StartBlock == startBlock)
-            {
-                // Found the matching extent record - it follows the key
-                var extentDataOffset = recordOffset.Offset + HFSExtentKey.Size;
-                return new HFSExtentRecord(ExtentsOverflowTree.BlockBuffer.Slice(extentDataOffset, HFSExtentRecord.Size));
-            }
-            
-            // Keys are sorted, so if we've passed our target, stop searching
-            if (extentKey.CompareTo(fileID, forkType, startBlock) > 0)
-            {
-                break;
+                currentNode = CatalogTree.GetNode(currentNode.Value.Descriptor.NextNodeNumber);
             }
         }
 
@@ -378,7 +311,7 @@ public class HFSVolume
     /// Writes the resource fork of a file to the specified output stream.
     /// </summary>
     /// <param name="file">The file to read.</param>
-    /// <param name="outputStream">>The stream to write the file data to.</param>
+    /// <param name="outputStream">The stream to write the file data to.</param>
     /// <returns>The number of bytes written to the output stream.</returns>
     public int GetResourceForkData(HFSFile file, Stream outputStream)
     {

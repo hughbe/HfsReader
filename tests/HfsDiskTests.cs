@@ -9,6 +9,7 @@ public class HfsDiskTests
 
     [Theory]
     [InlineData("hfs.dsk")]
+    [InlineData("Apple II Setup.dsk")]
     [InlineData("Microsoft Excel 1.03.dsk")]
     [InlineData("System3.1.1.dsk")]
     [InlineData("System5.dsk")]
