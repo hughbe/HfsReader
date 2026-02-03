@@ -5,7 +5,7 @@ namespace HfsReader;
 /// <summary>
 /// Represents an HFS extent record, which contains up to three extent descriptors.
 /// </summary>
-public struct HFSExtentRecord
+public struct HfsExtentRecord
 {
     /// <summary>
     /// The size of an HFS extent record in bytes.
@@ -15,17 +15,17 @@ public struct HFSExtentRecord
     /// <summary>
     /// Gets the first extent descriptor.
     /// </summary>
-    private HFSExtentDescriptor FirstExtent { get; }
+    private HfsExtentDescriptor FirstExtent { get; }
     
     /// <summary>
     /// Gets the second extent descriptor.
     /// </summary>
-    private HFSExtentDescriptor SecondExtent { get; }
+    private HfsExtentDescriptor SecondExtent { get; }
     
     /// <summary>
     /// Gets the third extent descriptor.
     /// </summary>
-    private HFSExtentDescriptor ThirdExtent { get; }
+    private HfsExtentDescriptor ThirdExtent { get; }
 
     /// <summary>
     /// Gets the total number of blocks in the extents.
@@ -36,8 +36,8 @@ public struct HFSExtentRecord
     /// Gets the extent descriptor at the specified index (0, 1, or 2).
     /// </summary>
     /// <param name="index">The index of the extent descriptor (0, 1, or 2).</param>
-    /// <returns>The <see cref="HFSExtentDescriptor"/> at the specified index.</returns>
-    public HFSExtentDescriptor this[int index]
+    /// <returns>The <see cref="HfsExtentDescriptor"/> at the specified index.</returns>
+    public HfsExtentDescriptor this[int index]
     {
         get
         {
@@ -46,37 +46,37 @@ public struct HFSExtentRecord
                 0 => FirstExtent,
                 1 => SecondExtent,
                 2 => ThirdExtent,
-                _ => throw new IndexOutOfRangeException("HFS Extent Record only contains three extents (0, 1, 2)."),
+                _ => throw new IndexOutOfRangeException("Hfs Extent Record only contains three extents (0, 1, 2)."),
             };
         }
     }
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="HFSExtentRecord"/> struct from the given data.
+    /// Initializes a new instance of the <see cref="HfsExtentRecord"/> struct from the given data.
     /// </summary>
     /// <param name="data">The span containing the extent record data.</param>
     /// <exception cref="ArgumentException">Thrown when the data length is not equal to the required size.</exception>
-    public HFSExtentRecord(Span<byte> data)
+    public HfsExtentRecord(Span<byte> data)
     {
         if (data.Length != Size)
         {
-            throw new ArgumentException($"HFS Extent Record data must be exactly {Size} bytes long.", nameof(data));
+            throw new ArgumentException($"Hfs Extent Record data must be exactly {Size} bytes long.", nameof(data));
         }
 
         int offset = 0;
 
         // First extent descriptor.
-        FirstExtent = new HFSExtentDescriptor(data.Slice(offset, 4));
+        FirstExtent = new HfsExtentDescriptor(data.Slice(offset, 4));
         offset += 4;
 
         // Second extent descriptor.
-        SecondExtent = new HFSExtentDescriptor(data.Slice(offset, 4));
+        SecondExtent = new HfsExtentDescriptor(data.Slice(offset, 4));
         offset += 4;
 
         // Third extent descriptor.
-        ThirdExtent = new HFSExtentDescriptor(data.Slice(offset, 4));
+        ThirdExtent = new HfsExtentDescriptor(data.Slice(offset, 4));
         offset += 4;
 
-        Debug.Assert(offset == data.Length, "Did not read exactly the expected number of bytes for HFSExtentRecord.");
+        Debug.Assert(offset == data.Length, "Did not read exactly the expected number of bytes for HfsExtentRecord.");
     }
 }

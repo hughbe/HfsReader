@@ -3,7 +3,7 @@ namespace HfsReader;
 /// <summary>
 /// Represents the fork type for an extent key.
 /// </summary>
-public enum HFSForkType
+public enum HfsForkType
 {
     /// <summary>
     /// Data fork.

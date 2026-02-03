@@ -7,7 +7,7 @@ namespace HfsReader;
 /// <summary>
 /// Represents the master directory block of an HFS volume.
 /// </summary>
-public readonly struct HFSMasterDirectoryBlock
+public readonly struct HfsMasterDirectoryBlock
 {
     /// <summary>
     /// Gets the volume signature.
@@ -122,7 +122,7 @@ public readonly struct HFSMasterDirectoryBlock
     /// <summary>
     /// Gets the Finder information for the volume.
     /// </summary>
-    public HFSFinderInformation FinderInformation { get; }
+    public HfsFinderInformation FinderInformation { get; }
 
     /// <summary>
     /// Gets the embedded volume signature.
@@ -142,7 +142,7 @@ public readonly struct HFSMasterDirectoryBlock
     /// <summary>
     /// Gets the extents overflow extents record.
     /// </summary>
-    public HFSExtentRecord ExtentsOverflowExtents { get; }
+    public HfsExtentRecord ExtentsOverflowExtents { get; }
 
     /// <summary>
     /// Gets the catalog file size.
@@ -152,13 +152,13 @@ public readonly struct HFSMasterDirectoryBlock
     /// <summary>
     /// Gets the catalog file extents record.
     /// </summary>
-    public HFSExtentRecord CatalogFileExtents { get; }
+    public HfsExtentRecord CatalogFileExtents { get; }
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="HFSMasterDirectoryBlock"/> struct from the given data.
+    /// Initializes a new instance of the <see cref="HfsMasterDirectoryBlock"/> struct from the given data.
     /// </summary>
     /// <param name="data">The span containing the master directory block data.</param>
-    public HFSMasterDirectoryBlock(Span<byte> data)
+    public HfsMasterDirectoryBlock(Span<byte> data)
     {
         if (data.Length < 512)
         {
@@ -167,7 +167,7 @@ public readonly struct HFSMasterDirectoryBlock
 
         int offset = 0;
 
-        // The volume signature (kHFSSigWord)
+        // The volume signature (kHfsSigWord)
         // For Macintosh File System (MFS) volumes the signature contains "\xd2\xd7".
         Signature = BinaryPrimitives.ReadUInt16BigEndian(data[offset..]);
         offset += 2;
@@ -297,7 +297,7 @@ public readonly struct HFSMasterDirectoryBlock
 
         // Finder information
         // See section: Finder information
-        FinderInformation = new HFSFinderInformation(data.Slice(offset, 32));
+        FinderInformation = new HfsFinderInformation(data.Slice(offset, 32));
         offset += 32;
 
         // Embedded volume signature (formerly drVCSize)
@@ -315,8 +315,8 @@ public readonly struct HFSMasterDirectoryBlock
 
         // Extents (overflow) extents record
         // See section: The HFS extents record
-        ExtentsOverflowExtents = new HFSExtentRecord(data.Slice(offset, HFSExtentRecord.Size));
-        offset += HFSExtentRecord.Size;
+        ExtentsOverflowExtents = new HfsExtentRecord(data.Slice(offset, HfsExtentRecord.Size));
+        offset += HfsExtentRecord.Size;
 
         // Catalog file size
         CatalogFileSize = BinaryPrimitives.ReadUInt32BigEndian(data[offset..]);
@@ -324,8 +324,8 @@ public readonly struct HFSMasterDirectoryBlock
 
         // Catalog file extents record
         // See section: The HFS extents record
-        CatalogFileExtents = new HFSExtentRecord(data.Slice(offset, HFSExtentRecord.Size));
-        offset += HFSExtentRecord.Size;
+        CatalogFileExtents = new HfsExtentRecord(data.Slice(offset, HfsExtentRecord.Size));
+        offset += HfsExtentRecord.Size;
 
         Debug.Assert(offset <= data.Length);
     }

@@ -6,7 +6,7 @@ namespace HfsReader;
 /// <summary>
 /// Represents Finder information for an HFS volume.
 /// </summary>
-public readonly struct HFSFinderInformation
+public readonly struct HfsFinderInformation
 {
     /// <summary>
     /// The size of the Finder information structure in bytes.
@@ -49,11 +49,11 @@ public readonly struct HFSFinderInformation
     public ulong SystemVolumeIdentifier { get; }
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="HFSFinderInformation"/> struct from the given data.
+    /// Initializes a new instance of the <see cref="HfsFinderInformation"/> struct from the given data.
     /// </summary>
     /// <param name="data">The span containing the Finder information data.</param>
     /// <exception cref="ArgumentException">Thrown when the data length is not equal to the expected size.</exception>
-    public HFSFinderInformation(Span<byte> data)
+    public HfsFinderInformation(Span<byte> data)
     {
         if (data.Length != Size)
         {
@@ -108,6 +108,6 @@ public readonly struct HFSFinderInformation
         SystemVolumeIdentifier = BinaryPrimitives.ReadUInt64BigEndian(data[offset..]);
         offset += 8;
 
-        Debug.Assert(offset == data.Length, "Did not read the expected number of bytes for HFSFinderInformation.");
+        Debug.Assert(offset == data.Length, "Did not read the expected number of bytes for HfsFinderInformation.");
     }
 }

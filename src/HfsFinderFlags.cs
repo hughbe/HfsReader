@@ -3,7 +3,7 @@ namespace HfsReader;
 /// <summary>
 /// Represents Finder flags for files and folders.
 /// </summary>
-public enum HFSFinderFlags : ushort
+public enum HfsFinderFlags : ushort
 {
     /// <summary>
     /// Is on desk (used for files and folders).

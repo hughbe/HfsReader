@@ -1,9 +1,9 @@
 namespace HfsReader;
 
 /// <summary>
-/// Represents well-known catalog node identifiers (CNIDs) in HFS.
+/// Represents well-known catalog node identifiers (CNIDs) in Hfs.
 /// </summary>
-public enum HFSKnownCatalogNodeID : uint
+public enum HfsKnownCatalogNodeID : uint
 {
     /// <summary>
     /// Reserved.
@@ -13,55 +13,55 @@ public enum HFSKnownCatalogNodeID : uint
     /// <summary>
     /// Parent identifier of the root directory (folder).
     /// </summary>
-    kHFSRootParentID = 1,
+    kHfsRootParentID = 1,
 
     /// <summary>
     /// Directory identifier of the root directory (folder).
     /// </summary>
-    kHFSRootFolderID = 2,
+    kHfsRootFolderID = 2,
 
     /// <summary>
     /// The extents (overflow) file.
     /// </summary>
-    kHFSExtentsFileID = 3,
+    kHfsExtentsFileID = 3,
 
     /// <summary>
     /// The catalog file.
     /// </summary>
-    kHFSCatalogFileID = 4,
+    kHfsCatalogFileID = 4,
 
     /// <summary>
     /// The bad allocation block file.
     /// </summary>
-    kHFSBadBlockFileID = 5,
+    kHfsBadBlockFileID = 5,
 
     /// <summary>
-    /// The allocation file (HFS+).
+    /// The allocation file (Hfs+).
     /// </summary>
-    kHFSAllocationFileID = 6,
+    kHfsAllocationFileID = 6,
 
     /// <summary>
-    /// The startup file (HFS+).
+    /// The startup file (Hfs+).
     /// </summary>
-    kHFSStartupFileID = 7,
+    kHfsStartupFileID = 7,
 
     /// <summary>
-    /// The attributes file (HFS+).
+    /// The attributes file (Hfs+).
     /// </summary>
-    kHFSAttributesFileID = 8,
+    kHfsAttributesFileID = 8,
 
     /// <summary>
     /// Used temporarily by fsck_hfs when rebuilding the catalog file.
     /// </summary>
-    kHFSRepairCatalogFileID = 14,
+    kHfsRepairCatalogFileID = 14,
 
     /// <summary>
     /// The bogus extent file used temporarily during exchange files operations.
     /// </summary>
-    kHFSBogusExtentFileID = 15,
+    kHfsBogusExtentFileID = 15,
 
     /// <summary>
     /// The first available CNID for user's files and folders.
     /// </summary>
-    kHFSFirstUserCatalogNodeID = 16
+    kHfsFirstUserCatalogNodeID = 16
 }

@@ -4,9 +4,9 @@ using System.Diagnostics;
 namespace HfsReader;
 
 /// <summary>
-/// Represents a Hierarchical File System (HFS) volume and provides access to its contents.
+/// Represents a Hierarchical File System (Hfs) volume and provides access to its contents.
 /// </summary>
-public class HFSVolume
+public class HfsVolume
 {
     private readonly Stream _stream;
     private readonly int _streamStartOffset;
@@ -14,29 +14,29 @@ public class HFSVolume
     /// <summary>
     /// Gets the boot block header of the HFS volume.
     /// </summary>
-    public HFSBootBlockHeader BootBlock { get; }
+    public HfsBootBlockHeader BootBlock { get; }
 
     /// <summary>
     /// Gets the master directory block of the HFS volume.
     /// </summary>
-    public HFSMasterDirectoryBlock MasterDirectoryBlock { get; }
+    public HfsMasterDirectoryBlock MasterDirectoryBlock { get; }
 
     /// <summary>
     /// Gets the catalog B-tree of the HFS volume.
     /// </summary>
-    public BTree<HFSCatalogKey, HFSCatalogKeyComparison> CatalogTree { get; }
+    public BTree<HfsCatalogKey, HfsCatalogKeyComparison> CatalogTree { get; }
 
     /// <summary>
     /// Gets the extents overflow B-tree of the HFS volume.
     /// </summary>
-    public BTree<HFSExtentsKey, HFSExtentsKeyComparison>? ExtentsOverflowTree { get; }
+    public BTree<HfsExtentsKey, HfsExtentsKeyComparison>? ExtentsOverflowTree { get; }
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="HFSVolume"/> class.
+    /// Initializes a new instance of the <see cref="HfsVolume"/> class.
     /// </summary>
     /// <param name="stream">The stream containing the HFS volume data.</param>
     /// <param name="volumeStartOffset">The start offset of the volume within the stream.</param>
-    public HFSVolume(Stream stream, int volumeStartOffset)
+    public HfsVolume(Stream stream, int volumeStartOffset)
     {
         _stream = stream;
         _streamStartOffset = volumeStartOffset;
@@ -52,7 +52,7 @@ public class HFSVolume
             throw new InvalidDataException("Unable to read DSK master directory block.");
         }
 
-        MasterDirectoryBlock = new HFSMasterDirectoryBlock(blockBuffer);
+        MasterDirectoryBlock = new HfsMasterDirectoryBlock(blockBuffer);
 
         // Initialize the catalog B-tree
         CatalogTree = new(_stream, _streamStartOffset, MasterDirectoryBlock.CatalogFileExtents, MasterDirectoryBlock.ExtentsStartBlockNumber, MasterDirectoryBlock.AllocationBlockSize);
@@ -67,30 +67,30 @@ public class HFSVolume
     /// <summary>
     /// Gets the contents of the root directory of the HFS volume.
     /// </summary>
-    /// <returns>An enumerable of <see cref="HFSNode"/> objects in the root directory.</returns>
-    public IEnumerable<HFSNode> RootContents() => ContentsOfDirectory((uint)HFSKnownCatalogNodeID.kHFSRootParentID);
+    /// <returns>An enumerable of <see cref="HfsNode"/> objects in the root directory.</returns>
+    public IEnumerable<HfsNode> RootContents() => ContentsOfDirectory((uint)HfsKnownCatalogNodeID.kHfsRootParentID);
 
     /// <summary>
     /// Gets the contents of the specified directory.
     /// </summary>
     /// <param name="directory">The directory whose contents to retrieve.</param>
-    /// <returns>An enumerable of <see cref="HFSNode"/> objects in the directory.</returns>
-    public IEnumerable<HFSNode> ContentsOfDirectory(HFSDirectory directory)
+    /// <returns>An enumerable of <see cref="HfsNode"/> objects in the directory.</returns>
+    public IEnumerable<HfsNode> ContentsOfDirectory(HfsDirectory directory)
     {
         ArgumentNullException.ThrowIfNull(directory);
         return [.. ContentsOfDirectory(directory.Identifier)];
     }
 
-    private IEnumerable<HFSNode> ContentsOfDirectory(uint parentIdentifier)
+    private IEnumerable<HfsNode> ContentsOfDirectory(uint parentIdentifier)
     {
-        var comparison = new HFSCatalogKeyComparison(parentIdentifier, string.Empty);
+        var comparison = new HfsCatalogKeyComparison(parentIdentifier, string.Empty);
         var currentNode = CatalogTree.FindFirstMatchingLeafNode(comparison);
         while (currentNode != null)
         {
             for (int i = 0; i < currentNode.Value.Descriptor.RecordCount; i++)
             {
                 var recordOffset = currentNode.Value.RecordOffsets[i];
-                var key = new HFSCatalogKey(CatalogTree.BlockBuffer.Slice(recordOffset.Offset, recordOffset.Size), out var bytesRead);
+                var key = new HfsCatalogKey(CatalogTree.BlockBuffer.Slice(recordOffset.Offset, recordOffset.Size), out var bytesRead);
 
                 // Data records are placed immediately after the key length byte and key data,
                 // then padded to an even boundary. The key length does NOT include the length byte.
@@ -106,20 +106,20 @@ public class HFSVolume
                 }
                 if (key.ParentIdentifier == parentIdentifier)
                 {
-                    var type = (HFSCatalogDataRecordType)BinaryPrimitives.ReadUInt16BigEndian(CatalogTree.BlockBuffer[dataOffset..]);
+                    var type = (HfsCatalogDataRecordType)BinaryPrimitives.ReadUInt16BigEndian(CatalogTree.BlockBuffer[dataOffset..]);
                     switch (type)
                     {
-                        case HFSCatalogDataRecordType.File:
-                            var fileRecord = new HFSFileRecord(CatalogTree.BlockBuffer.Slice(dataOffset, HFSFileRecord.Size));
-                            yield return new HFSFile(
+                        case HfsCatalogDataRecordType.File:
+                            var fileRecord = new HfsFileRecord(CatalogTree.BlockBuffer.Slice(dataOffset, HfsFileRecord.Size));
+                            yield return new HfsFile(
                                 key.ParentIdentifier,
                                 key.Name ?? string.Empty,
                                 fileRecord);
                             break;
 
-                        case HFSCatalogDataRecordType.Folder:
-                            var folderRecord = new HFSFolderRecord(CatalogTree.BlockBuffer.Slice(dataOffset, HFSFolderRecord.Size));
-                            yield return new HFSDirectory(
+                        case HfsCatalogDataRecordType.Folder:
+                            var folderRecord = new HfsFolderRecord(CatalogTree.BlockBuffer.Slice(dataOffset, HfsFolderRecord.Size));
+                            yield return new HfsDirectory(
                                 key.ParentIdentifier,
                                 key.Name ?? string.Empty,
                                 folderRecord);
@@ -144,7 +144,7 @@ public class HFSVolume
         }
     }
 
-    private int ReadForkData(uint fileID, HFSExtentRecord firstExtents, HFSForkType forkType, uint dataSize, uint allocatedSize, Stream outputStream)
+    private int ReadForkData(uint fileID, HfsExtentRecord firstExtents, HfsForkType forkType, uint dataSize, uint allocatedSize, Stream outputStream)
     {
         // NOTE: According to the HFS spec the block number fields in the file record
         // (DataForkBlockNumber / ResourceForkBlockNumber) are not used. The extents
@@ -158,7 +158,7 @@ public class HFSVolume
         Span<byte> blockBuffer = stackalloc byte[(int)MasterDirectoryBlock.AllocationBlockSize];
         
         // Start with the first 3 extents from the file record
-        HFSExtentRecord currentExtents = firstExtents;
+        HfsExtentRecord currentExtents = firstExtents;
         ushort totalBlocksRead = 0; // Track which allocation block we're at in the fork
 
         while (remaining > 0)
@@ -232,14 +232,14 @@ public class HFSVolume
     /// <param name="forkType">The fork type (data or resource).</param>
     /// <param name="startBlock">The starting allocation block number to search for.</param>
     /// <returns>The extent record if found; otherwise, null.</returns>
-    private HFSExtentRecord? GetExtentsFromOverflow(uint fileID, HFSForkType forkType, ushort startBlock)
+    private HfsExtentRecord? GetExtentsFromOverflow(uint fileID, HfsForkType forkType, ushort startBlock)
     {
         if (ExtentsOverflowTree == null)
         {
             return null;
         }
 
-        var comparison = new HFSExtentsKeyComparison(fileID, forkType, startBlock);
+        var comparison = new HfsExtentsKeyComparison(fileID, forkType, startBlock);
         var currentNode = ExtentsOverflowTree.FindFirstMatchingLeafNode(comparison);
         while (currentNode != null)
         {
@@ -247,13 +247,13 @@ public class HFSVolume
             for (int i = 0; i < currentNode.Value.Descriptor.RecordCount; i++)
             {
                 var recordOffset = currentNode.Value.RecordOffsets[i];
-                var extentKey = new HFSExtentsKey(ExtentsOverflowTree.BlockBuffer.Slice(recordOffset.Offset, HFSExtentsKey.Size));
+                var extentKey = new HfsExtentsKey(ExtentsOverflowTree.BlockBuffer.Slice(recordOffset.Offset, HfsExtentsKey.Size));
 
                 if (extentKey.ForkType == forkType && extentKey.FileID == fileID && extentKey.StartBlock == startBlock)
                 {
                     // Found the matching extent record - it follows the key
-                    var extentDataOffset = recordOffset.Offset + HFSExtentsKey.Size;
-                    return new HFSExtentRecord(ExtentsOverflowTree.BlockBuffer.Slice(extentDataOffset, HFSExtentRecord.Size));
+                    var extentDataOffset = recordOffset.Offset + HfsExtentsKey.Size;
+                    return new HfsExtentRecord(ExtentsOverflowTree.BlockBuffer.Slice(extentDataOffset, HfsExtentRecord.Size));
                 }
                 
                 // Keys are sorted, so if we've passed our target, stop searching
@@ -281,9 +281,9 @@ public class HFSVolume
     /// </summary>
     /// <param name="file">The file to read.</param>
     /// <returns>The data fork data as a byte array.</returns>
-    public byte[] GetDataForkData(HFSFile file)
+    public byte[] GetDataForkData(HfsFile file)
     {
-        return GetFileData(file, HFSForkType.DataFork);
+        return GetFileData(file, HfsForkType.DataFork);
     }
 
     /// <summary>
@@ -292,9 +292,9 @@ public class HFSVolume
     /// <param name="file">The file to read.</param>
     /// <param name="outputStream">The stream to write the file data to.</param>
     /// <returns>The number of bytes written to the output stream.</returns>
-    public int GetDataForkData(HFSFile file, Stream outputStream)
+    public int GetDataForkData(HfsFile file, Stream outputStream)
     {
-        return GetFileData(file, outputStream, HFSForkType.DataFork);
+        return GetFileData(file, outputStream, HfsForkType.DataFork);
     }
 
     /// <summary>
@@ -302,9 +302,9 @@ public class HFSVolume
     /// </summary>
     /// <param name="file">The file to read.</param>
     /// <returns>The resource fork data as a byte array.</returns>
-    public byte[] GetResourceForkData(HFSFile file)
+    public byte[] GetResourceForkData(HfsFile file)
     {
-        return GetFileData(file, HFSForkType.ResourceFork);
+        return GetFileData(file, HfsForkType.ResourceFork);
     }
 
     /// <summary>
@@ -313,9 +313,9 @@ public class HFSVolume
     /// <param name="file">The file to read.</param>
     /// <param name="outputStream">The stream to write the file data to.</param>
     /// <returns>The number of bytes written to the output stream.</returns>
-    public int GetResourceForkData(HFSFile file, Stream outputStream)
+    public int GetResourceForkData(HfsFile file, Stream outputStream)
     {
-        return GetFileData(file, outputStream, HFSForkType.ResourceFork);
+        return GetFileData(file, outputStream, HfsForkType.ResourceFork);
     }
 
     /// <summary>
@@ -324,7 +324,7 @@ public class HFSVolume
     /// <param name="file">The file to read.</param>
     /// <param name="forkType">The fork type (data or resource).</param>
     /// <returns>The file data as a byte array.</returns>
-    public byte[] GetFileData(HFSFile file, HFSForkType forkType)
+    public byte[] GetFileData(HfsFile file, HfsForkType forkType)
     {
         using var ms = new MemoryStream();
         GetFileData(file, ms, forkType);
@@ -338,22 +338,22 @@ public class HFSVolume
     /// <param name="outputStream">The stream to write the file data to.</param>
     /// <param name="forkType">The fork type (data or resource).</param>
     /// <returns>The number of bytes written to the output stream.</returns>
-    public int GetFileData(HFSFile file, Stream outputStream, HFSForkType forkType)
+    public int GetFileData(HfsFile file, Stream outputStream, HfsForkType forkType)
     {
         ArgumentNullException.ThrowIfNull(file);
         ArgumentNullException.ThrowIfNull(outputStream);
         
-        if (!Enum.IsDefined(typeof(HFSForkType), forkType))
+        if (!Enum.IsDefined(typeof(HfsForkType), forkType))
         {
             throw new ArgumentOutOfRangeException(nameof(forkType), "Invalid fork type specified.");
         }
 
-        if (forkType == HFSForkType.DataFork)
+        if (forkType == HfsForkType.DataFork)
         {
             return ReadForkData(
                 file.FileRecord.Identifier,
                 file.FileRecord.FirstDataForkExtents,
-                HFSForkType.DataFork,
+                HfsForkType.DataFork,
                 file.FileRecord.DataForkSize,
                 file.FileRecord.DataForkAllocatedSize,
                 outputStream);
@@ -363,7 +363,7 @@ public class HFSVolume
             return ReadForkData(
                 file.FileRecord.Identifier,
                 file.FileRecord.FirstResourceForkExtents,
-                HFSForkType.ResourceFork,
+                HfsForkType.ResourceFork,
                 file.FileRecord.ResourceForkSize,
                 file.FileRecord.ResourceForkAllocatedSize,
                 outputStream);

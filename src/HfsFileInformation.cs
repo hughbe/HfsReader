@@ -6,7 +6,7 @@ namespace HfsReader;
 /// <summary>
 /// Represents file information for an HFS file.
 /// </summary>
-public struct HFSFileInformation
+public struct HfsFileInformation
 {
     /// <summary>
     /// The size of the file information structure in bytes.
@@ -26,7 +26,7 @@ public struct HFSFileInformation
     /// <summary>
     /// Gets the Finder flags.
     /// </summary>
-    public HFSFinderFlags FinderFlags { get; }
+    public HfsFinderFlags FinderFlags { get; }
 
     /// <summary>
     /// Gets the X-coordinate of the file's location within the parent.
@@ -44,11 +44,11 @@ public struct HFSFileInformation
     public ushort FileIconWindow { get; }
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="HFSFileInformation"/> struct from the given data.
+    /// Initializes a new instance of the <see cref="HfsFileInformation"/> struct from the given data.
     /// </summary>
     /// <param name="data">The span containing the file information data.</param>
     /// <exception cref="ArgumentException">Thrown when the data length is not equal to the expected size.</exception>
-    public HFSFileInformation(Span<byte> data)
+    public HfsFileInformation(Span<byte> data)
     {
         if (data.Length != Size)
         {
@@ -69,7 +69,7 @@ public struct HFSFileInformation
 
         // Finder flags
         // See section: Finder flags
-        FinderFlags = (HFSFinderFlags)BinaryPrimitives.ReadUInt16BigEndian(data[offset..]);
+        FinderFlags = (HfsFinderFlags)BinaryPrimitives.ReadUInt16BigEndian(data[offset..]);
         offset += 2;
 
         // Location within the parent
@@ -86,6 +86,6 @@ public struct HFSFileInformation
         FileIconWindow = BinaryPrimitives.ReadUInt16BigEndian(data[offset..]);
         offset += 2;
 
-        Debug.Assert(offset == data.Length, "Did not read the expected number of bytes for HFSFileInformation.");
+        Debug.Assert(offset == data.Length, "Did not read the expected number of bytes for HfsFileInformation.");
     }
 }

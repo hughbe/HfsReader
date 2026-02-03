@@ -6,7 +6,7 @@ namespace HfsReader;
 /// <summary>
 /// Represents a key in the Extents Overflow B-tree.
 /// </summary>
-public struct HFSExtentsKey : IBTKey<HFSExtentsKey, HFSExtentsKeyComparison>
+public struct HfsExtentsKey : IBTKey<HfsExtentsKey, HfsExtentsKeyComparison>
 {
     /// <summary>
     /// The size of an HFS extent key in bytes (including the key length byte).
@@ -21,7 +21,7 @@ public struct HFSExtentsKey : IBTKey<HFSExtentsKey, HFSExtentsKeyComparison>
     /// <summary>
     /// Gets the fork type (0x00 = data fork, 0xFF = resource fork).
     /// </summary>
-    public HFSForkType ForkType { get; }
+    public HfsForkType ForkType { get; }
 
     /// <summary>
     /// Gets the file identifier (CNID).
@@ -34,15 +34,15 @@ public struct HFSExtentsKey : IBTKey<HFSExtentsKey, HFSExtentsKeyComparison>
     public ushort StartBlock { get; }
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="HFSExtentsKey"/> struct from the given data.
+    /// Initializes a new instance of the <see cref="HfsExtentsKey"/> struct from the given data.
     /// </summary>
     /// <param name="data">The span containing the extent key data.</param>
     /// <exception cref="ArgumentException">Thrown when the data length is not equal to the required size.</exception>
-    public HFSExtentsKey(ReadOnlySpan<byte> data)
+    public HfsExtentsKey(ReadOnlySpan<byte> data)
     {
         if (data.Length != Size)
         {
-            throw new ArgumentException($"Data length must be exactly {Size} bytes to read an HFSExtentsKey.", nameof(data));
+            throw new ArgumentException($"Data length must be exactly {Size} bytes to read an HfsExtentsKey.", nameof(data));
         }
 
         // 8.1.1. The HFS extent key (record)
@@ -56,13 +56,13 @@ public struct HFSExtentsKey : IBTKey<HFSExtentsKey, HFSExtentsKeyComparison>
 
         if (KeyLength != 7)
         {
-            throw new ArgumentException("Invalid HFSExtentsKey length byte; expected value is 7.", nameof(data));
+            throw new ArgumentException("Invalid HfsExtentsKey length byte; expected value is 7.", nameof(data));
         }
 
         // Fork type
         // Signed 8-bit integer
-        // See section: HFS fork types
-        ForkType = (HFSForkType)data[offset];
+        // See section: Hfs fork types
+        ForkType = (HfsForkType)data[offset];
         offset += 1;
 
         // File identifier
@@ -75,18 +75,18 @@ public struct HFSExtentsKey : IBTKey<HFSExtentsKey, HFSExtentsKeyComparison>
         StartBlock = BinaryPrimitives.ReadUInt16BigEndian(data[offset..]);
         offset += 2;
 
-        Debug.Assert(offset == data.Length, "Did not read exactly the expected number of bytes for HFSExtentsKey.");
+        Debug.Assert(offset == data.Length, "Did not read exactly the expected number of bytes for HfsExtentsKey.");
     }
 
     /// <inheritdoc/>
-    public static HFSExtentsKey Create(ReadOnlySpan<byte> data, out int bytesRead)
+    public static HfsExtentsKey Create(ReadOnlySpan<byte> data, out int bytesRead)
     {
         bytesRead = Size;
-        return new HFSExtentsKey(data[..Size]);
+        return new HfsExtentsKey(data[..Size]);
     }
 
     /// <inheritdoc/>
-    public readonly int CompareTo(HFSExtentsKeyComparison other)
+    public readonly int CompareTo(HfsExtentsKeyComparison other)
     {
         // According to the HFS specification, extents overflow keys are sorted by:
         // 1. File ID (primary)
@@ -112,7 +112,7 @@ public struct HFSExtentsKey : IBTKey<HFSExtentsKey, HFSExtentsKeyComparison>
     }
 
     /// <inheritdoc/>
-    public readonly bool IsParent(HFSExtentsKeyComparison other)
+    public readonly bool IsParent(HfsExtentsKeyComparison other)
     {
         // Never
         return false;
@@ -120,5 +120,5 @@ public struct HFSExtentsKey : IBTKey<HFSExtentsKey, HFSExtentsKeyComparison>
 
     /// <inheritdoc/>
     public override readonly string ToString()
-        => $"HFSExtentsKey(FileID={FileID}, ForkType={ForkType}, StartBlock={StartBlock})";
+        => $"HfsExtentsKey(FileID={FileID}, ForkType={ForkType}, StartBlock={StartBlock})";
 }

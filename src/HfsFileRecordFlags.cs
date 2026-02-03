@@ -4,7 +4,7 @@ namespace HfsReader;
 /// Represents flags for an HFS file record.
 /// </summary>
 [Flags]
-public enum HFSFileRecordFlags : byte
+public enum HfsFileRecordFlags : byte
 {
     /// <summary>
     /// File is locked and cannot be written to.

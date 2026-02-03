@@ -5,18 +5,18 @@ namespace HfsReader;
 /// <summary>
 /// Represents a disk containing one or more HFS volumes.
 /// </summary>
-public class HFSDisk
+public class HfsDisk
 {
     /// <summary>
     /// Gets the list of HFS volumes found on the disk.
     /// </summary>
-    public List<HFSVolume> Volumes { get; } = [];
+    public List<HfsVolume> Volumes { get; } = [];
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="HFSDisk"/> class and scans for HFS volumes.
+    /// Initializes a new instance of the <see cref="HfsDisk"/> class and scans for HFS volumes.
     /// </summary>
     /// <param name="stream">The stream containing the disk image data.</param>
-    public HFSDisk(Stream stream)
+    public HfsDisk(Stream stream)
     {
         ArgumentNullException.ThrowIfNull(stream);
         if (!stream.CanSeek || !stream.CanRead)
@@ -34,7 +34,7 @@ public class HFSDisk
                 {
                     // Found the HFS partition - add a volume for it.
                     var hfsStartOffset = (long)partitionEntry.PartitionStartBlock * 512;
-                    Volumes.Add(new HFSVolume(stream, (int)hfsStartOffset));
+                    Volumes.Add(new HfsVolume(stream, (int)hfsStartOffset));
                 }
             }
         }
@@ -42,7 +42,7 @@ public class HFSDisk
         // If no HFS volumes found, assume the entire image is a single HFS volume.
         if (Volumes.Count == 0)
         {
-            Volumes.Add(new HFSVolume(stream, 0));
+            Volumes.Add(new HfsVolume(stream, 0));
         }
     }
 }

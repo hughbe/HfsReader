@@ -4,14 +4,14 @@ using System.Text;
 namespace HfsReader;
 
 /// <summary>
-/// Represents a B-tree structure used in HFS for catalog and extents files.
+/// Represents a B-tree structure used in Hfs for catalog and extents files.
 /// </summary>
 public class BTree<TKey, TComparison>
     where TKey : IBTKey<TKey, TComparison>
 {
     private readonly Stream _stream;
     private readonly int _streamStartOffset;
-    private readonly HFSExtentRecord _extents;
+    private readonly HfsExtentRecord _extents;
     private readonly int _extentsStartBlock;
     private readonly int _allocationBlockSize;
     private readonly int _nodeSize;
@@ -40,7 +40,7 @@ public class BTree<TKey, TComparison>
     /// <param name="extents">The extents describing the B-tree's location.</param>
     /// <param name="extentsStartBlock">The starting block of the extents.</param>
     /// <param name="allocationBlockSize">The size of an allocation block.</param>
-    public BTree(Stream stream, int streamStartOffset, HFSExtentRecord extents, int extentsStartBlock, uint allocationBlockSize)
+    public BTree(Stream stream, int streamStartOffset, HfsExtentRecord extents, int extentsStartBlock, uint allocationBlockSize)
     {
         _stream = stream;
         _streamStartOffset = streamStartOffset;
@@ -171,7 +171,7 @@ public class BTree<TKey, TComparison>
     private int GetNodeFileOffset(uint nodeIndex)
     {
         // Calculate the byte offset of the node within the catalog file.
-        // Each node is _nodeSize bytes (typically 512 for HFS).
+        // Each node is _nodeSize bytes (typically 512 for Hfs).
         int nodeByteOffset = (int)(nodeIndex * _nodeSize);
         
         // Find which extent and allocation block contains this byte offset.

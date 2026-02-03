@@ -6,7 +6,7 @@ namespace HfsReader;
 /// <summary>
 /// Represents extended folder information for an HFS folder.
 /// </summary>
-public struct HFSExtendedFolderInformation
+public struct HfsExtendedFolderInformation
 {
     /// <summary>
     /// The size of the extended folder information structure in bytes.
@@ -49,11 +49,11 @@ public struct HFSExtendedFolderInformation
     public uint PutAwayFolderIdentifier { get; }
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="HFSExtendedFolderInformation"/> struct from the given data.
+    /// Initializes a new instance of the <see cref="HfsExtendedFolderInformation"/> struct from the given data.
     /// </summary>
     /// <param name="data">The span containing the extended folder information data.</param>
     /// <exception cref="ArgumentException">Thrown when the data length is not equal to the required size.</exception>
-    public HFSExtendedFolderInformation(Span<byte> data)
+    public HfsExtendedFolderInformation(Span<byte> data)
     {
         if (data.Length != Size)
         {
@@ -71,7 +71,7 @@ public struct HFSExtendedFolderInformation
         ScrollPositionY = BinaryPrimitives.ReadUInt16BigEndian(data[offset..]);
         offset += 2;
 
-        // If kHFSHasDateAddedMask is not set
+        // If kHfsHasDateAddedMask is not set
         // Open directory identifier chain
         // Signed 32-bit integer
         // Chain of directory identifiers for open folders.
@@ -103,6 +103,6 @@ public struct HFSExtendedFolderInformation
         PutAwayFolderIdentifier = BinaryPrimitives.ReadUInt32BigEndian(data[offset..]);
         offset += 4;
 
-        Debug.Assert(offset == data.Length, "Did not read the expected number of bytes for HFSExtendedFolderInformation.");
+        Debug.Assert(offset == data.Length, "Did not read the expected number of bytes for HfsExtendedFolderInformation.");
     }
 }

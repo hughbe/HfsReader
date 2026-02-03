@@ -7,7 +7,7 @@ namespace HfsReader;
 /// <summary>
 /// Represents the boot block header of an HFS volume.
 /// </summary>
-public struct HFSBootBlockHeader
+public struct HfsBootBlockHeader
 {
     /// <summary>
     /// The size of the boot block header in bytes.
@@ -110,10 +110,10 @@ public struct HFSBootBlockHeader
     public uint FractionOfAvailableRAMForSystemHeap { get; }
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="HFSBootBlockHeader"/> struct from the given data.
+    /// Initializes a new instance of the <see cref="HfsBootBlockHeader"/> struct from the given data.
     /// </summary>
     /// <param name="data">The span containing the boot block header data.</param>
-    public HFSBootBlockHeader(Span<byte> data)
+    public HfsBootBlockHeader(Span<byte> data)
     {
         if (data.Length < 141)
         {
@@ -214,6 +214,6 @@ public struct HFSBootBlockHeader
         FractionOfAvailableRAMForSystemHeap = BinaryPrimitives.ReadUInt32BigEndian(data[offset..]);
         offset += 4;
 
-        Debug.Assert(offset == data.Length, "Did not read the expected number of bytes for HFSBootBlockHeader.");
+        Debug.Assert(offset == data.Length, "Did not read the expected number of bytes for HfsBootBlockHeader.");
     }
 }

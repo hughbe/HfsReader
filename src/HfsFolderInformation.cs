@@ -6,7 +6,7 @@ namespace HfsReader;
 /// <summary>
 /// Represents folder information for an HFS folder.
 /// </summary>
-public struct HFSFolderInformation
+public struct HfsFolderInformation
 {
     /// <summary>
     /// The size of the folder information structure in bytes.
@@ -36,7 +36,7 @@ public struct HFSFolderInformation
     /// <summary>
     /// Gets the Finder flags.
     /// </summary>
-    public HFSFinderFlags FinderFlags { get; }
+    public HfsFinderFlags FinderFlags { get; }
 
     /// <summary>
     /// Gets the X-coordinate of the folder's location within the parent.
@@ -54,11 +54,11 @@ public struct HFSFolderInformation
     public ushort FolderView { get; }
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="HFSFolderInformation"/> struct from the given data.
+    /// Initializes a new instance of the <see cref="HfsFolderInformation"/> struct from the given data.
     /// </summary>
     /// <param name="data">The span containing the folder information data.</param>
     /// <exception cref="ArgumentException">Thrown when the data length is not equal to the expected size.</exception>
-    public HFSFolderInformation(Span<byte> data)
+    public HfsFolderInformation(Span<byte> data)
     {
         if (data.Length != Size)
         {
@@ -84,7 +84,7 @@ public struct HFSFolderInformation
 
         // Finder flags
         // See section: Finder flags
-        FinderFlags = (HFSFinderFlags)BinaryPrimitives.ReadUInt16BigEndian(data[offset..]);
+        FinderFlags = (HfsFinderFlags)BinaryPrimitives.ReadUInt16BigEndian(data[offset..]);
         offset += 2;
 
         // Location within the parent
@@ -101,6 +101,6 @@ public struct HFSFolderInformation
         FolderView = BinaryPrimitives.ReadUInt16BigEndian(data[offset..]);
         offset += 2;
 
-        Debug.Assert(offset == data.Length, "Did not read the expected number of bytes for HFSFolderInformation.");
+        Debug.Assert(offset == data.Length, "Did not read the expected number of bytes for HfsFolderInformation.");
     }
 }

@@ -45,7 +45,7 @@ public class HfsDiskTests
     {
         var filePath = Path.Combine("Samples", diskName);
         using var stream = File.OpenRead(filePath);
-        var dsk = new HFSDisk(stream);
+        var dsk = new HfsDisk(stream);
 
         foreach (var volume in dsk.Volumes)
         {
@@ -68,7 +68,7 @@ public class HfsDiskTests
     [Fact]
     public void Ctor_NullStream_ThrowsArgumentNullException()
     {
-        Assert.Throws<ArgumentNullException>("stream", () => new HFSDisk(null!));
+        Assert.Throws<ArgumentNullException>("stream", () => new HfsDisk(null!));
     }
 
     [Theory]
@@ -80,7 +80,7 @@ public class HfsDiskTests
     public void Ctor_NotHfs_ThrowsInvalidDataException(string diskName)
     {
         using var stream = File.OpenRead(Path.Combine("Samples", diskName));
-        Assert.Throws<InvalidDataException>(() => new HFSDisk(stream));
+        Assert.Throws<InvalidDataException>(() => new HfsDisk(stream));
     }
 
     [Theory]
@@ -88,12 +88,12 @@ public class HfsDiskTests
     public void Ctor_InvalidHfs_ThrowsInvalidDataException(string diskName)
     {
         using var stream = File.OpenRead(Path.Combine("Samples", diskName));
-        Assert.Throws<InvalidDataException>(() => new HFSDisk(stream));
+        Assert.Throws<InvalidDataException>(() => new HfsDisk(stream));
     }
 
-    private void PrintNode(HFSVolume volume, HFSNode node, string indent = "")
+    private void PrintNode(HfsVolume volume, HfsNode node, string indent = "")
     {
-        if (node is HFSDirectory directory)
+        if (node is HfsDirectory directory)
         {
             Debug.WriteLine($"{indent}- {node.Name} (ID: {node.Identifier})");
             foreach (var child in volume.ContentsOfDirectory(directory))
@@ -101,7 +101,7 @@ public class HfsDiskTests
                 PrintNode(volume, child, indent + "  ");
             }
         }
-        else if (node is HFSFile file)
+        else if (node is HfsFile file)
         {
             Debug.WriteLine($"{indent}- {node.Name} (ID: {node.Identifier}, Data Size: {file.FileRecord.DataForkSize} bytes, Resource Size: {file.FileRecord.ResourceForkSize} bytes)");
         }
@@ -118,12 +118,12 @@ public class HfsDiskTests
         return name;
     }
 
-    private void ExportFile(HFSVolume volume, HFSNode node, string path)
+    private void ExportFile(HfsVolume volume, HfsNode node, string path)
     {
         // Ensure the output directory exists
         Directory.CreateDirectory(path);
         
-        if (node is HFSDirectory directory)
+        if (node is HfsDirectory directory)
         {
             // Skip root directory (which has name "/") - just process its children
             if (directory.Name != "/")
@@ -139,7 +139,7 @@ public class HfsDiskTests
                 ExportFile(volume, child, path);
             }
         }
-        else if (node is HFSFile file)
+        else if (node is HfsFile file)
         {
             // Sanitize file names for filesystem compatibility
             var safeName = SanitizeName(file.Name);
@@ -148,13 +148,13 @@ public class HfsDiskTests
             if (file.FileRecord.DataForkSize != 0)
             {
                 using var outputStream = File.Create(filePath + ".data");
-                volume.GetFileData(file, outputStream, HFSForkType.DataFork);
+                volume.GetFileData(file, outputStream, HfsForkType.DataFork);
             }
 
             if (file.FileRecord.ResourceForkSize != 0)
             {
                 using var outputStream = File.Create(filePath + ".res");
-                volume.GetFileData(file, outputStream, HFSForkType.ResourceFork);
+                volume.GetFileData(file, outputStream, HfsForkType.ResourceFork);
             }
         }
     }
@@ -167,7 +167,7 @@ public class HfsDiskTests
     public void Dropstuff40_VerifyStructureAndChecksums()
     {
         using var stream = File.OpenRead(Path.Combine("Samples", "dropstuff_40.dsk"));
-        var disk = new HFSDisk(stream);
+        var disk = new HfsDisk(stream);
         var volume = disk.Volumes[0];
 
         // Verify counts
@@ -198,7 +198,7 @@ public class HfsDiskTests
     public void Exportfl131_VerifyStructureAndChecksums()
     {
         using var stream = File.OpenRead(Path.Combine("Samples", "exportfl-1.3.1.dsk"));
-        var disk = new HFSDisk(stream);
+        var disk = new HfsDisk(stream);
         var volume = disk.Volumes[0];
 
         // Verify counts
@@ -245,7 +245,7 @@ public class HfsDiskTests
     public void StuffitExpander55_VerifyStructureAndChecksums()
     {
         using var stream = File.OpenRead(Path.Combine("Samples", "Stuffit_Expander_5.5.dsk"));
-        var disk = new HFSDisk(stream);
+        var disk = new HfsDisk(stream);
         var volume = disk.Volumes[0];
 
         // Verify counts
@@ -284,7 +284,7 @@ public class HfsDiskTests
     public void Excel15_VerifyStructureAndChecksums()
     {
         using var stream = File.OpenRead(Path.Combine("Samples", "Excel 1.5/Excel 1.5.img"));
-        var disk = new HFSDisk(stream);
+        var disk = new HfsDisk(stream);
         var volume = disk.Volumes[0];
 
         // Verify counts
@@ -344,7 +344,7 @@ public class HfsDiskTests
     public void Excel30_VerifyStructureAndChecksums()
     {
         using var stream = File.OpenRead(Path.Combine("Samples", "Excel 3.0/Excel 3.0.img"));
-        var disk = new HFSDisk(stream);
+        var disk = new HfsDisk(stream);
         var volume = disk.Volumes[0];
 
         // Verify counts
@@ -418,7 +418,7 @@ public class HfsDiskTests
     public void Excel50Disk2_VerifyStructureAndChecksums()
     {
         using var stream = File.OpenRead(Path.Combine("Samples", "Excel 5.0/Excel v5.0 (Disk 2) Install 2 (065-096-694).dsk"));
-        var disk = new HFSDisk(stream);
+        var disk = new HfsDisk(stream);
         var volume = disk.Volumes[0];
 
         // Verify counts
@@ -449,7 +449,7 @@ public class HfsDiskTests
     public void Excel50Disk3_VerifyStructureAndChecksums()
     {
         using var stream = File.OpenRead(Path.Combine("Samples", "Excel 5.0/Excel v5.0 (Disk 3) Install 3 (065-096-695).dsk"));
-        var disk = new HFSDisk(stream);
+        var disk = new HfsDisk(stream);
         var volume = disk.Volumes[0];
 
         // Verify counts
@@ -475,7 +475,7 @@ public class HfsDiskTests
     public void Excel50Disk4_VerifyStructureAndChecksums()
     {
         using var stream = File.OpenRead(Path.Combine("Samples", "Excel 5.0/Excel v5.0 (Disk 4) Install 4 (065-096-696).dsk"));
-        var disk = new HFSDisk(stream);
+        var disk = new HfsDisk(stream);
         var volume = disk.Volumes[0];
 
         // Verify counts
@@ -497,7 +497,7 @@ public class HfsDiskTests
     public void Excel50Disk5_VerifyStructureAndChecksums()
     {
         using var stream = File.OpenRead(Path.Combine("Samples", "Excel 5.0/Excel v5.0 (Disk 5) Install 5 (065-096-697).dsk"));
-        var disk = new HFSDisk(stream);
+        var disk = new HfsDisk(stream);
         var volume = disk.Volumes[0];
 
         // Verify counts
@@ -519,7 +519,7 @@ public class HfsDiskTests
     public void Excel50Disk11_VerifyStructureAndChecksums()
     {
         using var stream = File.OpenRead(Path.Combine("Samples", "Excel 5.0/Excel v5.0 (Disk 11) Install 11 (065-096-762).dsk"));
-        var disk = new HFSDisk(stream);
+        var disk = new HfsDisk(stream);
         var volume = disk.Volumes[0];
 
         // Verify counts
@@ -541,7 +541,7 @@ public class HfsDiskTests
     public void Excel50Disk12_VerifyStructureAndChecksums()
     {
         using var stream = File.OpenRead(Path.Combine("Samples", "Excel 5.0/Excel v5.0 (Disk 12) Install 12 (065-096-763).dsk"));
-        var disk = new HFSDisk(stream);
+        var disk = new HfsDisk(stream);
         var volume = disk.Volumes[0];
 
         // Verify counts
@@ -563,7 +563,7 @@ public class HfsDiskTests
     public void Excel50Disk13_VerifyStructureAndChecksums()
     {
         using var stream = File.OpenRead(Path.Combine("Samples", "Excel 5.0/Excel v5.0 (Disk 13) Install 13 (065-096-764).dsk"));
-        var disk = new HFSDisk(stream);
+        var disk = new HfsDisk(stream);
         var volume = disk.Volumes[0];
 
         // Verify counts
@@ -585,7 +585,7 @@ public class HfsDiskTests
     public void System753_VerifyStructureAndChecksums()
     {
         using var stream = File.OpenRead(Path.Combine("Samples", "System753.dsk"));
-        var disk = new HFSDisk(stream);
+        var disk = new HfsDisk(stream);
         var volume = disk.Volumes[0];
 
         // System 7.5.3 disk with full system folder
@@ -597,7 +597,7 @@ public class HfsDiskTests
     public void EmptyDisk100MB_VerifyStructureAndChecksums()
     {
         using var stream = File.OpenRead(Path.Combine("Samples", "100MB.dsk"));
-        var disk = new HFSDisk(stream);
+        var disk = new HfsDisk(stream);
         var volume = disk.Volumes[0];
 
         // Contains just the root folder with Desktop file
@@ -676,9 +676,9 @@ public class HfsDiskTests
         Assert.Equal(0u, entries[3].BootCodeChecksum);
         Assert.Equal("", entries[3].ProcessorType.ToString());
 
-        // Verify HFS Disk
+        // Verify Hfs Disk
         stream.Seek(0, SeekOrigin.Begin);
-        var disk = new HFSDisk(stream);
+        var disk = new HfsDisk(stream);
         Assert.Single(disk.Volumes);
 
         var volume = disk.Volumes[0];
@@ -695,7 +695,7 @@ public class HfsDiskTests
         // Verify root contents - should contain a single directory "d e v e l o p"
         var rootContents = volume.RootContents().ToList();
         Assert.Single(rootContents);
-        var rootDir = Assert.IsType<HFSDirectory>(rootContents[0]);
+        var rootDir = Assert.IsType<HfsDirectory>(rootContents[0]);
         Assert.Equal("d e v e l o p", rootDir.Name);
         Assert.Equal(2u, rootDir.Identifier);
         Assert.Equal(1u, rootDir.ParentIdentifier);
@@ -707,7 +707,7 @@ public class HfsDiskTests
         // Verify specific files and their checksums
 
         // TeachText - Resource Fork only
-        var teachText = developContents.OfType<HFSFile>().First(f => f.Name == "TeachText");
+        var teachText = developContents.OfType<HfsFile>().First(f => f.Name == "TeachText");
         Assert.Equal(347u, teachText.Identifier);
         Assert.Equal(2u, teachText.ParentIdentifier);
         Assert.Equal(0u, teachText.FileRecord.DataForkSize);
@@ -715,7 +715,7 @@ public class HfsDiskTests
         AssertResourceForkChecksum(volume, teachText, "2B5B458AD11CDBF1ED6A0086E1F2EE123B2272E7BE1B62E04EE70811164008BC");
 
         // Verify directory structure
-        var directories = developContents.OfType<HFSDirectory>().ToList();
+        var directories = developContents.OfType<HfsDirectory>().ToList();
 
         // Verify "Offscreen " directory and its contents
         var offscreenDir = directories.First(d => d.Name == "Offscreen ");
@@ -724,7 +724,7 @@ public class HfsDiskTests
 
         // Verify "Offscreen /MPW 3.0 interfaces/text only" file
         var offscreenContents = volume.ContentsOfDirectory(offscreenDir).ToList();
-        var mpwFile = offscreenContents.OfType<HFSFile>().First(f => f.Name == "MPW 3.0 interfaces/text only");
+        var mpwFile = offscreenContents.OfType<HfsFile>().First(f => f.Name == "MPW 3.0 interfaces/text only");
         Assert.Equal(295u, mpwFile.Identifier);
         Assert.Equal(10331u, mpwFile.FileRecord.DataForkSize);
         Assert.Equal(0u, mpwFile.FileRecord.ResourceForkSize);
@@ -738,14 +738,14 @@ public class HfsDiskTests
         var perilsContents = volume.ContentsOfDirectory(perilsDir).ToList();
 
         // TipsTwoThirds - Resource Fork only
-        var tipsTwoThirds = perilsContents.OfType<HFSFile>().First(f => f.Name == "TipsTwoThirds");
+        var tipsTwoThirds = perilsContents.OfType<HfsFile>().First(f => f.Name == "TipsTwoThirds");
         Assert.Equal(326u, tipsTwoThirds.Identifier);
         Assert.Equal(0u, tipsTwoThirds.FileRecord.DataForkSize);
         Assert.Equal(4437u, tipsTwoThirds.FileRecord.ResourceForkSize);
         AssertResourceForkChecksum(volume, tipsTwoThirds, "5C390ABEA7E95B02843BC109DFD87FD076C964DC88FE53D2105BE7A6DFFD1869");
 
         // TipsTwoThirds.make - Both forks
-        var tipsMake = perilsContents.OfType<HFSFile>().First(f => f.Name == "TipsTwoThirds.make");
+        var tipsMake = perilsContents.OfType<HfsFile>().First(f => f.Name == "TipsTwoThirds.make");
         Assert.Equal(327u, tipsMake.Identifier);
         Assert.Equal(508u, tipsMake.FileRecord.DataForkSize);
         Assert.Equal(382u, tipsMake.FileRecord.ResourceForkSize);
@@ -753,7 +753,7 @@ public class HfsDiskTests
         AssertResourceForkChecksum(volume, tipsMake, "B8EB4E6798CC1C200CFB741D03558DA504003E3AA2599FEADA9BC0953B921EC8");
 
         // TipsTwoThirds.p - Both forks
-        var tipsP = perilsContents.OfType<HFSFile>().First(f => f.Name == "TipsTwoThirds.p");
+        var tipsP = perilsContents.OfType<HfsFile>().First(f => f.Name == "TipsTwoThirds.p");
         Assert.Equal(328u, tipsP.Identifier);
         Assert.Equal(4623u, tipsP.FileRecord.DataForkSize);
         Assert.Equal(1461u, tipsP.FileRecord.ResourceForkSize);
@@ -761,7 +761,7 @@ public class HfsDiskTests
         AssertResourceForkChecksum(volume, tipsP, "EAC4CD2D357F37297756DBFF6CAD60FC7A8721D87A124EE2154C7FE60B3A9F6A");
 
         // TipsTwoThirds.p.o - Data Fork only
-        var tipsPO = perilsContents.OfType<HFSFile>().First(f => f.Name == "TipsTwoThirds.p.o");
+        var tipsPO = perilsContents.OfType<HfsFile>().First(f => f.Name == "TipsTwoThirds.p.o");
         Assert.Equal(329u, tipsPO.Identifier);
         Assert.Equal(1666u, tipsPO.FileRecord.DataForkSize);
         Assert.Equal(0u, tipsPO.FileRecord.ResourceForkSize);
@@ -775,7 +775,7 @@ public class HfsDiskTests
         var paletteContents = volume.ContentsOfDirectory(paletteDir).ToList();
 
         // Palette.make - Both forks
-        var paletteMake = paletteContents.OfType<HFSFile>().First(f => f.Name == "Palette.make");
+        var paletteMake = paletteContents.OfType<HfsFile>().First(f => f.Name == "Palette.make");
         Assert.Equal(349u, paletteMake.Identifier);
         Assert.Equal(474u, paletteMake.FileRecord.DataForkSize);
         Assert.Equal(382u, paletteMake.FileRecord.ResourceForkSize);
@@ -783,21 +783,21 @@ public class HfsDiskTests
         AssertResourceForkChecksum(volume, paletteMake, "DA02EB9DB0335080F0739227E0B89F8AD291C64DF675F67324EC90B6F792B189");
 
         // PaletteArticle.dvb.3 - Data Fork only
-        var paletteArticle = paletteContents.OfType<HFSFile>().First(f => f.Name == "PaletteArticle.dvb.3");
+        var paletteArticle = paletteContents.OfType<HfsFile>().First(f => f.Name == "PaletteArticle.dvb.3");
         Assert.Equal(352u, paletteArticle.Identifier);
         Assert.Equal(18032u, paletteArticle.FileRecord.DataForkSize);
         Assert.Equal(0u, paletteArticle.FileRecord.ResourceForkSize);
         AssertDataForkChecksum(volume, paletteArticle, "E1006D8133C8CFA5479D934A7D9AE10AF930F59240A5077C026A3C1B7E5A6338");
 
         // Verify nested directory: the Palette Manager/Sample.f
-        var sampleFDir = paletteContents.OfType<HFSDirectory>().First(d => d.Name == "Sample.f");
+        var sampleFDir = paletteContents.OfType<HfsDirectory>().First(d => d.Name == "Sample.f");
         Assert.Equal(353u, sampleFDir.Identifier);
         Assert.Equal(5, sampleFDir.FolderRecord.NumberOfDirectoryEntries);
 
         var sampleFContents = volume.ContentsOfDirectory(sampleFDir).ToList();
 
         // Sample.f/Sample.p - Both forks
-        var sampleP = sampleFContents.OfType<HFSFile>().First(f => f.Name == "Sample.p");
+        var sampleP = sampleFContents.OfType<HfsFile>().First(f => f.Name == "Sample.p");
         Assert.Equal(357u, sampleP.Identifier);
         Assert.Equal(17664u, sampleP.FileRecord.DataForkSize);
         Assert.Equal(435u, sampleP.FileRecord.ResourceForkSize);
@@ -811,17 +811,17 @@ public class HfsDiskTests
 
         var realisticContents = volume.ContentsOfDirectory(realisticDir).ToList();
         Assert.Equal(2, realisticContents.Count);
-        Assert.All(realisticContents, n => Assert.IsType<HFSDirectory>(n));
+        Assert.All(realisticContents, n => Assert.IsType<HfsDirectory>(n));
 
         // Verify RW Bulls Eye subdirectory
-        var rwBullsEyeDir = realisticContents.OfType<HFSDirectory>().First(d => d.Name == "RW Bulls Eye");
+        var rwBullsEyeDir = realisticContents.OfType<HfsDirectory>().First(d => d.Name == "RW Bulls Eye");
         Assert.Equal(331u, rwBullsEyeDir.Identifier);
         Assert.Equal(5, rwBullsEyeDir.FolderRecord.NumberOfDirectoryEntries);
 
         var rwBullsEyeContents = volume.ContentsOfDirectory(rwBullsEyeDir).ToList();
 
         // RW Bullseye.c - Both forks
-        var rwBullseyeC = rwBullsEyeContents.OfType<HFSFile>().First(f => f.Name == "RW Bullseye.c");
+        var rwBullseyeC = rwBullsEyeContents.OfType<HfsFile>().First(f => f.Name == "RW Bullseye.c");
         Assert.Equal(335u, rwBullseyeC.Identifier);
         Assert.Equal(2714u, rwBullseyeC.FileRecord.DataForkSize);
         Assert.Equal(348u, rwBullseyeC.FileRecord.ResourceForkSize);
@@ -829,14 +829,14 @@ public class HfsDiskTests
         AssertResourceForkChecksum(volume, rwBullseyeC, "04A26F7342D152B2007C7DA676D8817F935621B07F09CFE55DDCE5EB2407B20F");
 
         // RW Bullseye.? - Resource Fork only (large)
-        var rwBullseyePi = rwBullsEyeContents.OfType<HFSFile>().First(f => f.Name == "RW Bullseye.?");
+        var rwBullseyePi = rwBullsEyeContents.OfType<HfsFile>().First(f => f.Name == "RW Bullseye.?");
         Assert.Equal(336u, rwBullseyePi.Identifier);
         Assert.Equal(0u, rwBullseyePi.FileRecord.DataForkSize);
         Assert.Equal(86598u, rwBullseyePi.FileRecord.ResourceForkSize);
         AssertResourceForkChecksum(volume, rwBullseyePi, "836D8AF0DBD920C101C1D3D75BFB84C3BDB4452970F0CE8D069CDA09A8C6F50C");
 
         // Verify deeply nested: RW Bulls Eye/BigEasy directory
-        var bigEasyDir = rwBullsEyeContents.OfType<HFSDirectory>().First(d => d.Name == "BigEasy");
+        var bigEasyDir = rwBullsEyeContents.OfType<HfsDirectory>().First(d => d.Name == "BigEasy");
         Assert.Equal(333u, bigEasyDir.Identifier);
         Assert.Equal(6, bigEasyDir.FolderRecord.NumberOfDirectoryEntries);
 
@@ -844,7 +844,7 @@ public class HfsDiskTests
         Assert.Equal(6, bigEasyContents.Count);
 
         // BigEasy2.c - Both forks
-        var bigEasy2C = bigEasyContents.OfType<HFSFile>().First(f => f.Name == "BigEasy2.c");
+        var bigEasy2C = bigEasyContents.OfType<HfsFile>().First(f => f.Name == "BigEasy2.c");
         Assert.Equal(341u, bigEasy2C.Identifier);
         Assert.Equal(20898u, bigEasy2C.FileRecord.DataForkSize);
         Assert.Equal(348u, bigEasy2C.FileRecord.ResourceForkSize);
@@ -852,14 +852,14 @@ public class HfsDiskTests
         AssertResourceForkChecksum(volume, bigEasy2C, "FF70110C79775C50E08224634831CC625350EA06121CF57329C3AE148FD1D080");
 
         // Verify RW Fragment subdirectory
-        var rwFragmentDir = realisticContents.OfType<HFSDirectory>().First(d => d.Name == "RW Fragment");
+        var rwFragmentDir = realisticContents.OfType<HfsDirectory>().First(d => d.Name == "RW Fragment");
         Assert.Equal(332u, rwFragmentDir.Identifier);
         Assert.Equal(3, rwFragmentDir.FolderRecord.NumberOfDirectoryEntries);
 
         var rwFragmentContents = volume.ContentsOfDirectory(rwFragmentDir).ToList();
 
         // RW Fragment? - Resource Fork only (largest file)
-        var rwFragmentPi = rwFragmentContents.OfType<HFSFile>().First(f => f.Name == "RW Fragment?");
+        var rwFragmentPi = rwFragmentContents.OfType<HfsFile>().First(f => f.Name == "RW Fragment?");
         Assert.Equal(340u, rwFragmentPi.Identifier);
         Assert.Equal(0u, rwFragmentPi.FileRecord.DataForkSize);
         Assert.Equal(151514u, rwFragmentPi.FileRecord.ResourceForkSize);
@@ -870,21 +870,21 @@ public class HfsDiskTests
 
     #region Helper Methods
 
-    private static int CountFiles(HFSVolume volume)
+    private static int CountFiles(HfsVolume volume)
     {
         return CountFilesRecursive(volume, volume.RootContents());
     }
 
-    private static int CountFilesRecursive(HFSVolume volume, IEnumerable<HFSNode> nodes)
+    private static int CountFilesRecursive(HfsVolume volume, IEnumerable<HfsNode> nodes)
     {
         int count = 0;
         foreach (var node in nodes)
         {
-            if (node is HFSFile)
+            if (node is HfsFile)
             {
                 count++;
             }
-            else if (node is HFSDirectory directory)
+            else if (node is HfsDirectory directory)
             {
                 count += CountFilesRecursive(volume, volume.ContentsOfDirectory(directory));
             }
@@ -892,17 +892,17 @@ public class HfsDiskTests
         return count;
     }
 
-    private static int CountDirectories(HFSVolume volume)
+    private static int CountDirectories(HfsVolume volume)
     {
         return CountDirectoriesRecursive(volume, volume.RootContents());
     }
 
-    private static int CountDirectoriesRecursive(HFSVolume volume, IEnumerable<HFSNode> nodes)
+    private static int CountDirectoriesRecursive(HfsVolume volume, IEnumerable<HfsNode> nodes)
     {
         int count = 0;
         foreach (var node in nodes)
         {
-            if (node is HFSDirectory directory)
+            if (node is HfsDirectory directory)
             {
                 count++;
                 count += CountDirectoriesRecursive(volume, volume.ContentsOfDirectory(directory));
@@ -911,18 +911,18 @@ public class HfsDiskTests
         return count;
     }
 
-    private static List<string> GetAllDirectories(HFSVolume volume)
+    private static List<string> GetAllDirectories(HfsVolume volume)
     {
         var directories = new List<string>();
         CollectDirectoriesRecursive(volume, volume.RootContents(), "", directories);
         return directories;
     }
 
-    private static void CollectDirectoriesRecursive(HFSVolume volume, IEnumerable<HFSNode> nodes, string basePath, List<string> directories)
+    private static void CollectDirectoriesRecursive(HfsVolume volume, IEnumerable<HfsNode> nodes, string basePath, List<string> directories)
     {
         foreach (var node in nodes)
         {
-            if (node is HFSDirectory directory)
+            if (node is HfsDirectory directory)
             {
                 var path = string.IsNullOrEmpty(basePath) ? node.Name : $"{basePath}/{node.Name}";
                 directories.Add(path);
@@ -931,39 +931,39 @@ public class HfsDiskTests
         }
     }
 
-    private static List<(string Path, HFSFile File)> GetAllFilesWithPaths(HFSVolume volume)
+    private static List<(string Path, HfsFile File)> GetAllFilesWithPaths(HfsVolume volume)
     {
-        var files = new List<(string Path, HFSFile File)>();
+        var files = new List<(string Path, HfsFile File)>();
         CollectFilesRecursive(volume, volume.RootContents(), "", files);
         return files;
     }
 
-    private static void CollectFilesRecursive(HFSVolume volume, IEnumerable<HFSNode> nodes, string basePath, List<(string Path, HFSFile File)> files)
+    private static void CollectFilesRecursive(HfsVolume volume, IEnumerable<HfsNode> nodes, string basePath, List<(string Path, HfsFile File)> files)
     {
         foreach (var node in nodes)
         {
             var path = string.IsNullOrEmpty(basePath) ? node.Name : $"{basePath}/{node.Name}";
-            if (node is HFSFile file)
+            if (node is HfsFile file)
             {
                 files.Add((path, file));
             }
-            else if (node is HFSDirectory directory)
+            else if (node is HfsDirectory directory)
             {
                 CollectFilesRecursive(volume, volume.ContentsOfDirectory(directory), path, files);
             }
         }
     }
 
-    private static void AssertDataForkChecksum(HFSVolume volume, HFSFile file, string expectedChecksum)
+    private static void AssertDataForkChecksum(HfsVolume volume, HfsFile file, string expectedChecksum)
     {
-        var data = volume.GetFileData(file, HFSForkType.DataFork);
+        var data = volume.GetFileData(file, HfsForkType.DataFork);
         var actualChecksum = Convert.ToHexString(SHA256.HashData(data));
         Assert.Equal(expectedChecksum, actualChecksum);
     }
 
-    private static void AssertResourceForkChecksum(HFSVolume volume, HFSFile file, string expectedChecksum)
+    private static void AssertResourceForkChecksum(HfsVolume volume, HfsFile file, string expectedChecksum)
     {
-        var data = volume.GetFileData(file, HFSForkType.ResourceFork);
+        var data = volume.GetFileData(file, HfsForkType.ResourceFork);
         var actualChecksum = Convert.ToHexString(SHA256.HashData(data));
         Assert.Equal(expectedChecksum, actualChecksum);
     }

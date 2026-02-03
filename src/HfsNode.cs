@@ -3,7 +3,7 @@ namespace HfsReader;
 /// <summary>
 /// Represents a node in the HFS file system hierarchy (file or directory).
 /// </summary>
-public abstract class HFSNode
+public abstract class HfsNode
 {
     /// <summary>
     /// Gets the identifier of the parent node.
@@ -21,11 +21,11 @@ public abstract class HFSNode
     public abstract uint Identifier { get; }
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="HFSNode"/> class.
+    /// Initializes a new instance of the <see cref="HfsNode"/> class.
     /// </summary>
     /// <param name="parentIdentifier">The identifier of the parent node.</param>
     /// <param name="name">The name of the node.</param>
-    public HFSNode(uint parentIdentifier, string name)
+    public HfsNode(uint parentIdentifier, string name)
     {
         ParentIdentifier = parentIdentifier;
         Name = name;

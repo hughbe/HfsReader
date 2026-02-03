@@ -56,7 +56,7 @@ sealed class ExtractCommand : AsyncCommand<ExtractSettings>
         }
 
         await using var stream = input.OpenRead();
-        var volume = new HFSVolume(stream, settings.VolumeOffset);
+        var volume = new HfsVolume(stream, settings.VolumeOffset);
 
         await ExtractDirectoryAsync(volume, volume.RootContents(), outputDir, settings, cancellationToken);
 
@@ -64,7 +64,7 @@ sealed class ExtractCommand : AsyncCommand<ExtractSettings>
         return 0;
     }
 
-    private async Task ExtractDirectoryAsync(HFSVolume volume, IEnumerable<HFSNode> nodes, DirectoryInfo outputDir, ExtractSettings settings, CancellationToken cancellationToken)
+    private async Task ExtractDirectoryAsync(HfsVolume volume, IEnumerable<HfsNode> nodes, DirectoryInfo outputDir, ExtractSettings settings, CancellationToken cancellationToken)
     {
         var entries = nodes.ToList();
         AnsiConsole.MarkupLine($"[green]Found[/] {entries.Count} items in directory.");
@@ -75,7 +75,7 @@ sealed class ExtractCommand : AsyncCommand<ExtractSettings>
 
             var safeName = SanitizeName(entry.Name);
 
-            if (entry is HFSDirectory directory)
+            if (entry is HfsDirectory directory)
             {
                 var subDir = new DirectoryInfo(Path.Combine(outputDir.FullName, safeName));
                 if (!subDir.Exists)
@@ -88,7 +88,7 @@ sealed class ExtractCommand : AsyncCommand<ExtractSettings>
 
                 TrySetTimestamps(subDir.FullName, directory.FolderRecord.CreationDate, directory.FolderRecord.ContentModificationDate);
             }
-            else if (entry is HFSFile file)
+            else if (entry is HfsFile file)
             {
                 var basePath = Path.Combine(outputDir.FullName, safeName);
 
@@ -105,7 +105,7 @@ sealed class ExtractCommand : AsyncCommand<ExtractSettings>
                 {
                     var dataPath = basePath + ".data";
                     await using var outputStream = File.Create(dataPath);
-                    var bytes = volume.GetFileData(file, outputStream, HFSForkType.DataFork);
+                    var bytes = volume.GetFileData(file, outputStream, HfsForkType.DataFork);
                     AnsiConsole.MarkupLine($"Wrote data fork: {Path.GetFileName(dataPath)} ({bytes} bytes)");
                     TrySetTimestamps(dataPath, file.FileRecord.CreationDate, file.FileRecord.ModificationDate);
                 }
@@ -114,7 +114,7 @@ sealed class ExtractCommand : AsyncCommand<ExtractSettings>
                 {
                     var resPath = basePath + ".res";
                     await using var outputStream = File.Create(resPath);
-                    var bytes = volume.GetFileData(file, outputStream, HFSForkType.ResourceFork);
+                    var bytes = volume.GetFileData(file, outputStream, HfsForkType.ResourceFork);
                     AnsiConsole.MarkupLine($"Wrote resource fork: {Path.GetFileName(resPath)} ({bytes} bytes)");
                     TrySetTimestamps(resPath, file.FileRecord.CreationDate, file.FileRecord.ModificationDate);
                 }

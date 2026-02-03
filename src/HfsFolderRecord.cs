@@ -8,7 +8,7 @@ namespace HfsReader;
 /// <summary>
 /// Represents an HFS folder record in the catalog.
 /// </summary>
-public readonly struct HFSFolderRecord
+public readonly struct HfsFolderRecord
 {
     /// <summary>
     /// The size of an HFS folder record in bytes.
@@ -18,7 +18,7 @@ public readonly struct HFSFolderRecord
     /// <summary>
     /// Gets the catalog data record type.
     /// </summary>
-    public HFSCatalogDataRecordType Type { get; }
+    public HfsCatalogDataRecordType Type { get; }
 
     /// <summary>
     /// Gets the folder flags.
@@ -53,19 +53,19 @@ public readonly struct HFSFolderRecord
     /// <summary>
     /// Gets the folder information.
     /// </summary>
-    public HFSFolderInformation FolderInformation { get; }
+    public HfsFolderInformation FolderInformation { get; }
 
     /// <summary>
     /// Gets the extended folder information.
     /// </summary>
-    public HFSExtendedFolderInformation ExtendedFolderInformation { get; }
+    public HfsExtendedFolderInformation ExtendedFolderInformation { get; }
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="HFSFolderRecord"/> struct from the given data.
+    /// Initializes a new instance of the <see cref="HfsFolderRecord"/> struct from the given data.
     /// </summary>
     /// <param name="data">The span containing the folder record data.</param>
     /// <exception cref="ArgumentException">Thrown when the data length is not equal to the required size.</exception>
-    public HFSFolderRecord(Span<byte> data)
+    public HfsFolderRecord(Span<byte> data)
     {
         if (data.Length != Size)
         {
@@ -75,9 +75,9 @@ public readonly struct HFSFolderRecord
         int offset = 0;
 
         // Record type
-        Type = (HFSCatalogDataRecordType)BinaryPrimitives.ReadUInt16BigEndian(data[offset..]);
+        Type = (HfsCatalogDataRecordType)BinaryPrimitives.ReadUInt16BigEndian(data[offset..]);
         offset += 2;
-        if (Type != HFSCatalogDataRecordType.Folder)
+        if (Type != HfsCatalogDataRecordType.Folder)
         {
             throw new InvalidDataException("Invalid folder record type.");
         }
@@ -113,14 +113,14 @@ public readonly struct HFSFolderRecord
 
         // Folder information
         // See section: HFS folder information
-        FolderInformation = new HFSFolderInformation(data.Slice(offset, HFSFolderInformation.Size));
-        offset += HFSFolderInformation.Size;
+        FolderInformation = new HfsFolderInformation(data.Slice(offset, HfsFolderInformation.Size));
+        offset += HfsFolderInformation.Size;
 
         // Extended folder information
-        // See section: HFS extended folder information
-        ExtendedFolderInformation = new HFSExtendedFolderInformation(data.Slice(offset, HFSExtendedFolderInformation.Size));
-        offset += HFSExtendedFolderInformation.Size;
+        // See section: Hfs extended folder information
+        ExtendedFolderInformation = new HfsExtendedFolderInformation(data.Slice(offset, HfsExtendedFolderInformation.Size));
+        offset += HfsExtendedFolderInformation.Size;
 
-        Debug.Assert(offset == data.Length, "Did not read the expected number of bytes for HFSFolderRecord.");
+        Debug.Assert(offset == data.Length, "Did not read the expected number of bytes for HfsFolderRecord.");
     }
 }

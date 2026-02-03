@@ -6,7 +6,7 @@ namespace HfsReader;
 /// <summary>
 /// Represents an HFS extent descriptor, which describes a contiguous range of allocation blocks.
 /// </summary>
-public readonly struct HFSExtentDescriptor
+public readonly struct HfsExtentDescriptor
 {
     /// <summary>
     /// The size of an HFS extent descriptor in bytes.
@@ -24,15 +24,15 @@ public readonly struct HFSExtentDescriptor
     public ushort BlockCount { get; }
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="HFSExtentDescriptor"/> struct from the given data.
+    /// Initializes a new instance of the <see cref="HfsExtentDescriptor"/> struct from the given data.
     /// </summary>
     /// <param name="data">The span containing the extent descriptor data.</param>
     /// <exception cref="ArgumentException">Thrown when the data length is not equal to the required size.</exception>
-    public HFSExtentDescriptor(Span<byte> data)
+    public HfsExtentDescriptor(Span<byte> data)
     {
         if (data.Length != Size)
         {
-            throw new ArgumentException($"Data length must be exactly {Size} bytes to read an HFSExtentDescriptor.", nameof(data));
+            throw new ArgumentException($"Data length must be exactly {Size} bytes to read an HfsExtentDescriptor.", nameof(data));
         }
 
         int offset = 0;
@@ -45,6 +45,6 @@ public readonly struct HFSExtentDescriptor
         BlockCount = BinaryPrimitives.ReadUInt16BigEndian(data[offset..]);
         offset += 2;
 
-        Debug.Assert(offset == data.Length, "Did not read exactly the expected number of bytes for HFSExtentDescriptor.");
+        Debug.Assert(offset == data.Length, "Did not read exactly the expected number of bytes for HfsExtentDescriptor.");
     }
 }

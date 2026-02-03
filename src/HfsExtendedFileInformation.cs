@@ -6,7 +6,7 @@ namespace HfsReader;
 /// <summary>
 /// Represents extended file information for an HFS file.
 /// </summary>
-public struct HFSExtendedFileInformation
+public struct HfsExtendedFileInformation
 {
     /// <summary>
     /// The size of the extended file information structure in bytes.
@@ -54,11 +54,11 @@ public struct HFSExtendedFileInformation
     public uint PutAwayFolderIdentifier { get; }
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="HFSExtendedFileInformation"/> struct from the given data.
+    /// Initializes a new instance of the <see cref="HfsExtendedFileInformation"/> struct from the given data.
     /// </summary>
     /// <param name="data">The span containing the extended file information data.</param>
     /// <exception cref="ArgumentException">Thrown when the data length is not equal to the required size.</exception>
-    public HFSExtendedFileInformation(Span<byte> data)
+    public HfsExtendedFileInformation(Span<byte> data)
     {
         if (data.Length != Size)
         {
@@ -106,6 +106,6 @@ public struct HFSExtendedFileInformation
         PutAwayFolderIdentifier = BinaryPrimitives.ReadUInt32BigEndian(data[offset..]);
         offset += 4;
 
-        Debug.Assert(offset == data.Length, "Did not read the expected number of bytes for HFSExtendedFileInformation.");
+        Debug.Assert(offset == data.Length, "Did not read the expected number of bytes for HfsExtendedFileInformation.");
     }
 }

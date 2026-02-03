@@ -7,7 +7,7 @@ namespace HfsReader;
 /// <summary>
 /// Represents an HFS file record in the catalog.
 /// </summary>
-public struct HFSFileRecord
+public struct HfsFileRecord
 {
     /// <summary>
     /// The size of an HFS file record in bytes.
@@ -17,12 +17,12 @@ public struct HFSFileRecord
     /// <summary>
     /// Gets the catalog data record type.
     /// </summary>
-    public HFSCatalogDataRecordType Type { get; }
+    public HfsCatalogDataRecordType Type { get; }
 
     /// <summary>
     /// Gets the file record flags.
     /// </summary>
-    public HFSFileRecordFlags Flags { get; }
+    public HfsFileRecordFlags Flags { get; }
 
     /// <summary>
     /// Gets the file type (should always be 0).
@@ -32,7 +32,7 @@ public struct HFSFileRecord
     /// <summary>
     /// Gets the file information.
     /// </summary>
-    public HFSFileInformation FileInformation { get; }
+    public HfsFileInformation FileInformation { get; }
 
     /// <summary>
     /// Gets the file identifier (CNID).
@@ -87,7 +87,7 @@ public struct HFSFileRecord
     /// <summary>
     /// Gets the extended file information.
     /// </summary>
-    public HFSExtendedFileInformation ExtendedFileInformation { get; }
+    public HfsExtendedFileInformation ExtendedFileInformation { get; }
 
     /// <summary>
     /// Gets the clump size.
@@ -97,12 +97,12 @@ public struct HFSFileRecord
     /// <summary>
     /// Gets the first data fork extents record.
     /// </summary>
-    public HFSExtentRecord FirstDataForkExtents { get; }
+    public HfsExtentRecord FirstDataForkExtents { get; }
 
     /// <summary>
     /// Gets the first resource fork extents record.
     /// </summary>
-    public HFSExtentRecord FirstResourceForkExtents { get; }
+    public HfsExtentRecord FirstResourceForkExtents { get; }
 
     /// <summary>
     /// Gets the reserved field.
@@ -110,11 +110,11 @@ public struct HFSFileRecord
     public uint Reserved { get; }
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="HFSFileRecord"/> struct from the given data.
+    /// Initializes a new instance of the <see cref="HfsFileRecord"/> struct from the given data.
     /// </summary>
     /// <param name="data">The span containing the file record data.</param>
     /// <exception cref="ArgumentException">Thrown when the data length is not equal to the required size.</exception>
-    public HFSFileRecord(Span<byte> data)
+    public HfsFileRecord(Span<byte> data)
     {
         if (data.Length != Size)
         {
@@ -124,13 +124,13 @@ public struct HFSFileRecord
         int offset = 0;
 
         // The record type
-        Type = (HFSCatalogDataRecordType)BinaryPrimitives.ReadUInt16BigEndian(data[offset..]);
+        Type = (HfsCatalogDataRecordType)BinaryPrimitives.ReadUInt16BigEndian(data[offset..]);
         offset += 2;
 
         // Flags
         // Signed 8-bit integer
         // See section: file record flags
-        Flags = (HFSFileRecordFlags)data[offset];
+        Flags = (HfsFileRecordFlags)data[offset];
         offset += 1;
 
         // File type
@@ -140,9 +140,9 @@ public struct HFSFileRecord
         offset += 1;
 
         // File information
-        // See section: HFS file information
-        FileInformation = new HFSFileInformation(data.Slice(offset, HFSFileInformation.Size));
-        offset += HFSFileInformation.Size;
+        // See section: Hfs file information
+        FileInformation = new HfsFileInformation(data.Slice(offset, HfsFileInformation.Size));
+        offset += HfsFileInformation.Size;
 
         // The identifier
         // Contains a CNID
@@ -189,8 +189,8 @@ public struct HFSFileRecord
         offset += 4;
 
         // Extended file information
-        ExtendedFileInformation = new HFSExtendedFileInformation(data.Slice(offset, HFSExtendedFileInformation.Size));
-        offset += HFSExtendedFileInformation.Size;
+        ExtendedFileInformation = new HfsExtendedFileInformation(data.Slice(offset, HfsExtendedFileInformation.Size));
+        offset += HfsExtendedFileInformation.Size;
 
         // The clump size
         ClumpSize = BinaryPrimitives.ReadUInt16BigEndian(data[offset..]);
@@ -198,18 +198,18 @@ public struct HFSFileRecord
 
         // The first data fork extents record
         // See section: The HFS extents record
-        FirstDataForkExtents = new HFSExtentRecord(data.Slice(offset, HFSExtentRecord.Size));
-        offset += HFSExtentRecord.Size;
+        FirstDataForkExtents = new HfsExtentRecord(data.Slice(offset, HfsExtentRecord.Size));
+        offset += HfsExtentRecord.Size;
 
         // The first resource fork extents record
         // See section: The HFS extents record
-        FirstResourceForkExtents = new HFSExtentRecord(data.Slice(offset, HFSExtentRecord.Size));
-        offset += HFSExtentRecord.Size;
+        FirstResourceForkExtents = new HfsExtentRecord(data.Slice(offset, HfsExtentRecord.Size));
+        offset += HfsExtentRecord.Size;
 
         // Unknown (Reserved)
         Reserved = BinaryPrimitives.ReadUInt32BigEndian(data[offset..]);
         offset += 4;
 
-        Debug.Assert(offset == data.Length, "Did not read the expected number of bytes for HFSFileRecord.");
+        Debug.Assert(offset == data.Length, "Did not read the expected number of bytes for HfsFileRecord.");
     }
 }

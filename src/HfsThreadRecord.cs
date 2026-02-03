@@ -7,7 +7,7 @@ namespace HfsReader;
 /// <summary>
 /// Represents an HFS thread record (file or folder thread) in the catalog.
 /// </summary>
-public struct HFSThreadRecord
+public struct HfsThreadRecord
 {
     /// <summary>
     /// The minimum size of a thread record in bytes.
@@ -17,7 +17,7 @@ public struct HFSThreadRecord
     /// <summary>
     /// Gets the catalog data record type.
     /// </summary>
-    public HFSCatalogDataRecordType Type { get; }
+    public HfsCatalogDataRecordType Type { get; }
     
     /// <summary>
     /// Gets the first reserved field.
@@ -45,10 +45,10 @@ public struct HFSThreadRecord
     public string Name { get; }
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="HFSThreadRecord"/> struct from the given data.
+    /// Initializes a new instance of the <see cref="HfsThreadRecord"/> struct from the given data.
     /// </summary>
     /// <param name="data">The span containing the thread record data.</param>
-    public HFSThreadRecord(Span<byte> data)
+    public HfsThreadRecord(Span<byte> data)
     {
         if (data.Length < MinSize)
         {
@@ -58,9 +58,9 @@ public struct HFSThreadRecord
         int offset = 0;
 
         // The record type
-        Type = (HFSCatalogDataRecordType)BinaryPrimitives.ReadUInt16BigEndian(data[offset..]);
+        Type = (HfsCatalogDataRecordType)BinaryPrimitives.ReadUInt16BigEndian(data[offset..]);
         offset += 2;
-        if (Type != HFSCatalogDataRecordType.FileThread && Type != HFSCatalogDataRecordType.FolderThread)
+        if (Type != HfsCatalogDataRecordType.FileThread && Type != HfsCatalogDataRecordType.FolderThread)
         {
             throw new ArgumentException($"Expected a thread record type, but found {Type}.", nameof(data));
         }

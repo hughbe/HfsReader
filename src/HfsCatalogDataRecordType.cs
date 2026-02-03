@@ -3,7 +3,7 @@ namespace HfsReader;
 /// <summary>
 /// Represents the type of an HFS catalog data record.
 /// </summary>
-public enum HFSCatalogDataRecordType : ushort
+public enum HfsCatalogDataRecordType : ushort
 {
     /// <summary>
     /// A folder record.

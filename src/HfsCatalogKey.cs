@@ -7,7 +7,7 @@ namespace HfsReader;
 /// <summary>
 /// Represents a catalog key in the HFS catalog B-tree.
 /// </summary>
-public readonly struct HFSCatalogKey : IBTKey<HFSCatalogKey, HFSCatalogKeyComparison>
+public readonly struct HfsCatalogKey : IBTKey<HfsCatalogKey, HfsCatalogKeyComparison>
 {
     /// <summary>
     /// Gets the size of the key data.
@@ -30,12 +30,12 @@ public readonly struct HFSCatalogKey : IBTKey<HFSCatalogKey, HFSCatalogKeyCompar
     public string? Name { get; }
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="HFSCatalogKey"/> struct from the given data.
+    /// Initializes a new instance of the <see cref="HfsCatalogKey"/> struct from the given data.
     /// </summary>
     /// <param name="data">The span containing the key data.</param>
     /// <param name="bytesRead">Outputs the number of bytes read from the data span.</param>
     /// <exception cref="ArgumentException">Thrown when the data length is insufficient.</exception>
-    public HFSCatalogKey(ReadOnlySpan<byte> data, out int bytesRead)
+    public HfsCatalogKey(ReadOnlySpan<byte> data, out int bytesRead)
     {
         if (data.Length < 1)
         {
@@ -54,11 +54,11 @@ public readonly struct HFSCatalogKey : IBTKey<HFSCatalogKey, HFSCatalogKeyCompar
         {
             if (KeySize < 6 || KeySize > 37)
             {
-                throw new InvalidDataException($"Invalid HFSCatalogKey size of {KeySize}.");
+                throw new InvalidDataException($"Invalid HfsCatalogKey size of {KeySize}.");
             }
             if (KeySize > data.Length)
             {
-                throw new InvalidDataException($"HFSCatalogKey size of {KeySize} exceeds available data length of {data.Length - 1}.");
+                throw new InvalidDataException($"HfsCatalogKey size of {KeySize} exceeds available data length of {data.Length - 1}.");
             }
 
             // Unknown (Reserved)
@@ -79,14 +79,14 @@ public readonly struct HFSCatalogKey : IBTKey<HFSCatalogKey, HFSCatalogKeyCompar
         }
 
         bytesRead = 1 + KeySize;
-        Debug.Assert(bytesRead <= data.Length, "Did not read more bytes than available in HFSCatalogKey.");
+        Debug.Assert(bytesRead <= data.Length, "Did not read more bytes than available in HfsCatalogKey.");
     }
 
     /// <inheritdoc/>
-    public static HFSCatalogKey Create(ReadOnlySpan<byte> data, out int bytesRead) => new(data, out bytesRead);
+    public static HfsCatalogKey Create(ReadOnlySpan<byte> data, out int bytesRead) => new(data, out bytesRead);
 
     /// <inheritdoc/>
-    public int CompareTo(HFSCatalogKeyComparison other)
+    public int CompareTo(HfsCatalogKeyComparison other)
     {
         int parentComparison = ParentIdentifier.CompareTo(other.ParentIdentifier);
         if (parentComparison != 0)
@@ -98,7 +98,7 @@ public readonly struct HFSCatalogKey : IBTKey<HFSCatalogKey, HFSCatalogKeyCompar
     }
 
     /// <inheritdoc/>
-    public bool IsParent(HFSCatalogKeyComparison other)
+    public bool IsParent(HfsCatalogKeyComparison other)
     {
         if (string.IsNullOrEmpty(other.Name) && ParentIdentifier == other.ParentIdentifier)
         {
@@ -110,5 +110,5 @@ public readonly struct HFSCatalogKey : IBTKey<HFSCatalogKey, HFSCatalogKeyCompar
 
     /// <inheritdoc/>
     public override string ToString()
-        => $"HFSCatalogKey(ParentIdentifier={ParentIdentifier}, Name='{Name}')";
+        => $"HfsCatalogKey(ParentIdentifier={ParentIdentifier}, Name='{Name}')";
 }
