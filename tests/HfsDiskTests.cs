@@ -1,5 +1,6 @@
 ﻿using System.Diagnostics;
 using System.Security.Cryptography;
+using ApplePartitionMapReader;
 
 namespace HfsReader.Tests;
 
@@ -602,6 +603,267 @@ public class HfsDiskTests
         // Contains just the root folder with Desktop file
         Assert.Equal(1, CountFiles(volume));
         Assert.Equal(1, CountDirectories(volume));
+    }
+
+    [Fact]
+    public void TestIso_VerifyPartitionMapVolumeAndFiles()
+    {
+        using var stream = File.OpenRead(Path.Combine("Samples", "test.iso"));
+
+        // Verify Apple Partition Map
+        Assert.True(ApplePartitionMap.IsApplePartitionMap(stream, 0));
+        var partitionMap = new ApplePartitionMap(stream, 0);
+        var entries = partitionMap.Entries.ToList();
+        Assert.Equal(4, entries.Count);
+
+        // Entry 0: Apple_partition_map
+        Assert.Equal("Apple", entries[0].Name.ToString());
+        Assert.Equal("Apple_partition_map", entries[0].Type.ToString());
+        Assert.Equal(1u, entries[0].PartitionStartBlock);
+        Assert.Equal(63u, entries[0].PartitionBlockCount);
+        Assert.Equal(0u, entries[0].DataStartBlock);
+        Assert.Equal(63u, entries[0].DataBlockCount);
+        Assert.Equal(ApplePartitionMapStatus.Valid | ApplePartitionMapStatus.Allocated | ApplePartitionMapStatus.InUse | ApplePartitionMapStatus.Readable | ApplePartitionMapStatus.Writable, entries[0].StatusFlags);
+        Assert.Equal(0u, entries[0].BootCodeStartBlock);
+        Assert.Equal(0u, entries[0].BootCodeBlockCount);
+        Assert.Equal(0u, entries[0].BootCodeAddress);
+        Assert.Equal(0u, entries[0].BootCodeEntryPoint);
+        Assert.Equal(0u, entries[0].BootCodeChecksum);
+        Assert.Equal("", entries[0].ProcessorType.ToString());
+
+        // Entry 1: Apple_Driver
+        Assert.Equal("Macintosh", entries[1].Name.ToString());
+        Assert.Equal("Apple_Driver", entries[1].Type.ToString());
+        Assert.Equal(64u, entries[1].PartitionStartBlock);
+        Assert.Equal(32u, entries[1].PartitionBlockCount);
+        Assert.Equal(0u, entries[1].DataStartBlock);
+        Assert.Equal(32u, entries[1].DataBlockCount);
+        Assert.Equal(ApplePartitionMapStatus.Valid | ApplePartitionMapStatus.Allocated | ApplePartitionMapStatus.InUse | ApplePartitionMapStatus.Bootable | ApplePartitionMapStatus.Readable | ApplePartitionMapStatus.Writable | ApplePartitionMapStatus.BootCodePositionIndependent, entries[1].StatusFlags);
+        Assert.Equal(0u, entries[1].BootCodeStartBlock);
+        Assert.Equal(4898u, entries[1].BootCodeBlockCount);
+        Assert.Equal(0u, entries[1].BootCodeAddress);
+        Assert.Equal(0u, entries[1].BootCodeEntryPoint);
+        Assert.Equal(48326u, entries[1].BootCodeChecksum);
+        Assert.Equal("68000", entries[1].ProcessorType.ToString());
+
+        // Entry 2: Apple_HFS
+        Assert.Equal("MacOS", entries[2].Name.ToString());
+        Assert.Equal("Apple_HFS", entries[2].Type.ToString());
+        Assert.Equal(96u, entries[2].PartitionStartBlock);
+        Assert.Equal(20000u, entries[2].PartitionBlockCount);
+        Assert.Equal(0u, entries[2].DataStartBlock);
+        Assert.Equal(20000u, entries[2].DataBlockCount);
+        Assert.Equal(ApplePartitionMapStatus.Valid | ApplePartitionMapStatus.Allocated | ApplePartitionMapStatus.InUse | ApplePartitionMapStatus.Readable | ApplePartitionMapStatus.Writable | ApplePartitionMapStatus.OSSpecific1, entries[2].StatusFlags);
+        Assert.Equal(0u, entries[2].BootCodeStartBlock);
+        Assert.Equal(0u, entries[2].BootCodeBlockCount);
+        Assert.Equal(0u, entries[2].BootCodeAddress);
+        Assert.Equal(0u, entries[2].BootCodeEntryPoint);
+        Assert.Equal(0u, entries[2].BootCodeChecksum);
+        Assert.Equal("", entries[2].ProcessorType.ToString());
+
+        // Entry 3: Apple_Free
+        Assert.Equal("Extra", entries[3].Name.ToString());
+        Assert.Equal("Apple_Free", entries[3].Type.ToString());
+        Assert.Equal(20096u, entries[3].PartitionStartBlock);
+        Assert.Equal(136274u, entries[3].PartitionBlockCount);
+        Assert.Equal(0u, entries[3].DataStartBlock);
+        Assert.Equal(136274u, entries[3].DataBlockCount);
+        Assert.Equal(ApplePartitionMapStatus.Valid | ApplePartitionMapStatus.Allocated | ApplePartitionMapStatus.InUse | ApplePartitionMapStatus.Readable | ApplePartitionMapStatus.Writable, entries[3].StatusFlags);
+        Assert.Equal(0u, entries[3].BootCodeStartBlock);
+        Assert.Equal(0u, entries[3].BootCodeBlockCount);
+        Assert.Equal(0u, entries[3].BootCodeAddress);
+        Assert.Equal(0u, entries[3].BootCodeEntryPoint);
+        Assert.Equal(0u, entries[3].BootCodeChecksum);
+        Assert.Equal("", entries[3].ProcessorType.ToString());
+
+        // Verify HFS Disk
+        stream.Seek(0, SeekOrigin.Begin);
+        var disk = new HFSDisk(stream);
+        Assert.Single(disk.Volumes);
+
+        var volume = disk.Volumes[0];
+
+        // Verify Master Directory Block properties
+        Assert.Equal(0x4244, volume.MasterDirectoryBlock.Signature);
+        Assert.Equal("d e v e l o p", volume.MasterDirectoryBlock.VolumeLabel);
+        Assert.Equal(4, volume.MasterDirectoryBlock.FileCount);
+        Assert.Equal(19990, volume.MasterDirectoryBlock.NumberOfAllocationBlocks);
+        Assert.Equal(512u, volume.MasterDirectoryBlock.AllocationBlockSize);
+        Assert.Equal(10210, volume.MasterDirectoryBlock.NumberOfUnusedAllocationBlocks);
+        Assert.Equal(359u, volume.MasterDirectoryBlock.NextAvailableCatalogNodeID);
+
+        // Verify root contents - should contain a single directory "d e v e l o p"
+        var rootContents = volume.RootContents().ToList();
+        Assert.Single(rootContents);
+        var rootDir = Assert.IsType<HFSDirectory>(rootContents[0]);
+        Assert.Equal("d e v e l o p", rootDir.Name);
+        Assert.Equal(2u, rootDir.Identifier);
+        Assert.Equal(1u, rootDir.ParentIdentifier);
+        Assert.Equal(11, rootDir.FolderRecord.NumberOfDirectoryEntries);
+
+        // Verify the contents of the root directory
+        var developContents = volume.ContentsOfDirectory(rootDir).ToList();
+
+        // Verify specific files and their checksums
+
+        // TeachText - Resource Fork only
+        var teachText = developContents.OfType<HFSFile>().First(f => f.Name == "TeachText");
+        Assert.Equal(347u, teachText.Identifier);
+        Assert.Equal(2u, teachText.ParentIdentifier);
+        Assert.Equal(0u, teachText.FileRecord.DataForkSize);
+        Assert.Equal(19052u, teachText.FileRecord.ResourceForkSize);
+        AssertResourceForkChecksum(volume, teachText, "2B5B458AD11CDBF1ED6A0086E1F2EE123B2272E7BE1B62E04EE70811164008BC");
+
+        // Verify directory structure
+        var directories = developContents.OfType<HFSDirectory>().ToList();
+
+        // Verify "Offscreen " directory and its contents
+        var offscreenDir = directories.First(d => d.Name == "Offscreen ");
+        Assert.Equal(293u, offscreenDir.Identifier);
+        Assert.Equal(3, offscreenDir.FolderRecord.NumberOfDirectoryEntries);
+
+        // Verify "Offscreen /MPW 3.0 interfaces/text only" file
+        var offscreenContents = volume.ContentsOfDirectory(offscreenDir).ToList();
+        var mpwFile = offscreenContents.OfType<HFSFile>().First(f => f.Name == "MPW 3.0 interfaces/text only");
+        Assert.Equal(295u, mpwFile.Identifier);
+        Assert.Equal(10331u, mpwFile.FileRecord.DataForkSize);
+        Assert.Equal(0u, mpwFile.FileRecord.ResourceForkSize);
+        AssertDataForkChecksum(volume, mpwFile, "1C444BB5F7AC965E07C393F392CD436E34D2F0A4467CE727323D1F16E6998AA0");
+
+        // Verify "Perils of PostScript" directory and files
+        var perilsDir = directories.First(d => d.Name == "Perils of PostScript");
+        Assert.Equal(325u, perilsDir.Identifier);
+        Assert.Equal(4, perilsDir.FolderRecord.NumberOfDirectoryEntries);
+
+        var perilsContents = volume.ContentsOfDirectory(perilsDir).ToList();
+
+        // TipsTwoThirds - Resource Fork only
+        var tipsTwoThirds = perilsContents.OfType<HFSFile>().First(f => f.Name == "TipsTwoThirds");
+        Assert.Equal(326u, tipsTwoThirds.Identifier);
+        Assert.Equal(0u, tipsTwoThirds.FileRecord.DataForkSize);
+        Assert.Equal(4437u, tipsTwoThirds.FileRecord.ResourceForkSize);
+        AssertResourceForkChecksum(volume, tipsTwoThirds, "5C390ABEA7E95B02843BC109DFD87FD076C964DC88FE53D2105BE7A6DFFD1869");
+
+        // TipsTwoThirds.make - Both forks
+        var tipsMake = perilsContents.OfType<HFSFile>().First(f => f.Name == "TipsTwoThirds.make");
+        Assert.Equal(327u, tipsMake.Identifier);
+        Assert.Equal(508u, tipsMake.FileRecord.DataForkSize);
+        Assert.Equal(382u, tipsMake.FileRecord.ResourceForkSize);
+        AssertDataForkChecksum(volume, tipsMake, "3F7E1EEB099CF94AEB674071BDDFD8260B13A4FD646F0F81B49F3852B6DBDB9F");
+        AssertResourceForkChecksum(volume, tipsMake, "B8EB4E6798CC1C200CFB741D03558DA504003E3AA2599FEADA9BC0953B921EC8");
+
+        // TipsTwoThirds.p - Both forks
+        var tipsP = perilsContents.OfType<HFSFile>().First(f => f.Name == "TipsTwoThirds.p");
+        Assert.Equal(328u, tipsP.Identifier);
+        Assert.Equal(4623u, tipsP.FileRecord.DataForkSize);
+        Assert.Equal(1461u, tipsP.FileRecord.ResourceForkSize);
+        AssertDataForkChecksum(volume, tipsP, "833B63A4CFD118C7849DE598475C578879DC0662C0417ABAFA1FAEFDD2392F6C");
+        AssertResourceForkChecksum(volume, tipsP, "EAC4CD2D357F37297756DBFF6CAD60FC7A8721D87A124EE2154C7FE60B3A9F6A");
+
+        // TipsTwoThirds.p.o - Data Fork only
+        var tipsPO = perilsContents.OfType<HFSFile>().First(f => f.Name == "TipsTwoThirds.p.o");
+        Assert.Equal(329u, tipsPO.Identifier);
+        Assert.Equal(1666u, tipsPO.FileRecord.DataForkSize);
+        Assert.Equal(0u, tipsPO.FileRecord.ResourceForkSize);
+        AssertDataForkChecksum(volume, tipsPO, "FF72EB4ABA0C8EC72A87CBB7D72DDCF46C03AD6A5499C59A010000580CC8D921");
+
+        // Verify "the Palette Manager" directory
+        var paletteDir = directories.First(d => d.Name == "the Palette Manager");
+        Assert.Equal(348u, paletteDir.Identifier);
+        Assert.Equal(5, paletteDir.FolderRecord.NumberOfDirectoryEntries);
+
+        var paletteContents = volume.ContentsOfDirectory(paletteDir).ToList();
+
+        // Palette.make - Both forks
+        var paletteMake = paletteContents.OfType<HFSFile>().First(f => f.Name == "Palette.make");
+        Assert.Equal(349u, paletteMake.Identifier);
+        Assert.Equal(474u, paletteMake.FileRecord.DataForkSize);
+        Assert.Equal(382u, paletteMake.FileRecord.ResourceForkSize);
+        AssertDataForkChecksum(volume, paletteMake, "66289BF9C532099DB1AB101AD59648D65FB7155C4BD72C47DFC1242FF2EA3B1D");
+        AssertResourceForkChecksum(volume, paletteMake, "DA02EB9DB0335080F0739227E0B89F8AD291C64DF675F67324EC90B6F792B189");
+
+        // PaletteArticle.dvb.3 - Data Fork only
+        var paletteArticle = paletteContents.OfType<HFSFile>().First(f => f.Name == "PaletteArticle.dvb.3");
+        Assert.Equal(352u, paletteArticle.Identifier);
+        Assert.Equal(18032u, paletteArticle.FileRecord.DataForkSize);
+        Assert.Equal(0u, paletteArticle.FileRecord.ResourceForkSize);
+        AssertDataForkChecksum(volume, paletteArticle, "E1006D8133C8CFA5479D934A7D9AE10AF930F59240A5077C026A3C1B7E5A6338");
+
+        // Verify nested directory: the Palette Manager/Sample.f
+        var sampleFDir = paletteContents.OfType<HFSDirectory>().First(d => d.Name == "Sample.f");
+        Assert.Equal(353u, sampleFDir.Identifier);
+        Assert.Equal(5, sampleFDir.FolderRecord.NumberOfDirectoryEntries);
+
+        var sampleFContents = volume.ContentsOfDirectory(sampleFDir).ToList();
+
+        // Sample.f/Sample.p - Both forks
+        var sampleP = sampleFContents.OfType<HFSFile>().First(f => f.Name == "Sample.p");
+        Assert.Equal(357u, sampleP.Identifier);
+        Assert.Equal(17664u, sampleP.FileRecord.DataForkSize);
+        Assert.Equal(435u, sampleP.FileRecord.ResourceForkSize);
+        AssertDataForkChecksum(volume, sampleP, "9B85AB339E8D06B359529765C78F816F650B433C00C5EF572BB12B57912363A2");
+        AssertResourceForkChecksum(volume, sampleP, "CB0D8315D1A8A27556411B6C01157C0C2B542DCA3536019E38BBF12B4D96FAF0");
+
+        // Verify "Realistic Color" directory structure
+        var realisticDir = directories.First(d => d.Name == "Realistic Color");
+        Assert.Equal(330u, realisticDir.Identifier);
+        Assert.Equal(2, realisticDir.FolderRecord.NumberOfDirectoryEntries);
+
+        var realisticContents = volume.ContentsOfDirectory(realisticDir).ToList();
+        Assert.Equal(2, realisticContents.Count);
+        Assert.All(realisticContents, n => Assert.IsType<HFSDirectory>(n));
+
+        // Verify RW Bulls Eye subdirectory
+        var rwBullsEyeDir = realisticContents.OfType<HFSDirectory>().First(d => d.Name == "RW Bulls Eye");
+        Assert.Equal(331u, rwBullsEyeDir.Identifier);
+        Assert.Equal(5, rwBullsEyeDir.FolderRecord.NumberOfDirectoryEntries);
+
+        var rwBullsEyeContents = volume.ContentsOfDirectory(rwBullsEyeDir).ToList();
+
+        // RW Bullseye.c - Both forks
+        var rwBullseyeC = rwBullsEyeContents.OfType<HFSFile>().First(f => f.Name == "RW Bullseye.c");
+        Assert.Equal(335u, rwBullseyeC.Identifier);
+        Assert.Equal(2714u, rwBullseyeC.FileRecord.DataForkSize);
+        Assert.Equal(348u, rwBullseyeC.FileRecord.ResourceForkSize);
+        AssertDataForkChecksum(volume, rwBullseyeC, "33BB9CF4AD2C7B4EF2B0028B501C17EFAA610660BF9836B1A19667BE6D9DB8B1");
+        AssertResourceForkChecksum(volume, rwBullseyeC, "04A26F7342D152B2007C7DA676D8817F935621B07F09CFE55DDCE5EB2407B20F");
+
+        // RW Bullseye.? - Resource Fork only (large)
+        var rwBullseyePi = rwBullsEyeContents.OfType<HFSFile>().First(f => f.Name == "RW Bullseye.?");
+        Assert.Equal(336u, rwBullseyePi.Identifier);
+        Assert.Equal(0u, rwBullseyePi.FileRecord.DataForkSize);
+        Assert.Equal(86598u, rwBullseyePi.FileRecord.ResourceForkSize);
+        AssertResourceForkChecksum(volume, rwBullseyePi, "836D8AF0DBD920C101C1D3D75BFB84C3BDB4452970F0CE8D069CDA09A8C6F50C");
+
+        // Verify deeply nested: RW Bulls Eye/BigEasy directory
+        var bigEasyDir = rwBullsEyeContents.OfType<HFSDirectory>().First(d => d.Name == "BigEasy");
+        Assert.Equal(333u, bigEasyDir.Identifier);
+        Assert.Equal(6, bigEasyDir.FolderRecord.NumberOfDirectoryEntries);
+
+        var bigEasyContents = volume.ContentsOfDirectory(bigEasyDir).ToList();
+        Assert.Equal(6, bigEasyContents.Count);
+
+        // BigEasy2.c - Both forks
+        var bigEasy2C = bigEasyContents.OfType<HFSFile>().First(f => f.Name == "BigEasy2.c");
+        Assert.Equal(341u, bigEasy2C.Identifier);
+        Assert.Equal(20898u, bigEasy2C.FileRecord.DataForkSize);
+        Assert.Equal(348u, bigEasy2C.FileRecord.ResourceForkSize);
+        AssertDataForkChecksum(volume, bigEasy2C, "C87D44AC160E4E38BBEE0034A6FE359DE8AEC7F506769F5EBC38375DBABB5040");
+        AssertResourceForkChecksum(volume, bigEasy2C, "FF70110C79775C50E08224634831CC625350EA06121CF57329C3AE148FD1D080");
+
+        // Verify RW Fragment subdirectory
+        var rwFragmentDir = realisticContents.OfType<HFSDirectory>().First(d => d.Name == "RW Fragment");
+        Assert.Equal(332u, rwFragmentDir.Identifier);
+        Assert.Equal(3, rwFragmentDir.FolderRecord.NumberOfDirectoryEntries);
+
+        var rwFragmentContents = volume.ContentsOfDirectory(rwFragmentDir).ToList();
+
+        // RW Fragment? - Resource Fork only (largest file)
+        var rwFragmentPi = rwFragmentContents.OfType<HFSFile>().First(f => f.Name == "RW Fragment?");
+        Assert.Equal(340u, rwFragmentPi.Identifier);
+        Assert.Equal(0u, rwFragmentPi.FileRecord.DataForkSize);
+        Assert.Equal(151514u, rwFragmentPi.FileRecord.ResourceForkSize);
+        AssertResourceForkChecksum(volume, rwFragmentPi, "724463B41244D6D5253F4725F1125A08C41FDE1D45EB7D85619D85361FFF303D");
     }
 
     #endregion

@@ -1,4 +1,4 @@
-﻿using System.Buffers.Binary;
+﻿using ApplePartitionMapReader;
 
 namespace HfsReader;
 
@@ -24,40 +24,18 @@ public class HFSDisk
             throw new ArgumentException("Stream must be seekable and readable.", nameof(stream));
         }
 
-        Span<byte> blockBuffer = stackalloc byte[512];
-
-        // See if this is an ISO 9660 image with an embedded HFS volume.
-        // The primary volume descriptor starts at byte offset 32768.
         // Try to read Apple Partition Map entries first.
-        int currentOffset = 512;
-        while (stream.Seek(currentOffset, SeekOrigin.Begin) < stream.Length)
+        if (ApplePartitionMap.IsApplePartitionMap(stream, 0))
         {
-            currentOffset += 512;
-
-            // Read the signature first.
-            if (stream.Read(blockBuffer[..2]) != 2)
+            var partitionMap = new ApplePartitionMap(stream, 0);
+            foreach (var partitionEntry in partitionMap.Entries)
             {
-                throw new InvalidDataException("Unable to read Apple Partition Map Entry.");
-            }
-
-            var signature = BinaryPrimitives.ReadUInt16BigEndian(blockBuffer);
-            if (signature != ApplePartitionMapEntry.BlockSignature)
-            {
-                break;
-            }
-
-            // Read the rest of the partition entry.
-            if (stream.Read(blockBuffer[2..]) != blockBuffer.Length - 2)
-            {
-                throw new InvalidDataException("Unable to read Apple Partition Map Entry.");
-            }
-
-            var partitionEntry = new ApplePartitionMapEntry(blockBuffer[..ApplePartitionMapEntry.Size]);
-            if (partitionEntry.Type == "Apple_HFS")
-            {
-                // Found the HFS partition - add a volume for it.
-                var hfsStartOffset = (long)partitionEntry.PartitionStartBlock * 512;
-                Volumes.Add(new HFSVolume(stream, (int)hfsStartOffset));
+                if (partitionEntry.Type == ApplePartitionMapIdentifiers.AppleHFS)
+                {
+                    // Found the HFS partition - add a volume for it.
+                    var hfsStartOffset = (long)partitionEntry.PartitionStartBlock * 512;
+                    Volumes.Add(new HFSVolume(stream, (int)hfsStartOffset));
+                }
             }
         }
 
