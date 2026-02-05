@@ -77,7 +77,7 @@ public readonly struct HfsMasterDirectoryBlock
     /// <summary>
     /// Gets the volume label.
     /// </summary>
-    public string VolumeLabel { get; }
+    public String27 VolumeLabel { get; }
 
     /// <summary>
     /// Gets the backup date and time of the volume.
@@ -254,7 +254,7 @@ public readonly struct HfsMasterDirectoryBlock
         // The maximum size is 27
         // The volume label
         // Contains an ASCII string
-        VolumeLabel = SpanUtilities.ReadPascalString(data.Slice(offset, 28));
+        VolumeLabel = SpanUtilities.ReadPascalString27(data.Slice(offset, 28));
         offset += 28;
 
         // Backup date and time

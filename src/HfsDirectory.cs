@@ -1,3 +1,5 @@
+using HfsReader.Utilities;
+
 namespace HfsReader;
 
 /// <summary>
@@ -15,7 +17,7 @@ public class HfsDirectory : HfsNode
     /// </summary>
     public HfsFolderRecord FolderRecord { get; }
 
-    internal HfsDirectory(uint parentIdentifier, string name, HfsFolderRecord folderRecord) : base(parentIdentifier, name)
+    internal HfsDirectory(uint parentIdentifier, String31 name, HfsFolderRecord folderRecord) : base(parentIdentifier, name)
     {
         FolderRecord = folderRecord;
     }

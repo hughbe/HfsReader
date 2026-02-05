@@ -37,37 +37,37 @@ public struct HfsBootBlockHeader
     /// <summary>
     /// Gets the system filename.
     /// </summary>
-    public string SystemFilename { get; }
+    public String16 SystemFilename { get; }
 
     /// <summary>
     /// Gets the shell or Finder filename.
     /// </summary>
-    public string ShellFilename { get; }
+    public String16 ShellFilename { get; }
 
     /// <summary>
     /// Gets the Debugger 1 filename.
     /// </summary>
-    public string Debugger1Filename { get; }
+    public String16 Debugger1Filename { get; }
 
     /// <summary>
     /// Gets the Debugger 2 filename.
     /// </summary>
-    public string Debugger2Filename { get; }
+    public String16 Debugger2Filename { get; }
 
     /// <summary>
     /// Gets the name of the startup screen.
     /// </summary>
-    public string StartupScreenName { get; }
+    public String16 StartupScreenName { get; }
 
     /// <summary>
     /// Gets the name of the startup program.
     /// </summary>
-    public string StartupProgramName { get; }
+    public String16 StartupProgramName { get; }
 
     /// <summary>
     /// Gets the scrap filename.
     /// </summary>
-    public string ScrapFilename { get; }
+    public String16 ScrapFilename { get; }
 
     /// <summary>
     /// Gets the initial number of allocated file control blocks (FCBs).
@@ -143,37 +143,37 @@ public struct HfsBootBlockHeader
         offset += 2;
 
         // System filename ASCII string
-        SystemFilename = SpanUtilities.ReadPascalString(data.Slice(offset, 16));
+        SystemFilename = new String16(data.Slice(offset, 16));
         offset += 16;
 
         // Shell or Finder filename
         // ASCII string typically "Finder"
-        ShellFilename = SpanUtilities.ReadPascalString(data.Slice(offset, 16));
+        ShellFilename = new String16(data.Slice(offset, 16));
         offset += 16;
 
         // Debugger 1 filename
         // ASCII string typically "Macsbug"
-        Debugger1Filename = SpanUtilities.ReadPascalString(data.Slice(offset, 16));
+        Debugger1Filename = new String16(data.Slice(offset, 16));
         offset += 16;
 
         // Debugger 2 filename
         // ASCII string typically "Disassembler"
-        Debugger2Filename = SpanUtilities.ReadPascalString(data.Slice(offset, 16));
+        Debugger2Filename = new String16(data.Slice(offset, 16));
         offset += 16;
 
         // The name of the startup screen
         // ASCII string typically "StartUpScreen"
-        StartupScreenName = SpanUtilities.ReadPascalString(data.Slice(offset, 16));
+        StartupScreenName = new String16(data.Slice(offset, 16));
         offset += 16;
 
         // The name of the startup program
         // ASCII string typically "Finder"
-        StartupProgramName = SpanUtilities.ReadPascalString(data.Slice(offset, 16));
+        StartupProgramName = new String16(data.Slice(offset, 16));
         offset += 16;
 
         // The scrap filename
         // ASCII string typically "Clipboard"
-        ScrapFilename = SpanUtilities.ReadPascalString(data.Slice(offset, 16));
+        ScrapFilename = new String16(data.Slice(offset, 16));
         offset += 16;
 
         // The (initial) number of allocated file control blocks (FCBs)

@@ -1,3 +1,5 @@
+using HfsReader.Utilities;
+
 namespace HfsReader;
 
 /// <summary>
@@ -21,7 +23,7 @@ public class HfsFile : HfsNode
     /// <param name="parentIdentifier">The identifier of the parent directory.</param>
     /// <param name="name">The name of the file.</param>
     /// <param name="fileRecord">The file record associated with this file.</param>
-    public HfsFile(uint parentIdentifier, string name, HfsFileRecord fileRecord) : base(parentIdentifier, name)
+    public HfsFile(uint parentIdentifier, String31 name, HfsFileRecord fileRecord) : base(parentIdentifier, name)
     {
         FileRecord = fileRecord;
     }

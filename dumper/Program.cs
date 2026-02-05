@@ -288,7 +288,7 @@ sealed class DumpTreeCommand : AsyncCommand<DumpTreeSettings>
 
                     var childNodeIndex = BinaryPrimitives.ReadUInt32BigEndian(volume.CatalogTree.BlockBuffer[(recordOffset.Offset + bytesRead)..]);
 
-                    var keyLabel = $"[cyan]Key:[/] ParentID={indexKey.ParentIdentifier}, Name=\"{EscapeMarkup(indexKey.Name ?? "")}\" → [bold]Node {childNodeIndex}[/]";
+                    var keyLabel = $"[cyan]Key:[/] ParentID={indexKey.ParentIdentifier}, Name=\"{EscapeMarkup(indexKey.Name)}\" → [bold]Node {childNodeIndex}[/]";
                     var keyNode = nodeTree.AddNode(keyLabel);
 
                     var childNode = volume.CatalogTree.GetNode(childNodeIndex);
@@ -331,7 +331,7 @@ sealed class DumpTreeCommand : AsyncCommand<DumpTreeSettings>
                         _ => "❓"
                     };
 
-                    var recordLabel = $"{typeIcon} [cyan]ParentID={leafKey.ParentIdentifier}[/] \"{EscapeMarkup(leafKey.Name ?? "")}\" [dim]({recordType})[/]";
+                    var recordLabel = $"{typeIcon} [cyan]ParentID={leafKey.ParentIdentifier}[/] \"{EscapeMarkup(leafKey.Name)}\" [dim]({recordType})[/]";
                     nodeTree.AddNode(recordLabel);
                 }
                 catch (Exception ex)

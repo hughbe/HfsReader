@@ -113,7 +113,7 @@ public class HfsVolume
                             var fileRecord = new HfsFileRecord(CatalogTree.BlockBuffer.Slice(dataOffset, HfsFileRecord.Size));
                             yield return new HfsFile(
                                 key.ParentIdentifier,
-                                key.Name ?? string.Empty,
+                                key.Name,
                                 fileRecord);
                             break;
 
@@ -121,7 +121,7 @@ public class HfsVolume
                             var folderRecord = new HfsFolderRecord(CatalogTree.BlockBuffer.Slice(dataOffset, HfsFolderRecord.Size));
                             yield return new HfsDirectory(
                                 key.ParentIdentifier,
-                                key.Name ?? string.Empty,
+                                key.Name,
                                 folderRecord);
                             break;
 

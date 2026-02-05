@@ -27,7 +27,7 @@ public readonly struct HfsCatalogKey : IBTKey<HfsCatalogKey, HfsCatalogKeyCompar
     /// <summary>
     /// Gets the name associated with this key.
     /// </summary>
-    public string? Name { get; }
+    public String31 Name { get; }
 
     /// <summary>
     /// Initializes a new instance of the <see cref="HfsCatalogKey"/> struct from the given data.
@@ -75,7 +75,7 @@ public readonly struct HfsCatalogKey : IBTKey<HfsCatalogKey, HfsCatalogKeyCompar
             // Name string
             // Contains an ASCII string with end-of-string character
             // Contains the name of the file or directory
-            Name = SpanUtilities.ReadPascalString(data.Slice(offset, 32));
+            Name = SpanUtilities.ReadPascalString31(data.Slice(offset, 32));
         }
 
         bytesRead = 1 + KeySize;
@@ -94,13 +94,15 @@ public readonly struct HfsCatalogKey : IBTKey<HfsCatalogKey, HfsCatalogKeyCompar
             return parentComparison;
         }
 
-        return string.Compare(Name, other.Name, StringComparison.Ordinal);
+        // Use zero-allocation comparison via ReadOnlySpan<char>
+        return Name.CompareTo(other.Name.AsSpan());
     }
 
     /// <inheritdoc/>
     public bool IsParent(HfsCatalogKeyComparison other)
     {
-        if (string.IsNullOrEmpty(other.Name) && ParentIdentifier == other.ParentIdentifier)
+        // Use Length property to avoid string allocation
+        if (other.Name is null or { Length: 0 } && ParentIdentifier == other.ParentIdentifier)
         {
             return true;
         }
