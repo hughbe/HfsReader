@@ -44,24 +44,21 @@ public readonly struct BTNode
         // free space.
         RecordOffsets = new BTRecordOffset[numberOfRecords];
 
-        // First, enumerate to get the offsets.
-        for (int i = 0; i < RecordOffsets.Length; i++)
+        // Iterate in reverse to calculate offsets and sizes in a single pass.
+        // By going backwards, we already have the "next" offset from the previous iteration.
+        int nextOffset = 0;
+        for (int i = numberOfRecords - 1; i >= 0; i--)
         {
             int entryOffset = 512 - 2 - (i * 2);
+            int currentOffset = BinaryPrimitives.ReadUInt16BigEndian(data[entryOffset..]);
+            
             RecordOffsets[i] = new BTRecordOffset
             {
-                Offset = BinaryPrimitives.ReadUInt16BigEndian(data[entryOffset..])
+                Offset = currentOffset,
+                Size = nextOffset - currentOffset
             };
-        }
-
-        // Second, calculate the sizes.
-        for (int i = 0; i < RecordOffsets.Length - 1; i++)
-        {
-            RecordOffsets[i] = new BTRecordOffset
-            {
-                Offset = RecordOffsets[i].Offset,
-                Size = RecordOffsets[i + 1].Offset - RecordOffsets[i].Offset
-            };
+            
+            nextOffset = currentOffset;
         }
     }
 }

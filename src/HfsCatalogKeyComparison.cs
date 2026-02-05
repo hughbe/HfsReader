@@ -5,6 +5,6 @@ namespace HfsReader;
 /// </summary>
 /// <param name="ParentIdentifier">The parent identifier of the key.</param>
 /// <param name="Name">The name associated with the key.</param>
-public record HfsCatalogKeyComparison(uint ParentIdentifier, string? Name)
+public readonly record struct HfsCatalogKeyComparison(uint ParentIdentifier, string? Name)
 {
 }

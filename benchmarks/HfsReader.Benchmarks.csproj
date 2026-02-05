@@ -23,7 +23,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Content Include="..\tests\Samples\*.dsk" Link="Samples\%(Filename)%(Extension)">
+    <Content Include="..\tests\Samples\*.dsk">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>

@@ -13,7 +13,7 @@ public class HfsCatalogKeyBenchmarks
 {
     private byte[] _catalogKeyData = null!;
     private HfsCatalogKey _catalogKey;
-    private HfsCatalogKeyComparison _comparisonKey = null!;
+    private HfsCatalogKeyComparison _comparisonKey;
     private String31 _string31Name;
 
     [GlobalSetup]

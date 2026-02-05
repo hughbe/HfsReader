@@ -3,15 +3,15 @@ namespace HfsReader;
 /// <summary>
 /// Represents the offset and size of a record within a B-tree node.
 /// </summary>
-public struct BTRecordOffset
+public readonly struct BTRecordOffset
 {
     /// <summary>
-    /// Gets or sets the offset of the record from the start of the node.
+    /// Gets the offset of the record from the start of the node.
     /// </summary>
-    public int Offset { get; set; }
+    public int Offset { get; init; }
 
     /// <summary>
-    /// Gets or sets the size of the record in bytes.
+    /// Gets the size of the record in bytes.
     /// </summary>
-    public int Size { get; set; }
+    public int Size { get; init; }
 }
