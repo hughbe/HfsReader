@@ -613,68 +613,67 @@ public class HfsDiskTests
         // Verify Apple Partition Map
         Assert.True(ApplePartitionMap.IsApplePartitionMap(stream, 0));
         var partitionMap = new ApplePartitionMap(stream, 0);
-        var entries = partitionMap.Entries.ToList();
-        Assert.Equal(4, entries.Count);
+        Assert.Equal(4, partitionMap.Count);
 
         // Entry 0: Apple_partition_map
-        Assert.Equal("Apple", entries[0].Name.ToString());
-        Assert.Equal("Apple_partition_map", entries[0].Type.ToString());
-        Assert.Equal(1u, entries[0].PartitionStartBlock);
-        Assert.Equal(63u, entries[0].PartitionBlockCount);
-        Assert.Equal(0u, entries[0].DataStartBlock);
-        Assert.Equal(63u, entries[0].DataBlockCount);
-        Assert.Equal(ApplePartitionMapStatus.Valid | ApplePartitionMapStatus.Allocated | ApplePartitionMapStatus.InUse | ApplePartitionMapStatus.Readable | ApplePartitionMapStatus.Writable, entries[0].StatusFlags);
-        Assert.Equal(0u, entries[0].BootCodeStartBlock);
-        Assert.Equal(0u, entries[0].BootCodeBlockCount);
-        Assert.Equal(0u, entries[0].BootCodeAddress);
-        Assert.Equal(0u, entries[0].BootCodeEntryPoint);
-        Assert.Equal(0u, entries[0].BootCodeChecksum);
-        Assert.Equal("", entries[0].ProcessorType.ToString());
+        Assert.Equal("Apple", partitionMap[0].Name.ToString());
+        Assert.Equal("Apple_partition_map", partitionMap[0].Type.ToString());
+        Assert.Equal(1u, partitionMap[0].PartitionStartBlock);
+        Assert.Equal(63u, partitionMap[0].PartitionBlockCount);
+        Assert.Equal(0u, partitionMap[0].DataStartBlock);
+        Assert.Equal(63u, partitionMap[0].DataBlockCount);
+        Assert.Equal(ApplePartitionMapStatus.Valid | ApplePartitionMapStatus.Allocated | ApplePartitionMapStatus.InUse | ApplePartitionMapStatus.Readable | ApplePartitionMapStatus.Writable, partitionMap[0].StatusFlags);
+        Assert.Equal(0u, partitionMap[0].BootCodeStartBlock);
+        Assert.Equal(0u, partitionMap[0].BootCodeBlockCount);
+        Assert.Equal(0u, partitionMap[0].BootCodeAddress);
+        Assert.Equal(0u, partitionMap[0].BootCodeEntryPoint);
+        Assert.Equal(0u, partitionMap[0].BootCodeChecksum);
+        Assert.Equal("", partitionMap[0].ProcessorType.ToString());
 
         // Entry 1: Apple_Driver
-        Assert.Equal("Macintosh", entries[1].Name.ToString());
-        Assert.Equal("Apple_Driver", entries[1].Type.ToString());
-        Assert.Equal(64u, entries[1].PartitionStartBlock);
-        Assert.Equal(32u, entries[1].PartitionBlockCount);
-        Assert.Equal(0u, entries[1].DataStartBlock);
-        Assert.Equal(32u, entries[1].DataBlockCount);
-        Assert.Equal(ApplePartitionMapStatus.Valid | ApplePartitionMapStatus.Allocated | ApplePartitionMapStatus.InUse | ApplePartitionMapStatus.Bootable | ApplePartitionMapStatus.Readable | ApplePartitionMapStatus.Writable | ApplePartitionMapStatus.BootCodePositionIndependent, entries[1].StatusFlags);
-        Assert.Equal(0u, entries[1].BootCodeStartBlock);
-        Assert.Equal(4898u, entries[1].BootCodeBlockCount);
-        Assert.Equal(0u, entries[1].BootCodeAddress);
-        Assert.Equal(0u, entries[1].BootCodeEntryPoint);
-        Assert.Equal(48326u, entries[1].BootCodeChecksum);
-        Assert.Equal("68000", entries[1].ProcessorType.ToString());
+        Assert.Equal("Macintosh", partitionMap[1].Name.ToString());
+        Assert.Equal("Apple_Driver", partitionMap[1].Type.ToString());
+        Assert.Equal(64u, partitionMap[1].PartitionStartBlock);
+        Assert.Equal(32u, partitionMap[1].PartitionBlockCount);
+        Assert.Equal(0u, partitionMap[1].DataStartBlock);
+        Assert.Equal(32u, partitionMap[1].DataBlockCount);
+        Assert.Equal(ApplePartitionMapStatus.Valid | ApplePartitionMapStatus.Allocated | ApplePartitionMapStatus.InUse | ApplePartitionMapStatus.Bootable | ApplePartitionMapStatus.Readable | ApplePartitionMapStatus.Writable | ApplePartitionMapStatus.BootCodePositionIndependent, partitionMap[1].StatusFlags);
+        Assert.Equal(0u, partitionMap[1].BootCodeStartBlock);
+        Assert.Equal(4898u, partitionMap[1].BootCodeBlockCount);
+        Assert.Equal(0u, partitionMap[1].BootCodeAddress);
+        Assert.Equal(0u, partitionMap[1].BootCodeEntryPoint);
+        Assert.Equal(48326u, partitionMap[1].BootCodeChecksum);
+        Assert.Equal("68000", partitionMap[1].ProcessorType.ToString());
 
         // Entry 2: Apple_HFS
-        Assert.Equal("MacOS", entries[2].Name.ToString());
-        Assert.Equal("Apple_HFS", entries[2].Type.ToString());
-        Assert.Equal(96u, entries[2].PartitionStartBlock);
-        Assert.Equal(20000u, entries[2].PartitionBlockCount);
-        Assert.Equal(0u, entries[2].DataStartBlock);
-        Assert.Equal(20000u, entries[2].DataBlockCount);
-        Assert.Equal(ApplePartitionMapStatus.Valid | ApplePartitionMapStatus.Allocated | ApplePartitionMapStatus.InUse | ApplePartitionMapStatus.Readable | ApplePartitionMapStatus.Writable | ApplePartitionMapStatus.OSSpecific1, entries[2].StatusFlags);
-        Assert.Equal(0u, entries[2].BootCodeStartBlock);
-        Assert.Equal(0u, entries[2].BootCodeBlockCount);
-        Assert.Equal(0u, entries[2].BootCodeAddress);
-        Assert.Equal(0u, entries[2].BootCodeEntryPoint);
-        Assert.Equal(0u, entries[2].BootCodeChecksum);
-        Assert.Equal("", entries[2].ProcessorType.ToString());
+        Assert.Equal("MacOS", partitionMap[2].Name.ToString());
+        Assert.Equal("Apple_HFS", partitionMap[2].Type.ToString());
+        Assert.Equal(96u, partitionMap[2].PartitionStartBlock);
+        Assert.Equal(20000u, partitionMap[2].PartitionBlockCount);
+        Assert.Equal(0u, partitionMap[2].DataStartBlock);
+        Assert.Equal(20000u, partitionMap[2].DataBlockCount);
+        Assert.Equal(ApplePartitionMapStatus.Valid | ApplePartitionMapStatus.Allocated | ApplePartitionMapStatus.InUse | ApplePartitionMapStatus.Readable | ApplePartitionMapStatus.Writable | ApplePartitionMapStatus.OSSpecific1, partitionMap[2].StatusFlags);
+        Assert.Equal(0u, partitionMap[2].BootCodeStartBlock);
+        Assert.Equal(0u, partitionMap[2].BootCodeBlockCount);
+        Assert.Equal(0u, partitionMap[2].BootCodeAddress);
+        Assert.Equal(0u, partitionMap[2].BootCodeEntryPoint);
+        Assert.Equal(0u, partitionMap[2].BootCodeChecksum);
+        Assert.Equal("", partitionMap[2].ProcessorType.ToString());
 
         // Entry 3: Apple_Free
-        Assert.Equal("Extra", entries[3].Name.ToString());
-        Assert.Equal("Apple_Free", entries[3].Type.ToString());
-        Assert.Equal(20096u, entries[3].PartitionStartBlock);
-        Assert.Equal(136274u, entries[3].PartitionBlockCount);
-        Assert.Equal(0u, entries[3].DataStartBlock);
-        Assert.Equal(136274u, entries[3].DataBlockCount);
-        Assert.Equal(ApplePartitionMapStatus.Valid | ApplePartitionMapStatus.Allocated | ApplePartitionMapStatus.InUse | ApplePartitionMapStatus.Readable | ApplePartitionMapStatus.Writable, entries[3].StatusFlags);
-        Assert.Equal(0u, entries[3].BootCodeStartBlock);
-        Assert.Equal(0u, entries[3].BootCodeBlockCount);
-        Assert.Equal(0u, entries[3].BootCodeAddress);
-        Assert.Equal(0u, entries[3].BootCodeEntryPoint);
-        Assert.Equal(0u, entries[3].BootCodeChecksum);
-        Assert.Equal("", entries[3].ProcessorType.ToString());
+        Assert.Equal("Extra", partitionMap[3].Name.ToString());
+        Assert.Equal("Apple_Free", partitionMap[3].Type.ToString());
+        Assert.Equal(20096u, partitionMap[3].PartitionStartBlock);
+        Assert.Equal(136274u, partitionMap[3].PartitionBlockCount);
+        Assert.Equal(0u, partitionMap[3].DataStartBlock);
+        Assert.Equal(136274u, partitionMap[3].DataBlockCount);
+        Assert.Equal(ApplePartitionMapStatus.Valid | ApplePartitionMapStatus.Allocated | ApplePartitionMapStatus.InUse | ApplePartitionMapStatus.Readable | ApplePartitionMapStatus.Writable, partitionMap[3].StatusFlags);
+        Assert.Equal(0u, partitionMap[3].BootCodeStartBlock);
+        Assert.Equal(0u, partitionMap[3].BootCodeBlockCount);
+        Assert.Equal(0u, partitionMap[3].BootCodeAddress);
+        Assert.Equal(0u, partitionMap[3].BootCodeEntryPoint);
+        Assert.Equal(0u, partitionMap[3].BootCodeChecksum);
+        Assert.Equal("", partitionMap[3].ProcessorType.ToString());
 
         // Verify Hfs Disk
         stream.Seek(0, SeekOrigin.Begin);

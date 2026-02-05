@@ -28,9 +28,9 @@ public class HfsDisk
         if (ApplePartitionMap.IsApplePartitionMap(stream, 0))
         {
             var partitionMap = new ApplePartitionMap(stream, 0);
-            foreach (var partitionEntry in partitionMap.Entries)
+            foreach (var partitionEntry in partitionMap)
             {
-                if (partitionEntry.Type == ApplePartitionMapIdentifiers.AppleHFS)
+                if (partitionEntry.Type.Equals("Apple_HFS"u8))
                 {
                     // Found the HFS partition - add a volume for it.
                     var hfsStartOffset = (long)partitionEntry.PartitionStartBlock * 512;
