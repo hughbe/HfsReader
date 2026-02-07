@@ -75,10 +75,17 @@ public readonly struct HfsCatalogKey : IBTKey<HfsCatalogKey, HfsCatalogKeyCompar
             // Name string
             // Contains an ASCII string with end-of-string character
             // Contains the name of the file or directory
-            Name = SpanUtilities.ReadPascalString31(data.Slice(offset, 32));
+            var nameLength = data[offset];
+            offset += 1;
+
+            // Clamp to maximum allowed size to handle corrupt data gracefully
+            var actualNameLength = Math.Min(nameLength, KeySize - 6);
+            Name = new String31(data.Slice(offset, actualNameLength));
+            offset += actualNameLength;
         }
 
         bytesRead = 1 + KeySize;
+        Debug.Assert(offset <= bytesRead, "Offset after reading HfsCatalogKey should match bytesRead.");
         Debug.Assert(bytesRead <= data.Length, "Did not read more bytes than available in HfsCatalogKey.");
     }
 

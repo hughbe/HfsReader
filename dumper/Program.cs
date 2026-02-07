@@ -128,7 +128,7 @@ sealed class ExtractCommand : AsyncCommand<ExtractSettings>
         }
     }
 
-    private static void TrySetTimestamps(string path, DateTime creationDate, DateTime modificationDate)
+    private static void TrySetTimestamps(string path, HfsTimestamp creationDate, HfsTimestamp modificationDate)
     {
         try
         {

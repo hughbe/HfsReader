@@ -1,7 +1,6 @@
 using System.Buffers.Binary;
 using System.Diagnostics;
 using System.Drawing;
-using HfsReader.Utilities;
 
 namespace HfsReader;
 
@@ -38,17 +37,17 @@ public readonly struct HfsFolderRecord
     /// <summary>
     /// Gets the creation date and time.
     /// </summary>
-    public DateTime CreationDate { get; }
+    public HfsTimestamp CreationDate { get; }
 
     /// <summary>
     /// Gets the content modification date and time.
     /// </summary>
-    public DateTime ContentModificationDate { get; }
+    public HfsTimestamp ContentModificationDate { get; }
 
     /// <summary>
     /// Gets the backup date and time.
     /// </summary>
-    public DateTime BackupDate { get; }
+    public HfsTimestamp BackupDate { get; }
 
     /// <summary>
     /// Gets the folder information.
@@ -98,18 +97,18 @@ public readonly struct HfsFolderRecord
 
         // Creation date and time
         // Contains a HFS timestamp in local time
-        CreationDate = SpanUtilities.ReadMacOSTimestamp(data[offset..]);
-        offset += 4;
+        CreationDate = new HfsTimestamp(data[offset..]);
+        offset += HfsTimestamp.Size;
 
         // (content) modification date and time
         // Contains a HFS timestamp in local time
-        ContentModificationDate = SpanUtilities.ReadMacOSTimestamp(data[offset..]);
-        offset += 4;
+        ContentModificationDate = new HfsTimestamp(data[offset..]);
+        offset += HfsTimestamp.Size;
 
         // Backup date and time
         // Contains a HFS timestamp in local time
-        BackupDate = SpanUtilities.ReadMacOSTimestamp(data[offset..]);
-        offset += 4;
+        BackupDate = new HfsTimestamp(data[offset..]);
+        offset += HfsTimestamp.Size;
 
         // Folder information
         // See section: HFS folder information

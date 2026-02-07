@@ -1,6 +1,5 @@
 using System.Buffers.Binary;
 using System.Diagnostics;
-using HfsReader.Utilities;
 
 namespace HfsReader;
 
@@ -72,17 +71,17 @@ public struct HfsFileRecord
     /// <summary>
     /// Gets the creation date and time.
     /// </summary>
-    public DateTime CreationDate { get; }
+    public HfsTimestamp CreationDate { get; }
 
     /// <summary>
     /// Gets the modification date and time.
     /// </summary>
-    public DateTime ModificationDate { get; }
+    public HfsTimestamp ModificationDate { get; }
 
     /// <summary>
     /// Gets the backup date and time.
     /// </summary>
-    public DateTime BackupDate { get; }
+    public HfsTimestamp BackupDate { get; }
 
     /// <summary>
     /// Gets the extended file information.
@@ -175,18 +174,18 @@ public struct HfsFileRecord
 
         // Creation date and time
         // Contains a HFS timestamp in local time
-        CreationDate = SpanUtilities.ReadMacOSTimestamp(data[offset..]);
-        offset += 4;
+        CreationDate = new HfsTimestamp(data[offset..]);
+        offset += HfsTimestamp.Size;
 
         // (content) modification date and time
         // Contains a HFS timestamp in local time
-        ModificationDate = SpanUtilities.ReadMacOSTimestamp(data[offset..]);
-        offset += 4;
+        ModificationDate = new HfsTimestamp(data[offset..]);
+        offset += HfsTimestamp.Size;
 
         // Backup date and time
         // Contains a HFS timestamp in local time
-        BackupDate = SpanUtilities.ReadMacOSTimestamp(data[offset..]);
-        offset += 4;
+        BackupDate = new HfsTimestamp(data[offset..]);
+        offset += HfsTimestamp.Size;
 
         // Extended file information
         ExtendedFileInformation = new HfsExtendedFileInformation(data.Slice(offset, HfsExtendedFileInformation.Size));
