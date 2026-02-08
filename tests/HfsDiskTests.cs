@@ -9,6 +9,13 @@ public class HfsDiskTests
     #region Disk Loading Tests
 
     [Theory]
+    [InlineData("macintoshrepository.org/24254-mactech-vol-1-12-1-17/01-Toast 5.0.2 HFS Optimizer.img")]
+    [InlineData("archive.org/details/cdrom-golden-orchard-12/03-GO-Main.img")]
+    [InlineData("archive.org/details/cdrom-golden-orchard-12/05-GO-Misc16bit.img")]
+    [InlineData("archive.org/details/cdrom-golden-orchard-12/06-GO-Programming.img")]
+    [InlineData("archive.org/details/cdrom-golden-orchard-12/07-GO-Disks.img")]
+    [InlineData("archive.org/details/cdrom-golden-orchard-12/08-GO-Applications.img")]
+    [InlineData("archive.org/details/cdrom-golden-orchard-12/09-GO-G.S..img")]
     [InlineData("hfs.dsk")]
     [InlineData("Apple II Setup.dsk")]
     [InlineData("Microsoft Excel 1.03.dsk")]
@@ -147,15 +154,39 @@ public class HfsDiskTests
             
             if (file.FileRecord.DataForkSize != 0)
             {
-                using var outputStream = File.Create(filePath + ".data");
+                var dataPath = GetUniquePath(filePath + ".data");
+                using var outputStream = File.Create(dataPath);
                 volume.GetFileData(file, outputStream, HfsForkType.DataFork);
             }
 
             if (file.FileRecord.ResourceForkSize != 0)
             {
-                using var outputStream = File.Create(filePath + ".res");
+                var resPath = GetUniquePath(filePath + ".res");
+                using var outputStream = File.Create(resPath);
                 volume.GetFileData(file, outputStream, HfsForkType.ResourceFork);
             }
+        }
+    }
+
+    private static string GetUniquePath(string basePath)
+    {
+        if (!File.Exists(basePath) && !Directory.Exists(basePath))
+        {
+            return basePath;
+        }
+
+        var dir = Path.GetDirectoryName(basePath) ?? string.Empty;
+        var name = Path.GetFileName(basePath);
+
+        var i = 1;
+        while (true)
+        {
+            var candidate = Path.Combine(dir, $"{name} ({i})");
+            if (!File.Exists(candidate) && !Directory.Exists(candidate))
+            {
+                return candidate;
+            }
+            i++;
         }
     }
 

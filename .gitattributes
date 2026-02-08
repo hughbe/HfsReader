@@ -1,0 +1,8 @@
+06-GO-Programming.img filter=lfs diff=lfs merge=lfs -text
+07-GO-Disks.img filter=lfs diff=lfs merge=lfs -text
+09-GO-G.s..img filter=lfs diff=lfs merge=lfs -text
+01-Toast filter=lfs diff=lfs merge=lfs -text
+5.0.2 filter=lfs diff=lfs merge=lfs -text
+HFS filter=lfs diff=lfs merge=lfs -text
+Optimizer.img filter=lfs diff=lfs merge=lfs -text
+01-Toast[[:space:]]5.0.2[[:space:]]HFS[[:space:]]Optimizer.img filter=lfs diff=lfs merge=lfs -text
