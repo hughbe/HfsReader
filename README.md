@@ -9,7 +9,7 @@ HfsReader is a .NET library for reading classic Macintosh HFS disk images and ex
 - Detect Apple partition maps and locate HFS partitions inside disk images.
 - Read master directory block and initialize the HFS catalog B-Tree.
 - Enumerate directory contents (files and folders) from the catalog.
-- Read file data and resource forks with correct extent handling (first 3 extents supported).
+- Read file data and resource forks with full extent handling, including extents overflow support.
 - Low-level access to B-Tree and catalog structures for advanced inspection.
 
 ---
@@ -52,7 +52,7 @@ foreach (var node in volume.RootContents())
     if (node is HfsFile file)
     {
         // Read the data fork
-        byte[] data = volume.GetFileData(file, resourceFork: false);
+        byte[] data = volume.GetDataForkData(file);
         Console.WriteLine($"  Data fork size: {data.Length} bytes");
     }
 }
@@ -70,17 +70,27 @@ foreach (var node in volume.RootContents())
 ### HfsVolume
 
 - `HfsVolume(Stream stream, int volumeStartOffset)`: Initialize an HFS volume reader given a stream and the byte offset where the volume begins.
-- `BootBlock`: `HfsBootBlockHeader` — (internal structure; may be available depending on build).
+- `BootBlock`: `HfsBootBlockHeader` — boot block header metadata.
 - `MasterDirectoryBlock`: `HfsMasterDirectoryBlock` — contains allocation block size, catalog extents, and other volume metadata.
-- `CatalogTree`: `BTree` — low-level access to the catalog B-Tree.
+- `CatalogTree`: `BTree<HfsCatalogKey, HfsCatalogKeyComparison>` — low-level access to the catalog B-Tree.
+- `ExtentsOverflowTree`: `BTree<HfsExtentsKey, HfsExtentsKeyComparison>?` — low-level access to the extents overflow B-Tree (null if the volume has no overflow extents).
 - `IEnumerable<HfsNode> RootContents()`: Enumerate top-level entries in the root directory.
 - `IEnumerable<HfsNode> ContentsOfDirectory(HfsDirectory directory)`: Enumerate entries in a given directory.
-- `byte[] GetFileData(HfsFile file, bool resourceFork)`: Read a file fork into a byte array.
-- `int GetFileData(HfsFile file, Stream outputStream, bool resourceFork)`: Write a file fork to a stream and return the number of bytes written.
+- `byte[] GetDataForkData(HfsFile file)`: Read a file's data fork into a byte array.
+- `int GetDataForkData(HfsFile file, Stream outputStream)`: Write a file's data fork to a stream and return the number of bytes written.
+- `byte[] GetResourceForkData(HfsFile file)`: Read a file's resource fork into a byte array.
+- `int GetResourceForkData(HfsFile file, Stream outputStream)`: Write a file's resource fork to a stream and return the number of bytes written.
+- `byte[] GetFileData(HfsFile file, HfsForkType forkType)`: Read a file fork into a byte array.
+- `int GetFileData(HfsFile file, Stream outputStream, HfsForkType forkType)`: Write a file fork to a stream and return the number of bytes written.
+
+### HfsForkType
+
+- `DataFork`: The data fork of a file.
+- `ResourceFork`: The resource fork of a file.
 
 ### HfsNode / HfsFile / HfsDirectory
 
-- `HfsNode`: Base class with `ParentIdentifier` and `Name` properties and an abstract `Identifier`.
+- `HfsNode`: Base class with `ParentIdentifier`, `Name`, and abstract `Identifier` properties.
 - `HfsFile`: Represents a file; exposes `HfsFileRecord FileRecord` for low-level metadata.
 - `HfsDirectory`: Represents a folder; exposes `HfsFolderRecord FolderRecord`.
 
@@ -92,7 +102,7 @@ foreach (var node in volume.RootContents())
 
 ```csharp
 using var outStream = File.Create("resource-fork.bin");
-int written = volume.GetFileData(file, outStream, resourceFork: true);
+int written = volume.GetResourceForkData(file, outStream);
 Console.WriteLine($"Wrote {written} bytes");
 ```
 
@@ -105,7 +115,7 @@ Directly access `HfsVolume.CatalogTree` to traverse B-Tree nodes, examine `BTNod
 ## HFS Structure Notes
 
 - The library reads the master directory block to determine allocation block size and catalog extents.
-- File forks are stored in allocation blocks described by extent records. Currently the implementation reads the first three extents stored in the file record; extents overflow handling (Extents Overflow file) is not implemented and will throw if a file requires more than three extents.
+- File forks are stored in allocation blocks described by extent records. The first three extents are stored in the file record; additional extents are read from the Extents Overflow B-Tree.
 - Catalog records are parsed from the Catalog B-Tree and presented as `HfsFile` and `HfsDirectory` nodes with their names and metadata.
 
 ---

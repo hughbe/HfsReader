@@ -97,6 +97,7 @@ sealed class ExtractCommand : AsyncCommand<ExtractSettings>
             else if (entry is HfsFile file)
             {
                 var basePath = Path.Combine(outputDir.FullName, safeName);
+                basePath = GetUniquePath(basePath);
 
                 bool extractData = !settings.ResourceOnly && file.FileRecord.DataForkSize != 0;
                 bool extractResource = !settings.DataOnly && file.FileRecord.ResourceForkSize != 0;
@@ -125,6 +126,28 @@ sealed class ExtractCommand : AsyncCommand<ExtractSettings>
                     TrySetTimestamps(resPath, file.FileRecord.CreationDate, file.FileRecord.ModificationDate);
                 }
             }
+        }
+    }
+
+    private static string GetUniquePath(string basePath)
+    {
+        if (!File.Exists(basePath) && !Directory.Exists(basePath))
+        {
+            return basePath;
+        }
+
+        var dir = Path.GetDirectoryName(basePath) ?? string.Empty;
+        var name = Path.GetFileName(basePath);
+
+        var i = 1;
+        while (true)
+        {
+            var candidate = Path.Combine(dir, $"{name} ({i})");
+            if (!File.Exists(candidate) && !Directory.Exists(candidate))
+            {
+                return candidate;
+            }
+            i++;
         }
     }
 
