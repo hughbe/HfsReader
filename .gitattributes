@@ -6,3 +6,6 @@
 HFS filter=lfs diff=lfs merge=lfs -text
 Optimizer.img filter=lfs diff=lfs merge=lfs -text
 01-Toast[[:space:]]5.0.2[[:space:]]HFS[[:space:]]Optimizer.img filter=lfs diff=lfs merge=lfs -text
+03-GO-Main.img filter=lfs diff=lfs merge=lfs -text
+08-GO-Applications.img filter=lfs diff=lfs merge=lfs -text
+05-GO-Misc16bit.img filter=lfs diff=lfs merge=lfs -text
