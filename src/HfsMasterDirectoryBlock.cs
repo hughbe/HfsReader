@@ -226,7 +226,7 @@ public readonly struct HfsMasterDirectoryBlock
         AllocationBlockSize = BinaryPrimitives.ReadUInt32BigEndian(data[offset..]);
         offset += 4;
 
-        if (AllocationBlockSize % 512 != 0)
+        if (AllocationBlockSize == 0 || AllocationBlockSize % 512 != 0)
         {
             throw new InvalidDataException("Invalid allocation block size in master directory block.");
         }

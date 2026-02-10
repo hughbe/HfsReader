@@ -115,7 +115,7 @@ public struct HfsBootBlockHeader
     /// <param name="data">The span containing the boot block header data.</param>
     public HfsBootBlockHeader(Span<byte> data)
     {
-        if (data.Length < 141)
+        if (data.Length < Size)
         {
             throw new ArgumentException($"Boot block data must be at least {Size} bytes long.", nameof(data));
         }
