@@ -4,7 +4,7 @@ using System.Diagnostics;
 namespace HfsReader;
 
 /// <summary>
-/// Represents Finder information for an HFS volume.
+/// Represents Finder information for an HFS+ volume.
 /// </summary>
 public readonly struct HfsFinderInformation
 {
@@ -53,58 +53,58 @@ public readonly struct HfsFinderInformation
     /// </summary>
     /// <param name="data">The span containing the Finder information data.</param>
     /// <exception cref="ArgumentException">Thrown when the data length is not equal to the expected size.</exception>
-    public HfsFinderInformation(Span<byte> data)
+    public HfsFinderInformation(ReadOnlySpan<byte> data)
     {
         if (data.Length != Size)
         {
             throw new ArgumentException($"Finder information data must be exactly {Size} bytes long.", nameof(data));
         }
 
+        // Structure documented in https://developer.apple.com/library/archive/technotes/tn/tn1150.html
         int offset = 0;
 
-        // Contains the directory identifier of the directory containing the bootable system.
-        // I.e. "System Folder" in Mac OS 8 or 9, or "/System/Library/CoreServices" in Mac
-        //  OS X.
-        // It is zero if there is no bootable system on the volume. Typically this
-        // value equals the value in entry 3 or 5.
+        // Contains the directory ID of the directory containing the bootable system
+        // (for example, the System Folder in Mac OS 8 or 9, or /System/Library/CoreServices
+        // in Mac OS X). It is zero if there is no bootable system on the volume.
+        // This value is typically equal to either finderInfo[3] or finderInfo[5].
         BootableSystemDirectoryId = BinaryPrimitives.ReadUInt32BigEndian(data[offset..]);
         offset += 4;
 
-        // Contains the parent identifier of the startup application, i.e. "Finder".
-        // The value is zero if the volume is not bootable.
+        // Contains the parent directory ID of the startup application (for example,
+        // Finder), or zero if the volume is not bootable.
         ParentIdentifier = BinaryPrimitives.ReadUInt32BigEndian(data[offset..]);
         offset += 4;
 
-        // Contains the directory identifier of a directory whose window should be
-        // displayed in the Finder when the volume is mounted, or zero if no directory
-        // window should be opened.
-        // In classic Mac OS, this is the first in a linked list of windows to open;
-        // the frOpenChain field of the directory’s Finder Info contains the next
-        // directory ID in the list. The open window list is deprecated. The
-        // Mac OS X Finder will open this directory’s window, but ignores the rest of
-        // the open window list. The Mac OS X Finder does not modify this field.
+        // Contains the directory ID of a directory whose window should be displayed
+        // in the Finder when the volume is mounted, or zero if no directory window
+        // should be opened. In traditional Mac OS, this is the first in a linked
+        // list of windows to open; the frOpenChain field of the directory's Finder
+        // Info contains the next directory ID in the list. The open window list
+        // is deprecated. The Mac OS X Finder will open this directory's window,
+        // but ignores the rest of the open window list. The Mac OS X Finder does
+        // not modify this field.
         MountWindowDirectoryId = BinaryPrimitives.ReadUInt32BigEndian(data[offset..]);
         offset += 4;
 
-        // Contains the directory identifier of a bootable Mac OS 8 or 9 System Folder,
-        // or zero if not available.
+        // Contains the directory ID of a bootable Mac OS 8 or 9 System Folder,
+        // or zero if there isn't one.
         SystemMacOS89DirectoryId = BinaryPrimitives.ReadUInt32BigEndian(data[offset..]);
         offset += 4;
 
-        // Unknown (Reserved)
+        // Reserved.
         Reserved = BinaryPrimitives.ReadUInt32BigEndian(data[offset..]);
         offset += 4;
 
-        // Contains the directory identifier of a bootable Mac OS X system, the
-        // "/System/Library/CoreServices" directory, or zero if not available.
+        // Contains the directory ID of a bootable Mac OS X system (the
+        // /System/Library/CoreServices directory), or zero if there is no bootable
+        // Mac OS X system on the volume.
         SystemMacOSXDirectoryId = BinaryPrimitives.ReadUInt32BigEndian(data[offset..]);
         offset += 4;
 
-        // Used by Mac OS X to store an unique 64-bit volume identifier.
-        // This identifier is used for tracking whether a given volume’s ownership
-        // (user identifier) information should be honored.
-        // These elements may be zero if no such identifier has been created for
-        // the volume.
+        // Used by Mac OS X to contain a 64-bit unique volume identifier. One use
+        // of this identifier is for tracking whether a given volume's ownership
+        // (user ID) information should be honored. These elements may be zero if
+        // no such identifier has been created for the volume.
         SystemVolumeIdentifier = BinaryPrimitives.ReadUInt64BigEndian(data[offset..]);
         offset += 8;
 

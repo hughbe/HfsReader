@@ -244,15 +244,15 @@ sealed class DumpTreeCommand : AsyncCommand<DumpTreeSettings>
         headerTable.AddColumn("Value");
         
         var header = volume.CatalogTree.Header;
-        headerTable.AddRow("Tree Depth", header.TreeDepth.ToString());
+        headerTable.AddRow("Tree Depth", header.Depth.ToString());
         headerTable.AddRow("Root Node Number", header.RootNodeNumber.ToString());
-        headerTable.AddRow("Number of Data Records", header.NumberOfDataRecords.ToString());
+        headerTable.AddRow("Number of Data Records", header.LeafRecords.ToString());
         headerTable.AddRow("First Leaf Node", header.FirstLeafNodeNumber.ToString());
         headerTable.AddRow("Last Leaf Node", header.LastLeafNodeNumber.ToString());
         headerTable.AddRow("Node Size", $"{header.NodeSize} bytes");
         headerTable.AddRow("Maximum Key Size", $"{header.MaximumKeySize} bytes");
-        headerTable.AddRow("Total Nodes", header.NumberOfNodes.ToString());
-        headerTable.AddRow("Free Nodes", header.NumberOfFreeNodes.ToString());
+        headerTable.AddRow("Total Nodes", header.TotalNodes.ToString());
+        headerTable.AddRow("Free Nodes", header.FreeNodes.ToString());
         
         AnsiConsole.Write(headerTable);
         AnsiConsole.WriteLine();
@@ -273,16 +273,16 @@ sealed class DumpTreeCommand : AsyncCommand<DumpTreeSettings>
 
     private static void AddCatalogNodeToTree(HfsVolume volume, IHasTreeNodes parent, BTNode node, int currentDepth, int? maxDepth)
     {
-        var nodeTypeColor = node.Descriptor.NodeType switch
+        var nodeKindColor = node.Descriptor.Kind switch
         {
-            BTNodeType.LeafNode => "green",
-            BTNodeType.IndexNode => "yellow",
-            BTNodeType.HeaderNode => "blue",
-            BTNodeType.MapNode => "magenta",
+            BTNodeKind.Leaf => "green",
+            BTNodeKind.Index => "yellow",
+            BTNodeKind.Header => "blue",
+            BTNodeKind.Map => "magenta",
             _ => "white"
         };
 
-        var nodeLabel = $"[{nodeTypeColor}]Node {node.NodeIndex}[/] [dim](Level {node.Descriptor.NodeLevel}, {node.Descriptor.NodeType}, {node.Descriptor.RecordCount} records)[/]";
+        var nodeLabel = $"[{nodeKindColor}]Node {node.NodeIndex}[/] [dim](Level {node.Descriptor.Level}, {node.Descriptor.Kind}, {node.Descriptor.RecordCount} records)[/]";
         var nodeTree = parent.AddNode(nodeLabel);
 
         if (maxDepth.HasValue && currentDepth >= maxDepth.Value)
@@ -294,7 +294,7 @@ sealed class DumpTreeCommand : AsyncCommand<DumpTreeSettings>
             return;
         }
 
-        if (node.Descriptor.NodeType == BTNodeType.IndexNode)
+        if (node.Descriptor.Kind == BTNodeKind.Index)
         {
             for (int i = 0; i < node.Descriptor.RecordCount; i++)
             {
@@ -323,7 +323,7 @@ sealed class DumpTreeCommand : AsyncCommand<DumpTreeSettings>
                 }
             }
         }
-        else if (node.Descriptor.NodeType == BTNodeType.LeafNode)
+        else if (node.Descriptor.Kind == BTNodeKind.Leaf)
         {
             for (int i = 0; i < node.Descriptor.RecordCount; i++)
             {
@@ -388,15 +388,15 @@ sealed class DumpTreeCommand : AsyncCommand<DumpTreeSettings>
         headerTable.AddColumn("Value");
         
         var header = volume.ExtentsOverflowTree.Header;
-        headerTable.AddRow("Tree Depth", header.TreeDepth.ToString());
+        headerTable.AddRow("Tree Depth", header.Depth.ToString());
         headerTable.AddRow("Root Node Number", header.RootNodeNumber.ToString());
-        headerTable.AddRow("Number of Data Records", header.NumberOfDataRecords.ToString());
+        headerTable.AddRow("Number of Data Records", header.LeafRecords.ToString());
         headerTable.AddRow("First Leaf Node", header.FirstLeafNodeNumber.ToString());
         headerTable.AddRow("Last Leaf Node", header.LastLeafNodeNumber.ToString());
         headerTable.AddRow("Node Size", $"{header.NodeSize} bytes");
         headerTable.AddRow("Maximum Key Size", $"{header.MaximumKeySize} bytes");
-        headerTable.AddRow("Total Nodes", header.NumberOfNodes.ToString());
-        headerTable.AddRow("Free Nodes", header.NumberOfFreeNodes.ToString());
+        headerTable.AddRow("Total Nodes", header.TotalNodes.ToString());
+        headerTable.AddRow("Free Nodes", header.FreeNodes.ToString());
         
         AnsiConsole.Write(headerTable);
         AnsiConsole.WriteLine();
@@ -417,16 +417,16 @@ sealed class DumpTreeCommand : AsyncCommand<DumpTreeSettings>
 
     private static void AddExtentsNodeToTree(HfsVolume volume, IHasTreeNodes parent, BTNode node, int currentDepth, int? maxDepth)
     {
-        var nodeTypeColor = node.Descriptor.NodeType switch
+        var nodeTypeColor = node.Descriptor.Kind switch
         {
-            BTNodeType.LeafNode => "green",
-            BTNodeType.IndexNode => "yellow",
-            BTNodeType.HeaderNode => "blue",
-            BTNodeType.MapNode => "magenta",
+            BTNodeKind.Leaf => "green",
+            BTNodeKind.Index => "yellow",
+            BTNodeKind.Header => "blue",
+            BTNodeKind.Map => "magenta",
             _ => "white"
         };
 
-        var nodeLabel = $"[{nodeTypeColor}]Node {node.NodeIndex}[/] [dim](Level {node.Descriptor.NodeLevel}, {node.Descriptor.NodeType}, {node.Descriptor.RecordCount} records)[/]";
+        var nodeLabel = $"[{nodeTypeColor}]Node {node.NodeIndex}[/] [dim](Level {node.Descriptor.Level}, {node.Descriptor.Kind}, {node.Descriptor.RecordCount} records)[/]";
         var nodeTree = parent.AddNode(nodeLabel);
 
         if (maxDepth.HasValue && currentDepth >= maxDepth.Value)
@@ -438,7 +438,7 @@ sealed class DumpTreeCommand : AsyncCommand<DumpTreeSettings>
             return;
         }
 
-        if (node.Descriptor.NodeType == BTNodeType.IndexNode)
+        if (node.Descriptor.Kind == BTNodeKind.Index)
         {
             for (int i = 0; i < node.Descriptor.RecordCount; i++)
             {
@@ -461,7 +461,7 @@ sealed class DumpTreeCommand : AsyncCommand<DumpTreeSettings>
                 }
             }
         }
-        else if (node.Descriptor.NodeType == BTNodeType.LeafNode)
+        else if (node.Descriptor.Kind == BTNodeKind.Leaf)
         {
             for (int i = 0; i < node.Descriptor.RecordCount; i++)
             {

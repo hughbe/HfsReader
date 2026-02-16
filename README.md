@@ -72,8 +72,8 @@ foreach (var node in volume.RootContents())
 - `HfsVolume(Stream stream, int volumeStartOffset)`: Initialize an HFS volume reader given a stream and the byte offset where the volume begins.
 - `BootBlock`: `HfsBootBlockHeader` — boot block header metadata.
 - `MasterDirectoryBlock`: `HfsMasterDirectoryBlock` — contains allocation block size, catalog extents, and other volume metadata.
-- `CatalogTree`: `BTree<HfsCatalogKey, HfsCatalogKeyComparison>` — low-level access to the catalog B-Tree.
-- `ExtentsOverflowTree`: `BTree<HfsExtentsKey, HfsExtentsKeyComparison>?` — low-level access to the extents overflow B-Tree (null if the volume has no overflow extents).
+- `CatalogTree`: `HfsBTree<HfsCatalogKey, HfsCatalogKeyComparison>` — low-level access to the catalog B-Tree.
+- `ExtentsOverflowTree`: `HfsBTree<HfsExtentsKey, HfsExtentsKeyComparison>?` — low-level access to the extents overflow B-Tree (null if the volume has no overflow extents).
 - `IEnumerable<HfsNode> RootContents()`: Enumerate top-level entries in the root directory.
 - `IEnumerable<HfsNode> ContentsOfDirectory(HfsDirectory directory)`: Enumerate entries in a given directory.
 - `byte[] GetDataForkData(HfsFile file)`: Read a file's data fork into a byte array.
@@ -132,6 +132,7 @@ MIT License.
 - [WozDiskImageReader](https://github.com/hughbe/WozDiskImageReader) - Reader for WOZ (.woz) disk images
 - [DiskCopyReader](https://github.com/hughbe/DiskCopyReader) - Reader for Disk Copy 4.2 (.dc42) images
 - [MfsReader](https://github.com/hughbe/MfsReader) - Reader for MFS (Macintosh File System) volumes
+- [HfsPlusReader](https://github.com/hughbe/HfsPlusReader) - Reader for HFS+ (Hierarchical File System+) volumes
 - [ApplePartitionMapReader](https://github.com/hughbe/ApplePartitionMapReader) - Reader for Apple Partition Map (APM) images
 - [ResourceForkReader](https://github.com/hughbe/ResourceForkReader) - Reader for Macintosh resource forks
 - [BinaryIIReader](https://github.com/hughbe/BinaryIIReader) - Reader for Binary II (.bny, .bxy) archives

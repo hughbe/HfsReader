@@ -13,7 +13,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HfsReader.Tests", "tests\Hf
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "dumper", "dumper", "{A1B2C3D4-E5F6-7890-ABCD-EF1234567890}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HFSDumper", "dumper\HFSDumper.csproj", "{B2C3D4E5-F6A7-8901-BCDE-F23456789012}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HfsDumper", "dumper\HfsDumper.csproj", "{B2C3D4E5-F6A7-8901-BCDE-F23456789012}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "benchmarks", "benchmarks", "{66320409-64EC-F7C5-3DEF-65E7510DAAD1}"
 EndProject

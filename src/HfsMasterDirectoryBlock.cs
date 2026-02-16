@@ -17,12 +17,12 @@ public readonly struct HfsMasterDirectoryBlock
     /// <summary>
     /// Gets the creation date and time of the volume.
     /// </summary>
-    public HfsTimestamp CreationDateTime { get; }
+    public HfsTimestamp CreationDate { get; }
 
     /// <summary>
     /// Gets the modification date and time of the volume.
     /// </summary>
-    public HfsTimestamp ModificationDateTime { get; }
+    public HfsTimestamp ModificationDate { get; }
 
     /// <summary>
     /// Gets the volume attribute flags.
@@ -158,6 +158,7 @@ public readonly struct HfsMasterDirectoryBlock
     /// Initializes a new instance of the <see cref="HfsMasterDirectoryBlock"/> struct from the given data.
     /// </summary>
     /// <param name="data">The span containing the master directory block data.</param>
+    /// <exception cref="ArgumentException">Thrown if the provided data is not at least 512 bytes long.</exception>
     public HfsMasterDirectoryBlock(Span<byte> data)
     {
         if (data.Length < 512)
@@ -175,7 +176,17 @@ public readonly struct HfsMasterDirectoryBlock
         {
             if (Signature == 0xD2D7)
             {
-                throw new InvalidDataException("The provided volume appears to be a Macintosh File System (MFS) volume, which is not supported.");
+                throw new InvalidDataException("The provided volume appears to be a Macintosh File System (MFS) volume, which is not supported. Please use the MfsReader library to read MFS volumes.");
+            }
+
+            if (Signature == 0x482B) // 'H+'
+            {
+                throw new InvalidDataException("The provided volume appears to be an HFS Plus (HFS+) volume, which is not supported. Please use the HfsPlusReader library to read HFS+ volumes.");
+            }
+
+            if (Signature == 0x4858) // 'HX'
+            {
+                throw new InvalidDataException("The provided volume appears to be an HFS Extended (HFSX) volume, which is not supported. Please use the HfsPlusReader library to read HFSX volumes.");
             }
 
             throw new InvalidDataException($"Invalid volume signature 0x{Signature:X4} in master directory block.");
@@ -184,14 +195,14 @@ public readonly struct HfsMasterDirectoryBlock
         // Volume creation date and time
         // Contains a HFS timestamp in local time.
         // The date and time when the volume was created.
-        CreationDateTime = new HfsTimestamp(data[offset..]);
+        CreationDate = new HfsTimestamp(data[offset..]);
         offset += HfsTimestamp.Size;
 
         // Volume modification date and time
         // Contains a HFS timestamp in local time.
         // The date and time when the volume was last modified. This is not necessarily
         // the data and time when the volume was last flushed.
-        ModificationDateTime = new HfsTimestamp(data[offset..]);
+        ModificationDate = new HfsTimestamp(data[offset..]);
         offset += HfsTimestamp.Size;
 
         // Volume attribute flags
@@ -330,6 +341,6 @@ public readonly struct HfsMasterDirectoryBlock
         CatalogFileExtents = new HfsExtentRecord(data.Slice(offset, HfsExtentRecord.Size));
         offset += HfsExtentRecord.Size;
 
-        Debug.Assert(offset <= data.Length);
+        Debug.Assert(offset <= data.Length, "All fields should have been read when parsing the master directory block.");
     }
 }

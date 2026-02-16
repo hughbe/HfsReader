@@ -24,12 +24,12 @@ public class HfsVolume
     /// <summary>
     /// Gets the catalog B-tree of the HFS volume.
     /// </summary>
-    public BTree<HfsCatalogKey, HfsCatalogKeyComparison> CatalogTree { get; }
+    public HfsBTree<HfsCatalogKey, HfsCatalogKeyComparison> CatalogTree { get; }
 
     /// <summary>
     /// Gets the extents overflow B-tree of the HFS volume.
     /// </summary>
-    public BTree<HfsExtentsKey, HfsExtentsKeyComparison>? ExtentsOverflowTree { get; }
+    public HfsBTree<HfsExtentsKey, HfsExtentsKeyComparison>? ExtentsOverflowTree { get; }
 
     /// <summary>
     /// Initializes a new instance of the <see cref="HfsVolume"/> class.

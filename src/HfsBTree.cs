@@ -4,9 +4,9 @@ using System.Text;
 namespace HfsReader;
 
 /// <summary>
-/// Represents a B-tree structure used in Hfs for catalog and extents files.
+/// Represents a B-tree structure used in HFS for catalog and extents files.
 /// </summary>
-public class BTree<TKey, TComparison>
+public class HfsBTree<TKey, TComparison>
     where TKey : IBTKey<TKey, TComparison>
 {
     private readonly Stream _stream;
@@ -33,14 +33,14 @@ public class BTree<TKey, TComparison>
     public Span<byte> BlockBuffer => _blockBuffer;
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="BTree{TKey, TComparison}"/> class.
+    /// Initializes a new instance of the <see cref="HfsBTree{TKey, TComparison}"/> class.
     /// </summary>
     /// <param name="stream">The stream containing the B-tree data.</param>
     /// <param name="streamStartOffset">The start offset of the stream.</param>
     /// <param name="extents">The extents describing the B-tree's location.</param>
     /// <param name="extentsStartBlock">The starting block of the extents.</param>
     /// <param name="allocationBlockSize">The size of an allocation block.</param>
-    public BTree(Stream stream, int streamStartOffset, HfsExtentRecord extents, int extentsStartBlock, uint allocationBlockSize)
+    public HfsBTree(Stream stream, int streamStartOffset, HfsExtentRecord extents, int extentsStartBlock, uint allocationBlockSize)
     {
         _stream = stream;
         _streamStartOffset = streamStartOffset;
@@ -61,8 +61,8 @@ public class BTree<TKey, TComparison>
         
         var headerNode = new BTNode(0, tempBuffer);
 
-        if (headerNode.Descriptor.NodeType != BTNodeType.HeaderNode
-            || headerNode.Descriptor.NodeLevel != 0
+        if (headerNode.Descriptor.Kind != BTNodeKind.Header
+            || headerNode.Descriptor.Level != 0
             || headerNode.Descriptor.PreviousNodeNumber != 0)
         {
             throw new InvalidDataException("Expected B-tree header node.");
@@ -122,9 +122,9 @@ public class BTree<TKey, TComparison>
     {
         BTNode currentNode = RootNode;
 
-        while (currentNode.Descriptor.NodeType != BTNodeType.LeafNode)
+        while (currentNode.Descriptor.Kind != BTNodeKind.Leaf)
         {
-            if (currentNode.Descriptor.NodeType == BTNodeType.IndexNode)
+            if (currentNode.Descriptor.Kind == BTNodeKind.Index)
             {
                 uint? nextNodeIndex = null;
                 for (int i = 0; i < currentNode.Descriptor.RecordCount; i++)
@@ -214,9 +214,9 @@ public class BTree<TKey, TComparison>
 
     private void DumpNodeStructure(BTNode node, int level, StringBuilder sb)
     {
-        sb.AppendLine($"{new string(' ', level * 2)}Node {node.NodeIndex} (Level {node.Descriptor.NodeLevel}, Type {node.Descriptor.NodeType}, Records {node.Descriptor.RecordCount})");
+        sb.AppendLine($"{new string(' ', level * 2)}Node {node.NodeIndex} (Level {node.Descriptor.Level}, Type {node.Descriptor.Kind}, Records {node.Descriptor.RecordCount})");
         
-        if (node.Descriptor.NodeType == BTNodeType.IndexNode)
+        if (node.Descriptor.Kind == BTNodeKind.Index)
         {
             for (int i = 0; i < node.Descriptor.RecordCount; i++)
             {
@@ -230,7 +230,7 @@ public class BTree<TKey, TComparison>
                 DumpNodeStructure(childNode, level + 2, sb);
             }
         }
-        else if (node.Descriptor.NodeType == BTNodeType.LeafNode)
+        else if (node.Descriptor.Kind == BTNodeKind.Leaf)
         {
             for (int i = 0; i < node.Descriptor.RecordCount; i++)
             {

@@ -12,10 +12,10 @@
 ## Architecture
 
 - **HfsDisk** → detects Apple partition maps, creates **HfsVolume** instances
-- **HfsVolume** → reads master directory block, initializes catalog **BTree**
-- **BTree<TKey, TComparison>** → generic B-tree with key interface `IBTKey<TKey, TComparison>`
+- **HfsVolume** → reads master directory block, initializes catalog **HfsBTree**
+- **HfsBTree<TKey, TComparison>** → generic B-tree with key interface `IBTKey<TKey, TComparison>`
 - **HfsNode** → base for **HfsFile** and **HfsDirectory**
-- Data flows: Stream → HfsDisk → HfsVolume → BTree → catalog records → file data via extent chains
+- Data flows: Stream → HfsDisk → HfsVolume → HfsBTree → catalog records → file data via extent chains
 
 ## Build and Test
 
@@ -41,7 +41,7 @@ dotnet run -c Release --project benchmarks/HfsReader.Benchmarks.csproj
 ## Key Files
 
 - [src/HfsMasterDirectoryBlock.cs](src/HfsMasterDirectoryBlock.cs) - exemplar binary parsing pattern
-- [src/BTree.cs](src/BTree.cs) - generic B-tree implementation
+- [src/HfsBTree.cs](src/HfsBTree.cs) - generic B-tree implementation
 - [src/Utilities/SpanUtilities.cs](src/Utilities/SpanUtilities.cs) - timestamp/string parsing helpers
 - [tests/HfsDiskTests.cs](tests/HfsDiskTests.cs) - comprehensive test patterns
 

@@ -84,6 +84,8 @@ public class HfsDiskTests
     [InlineData("Excel 2.2a/Help & Examples.image")]
     [InlineData("Excel 2.2a/Microsoft Excel.image")]
     [InlineData("Excel 2.2a/Tour.image")]
+    [InlineData("mfs/mfs400K.dsk")]
+    [InlineData("hfsplus/blank_9400_hfsplus.dmg")]
     public void Ctor_NotHfs_ThrowsInvalidDataException(string diskName)
     {
         using var stream = File.OpenRead(Path.Combine("Samples", diskName));
